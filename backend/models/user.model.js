@@ -1,5 +1,4 @@
-import mongoose from 'mongoose';
-
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
@@ -27,21 +26,62 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ['customer', 'service_provider'],
-      default: 'customer',
+      enum: ["admin","customer", "service_provider"],
+      default: "customer",
     },
-    profile_picture: {
+    serviceDescription: {
       type: String,
-      required: false,
-      default: 'https://example.com/default-avatar.png',
+      required: function () {
+        return this.role === "service_provider";
+      },
+      ion() {
+        return this.role === "service_provider";
+      },
+    },
+    serviceCategory: {
+      type: [String],
+    
+      required: function () {
+        return this.role === "service_provider";
+      },
+      ion() {
+        return this.role === "service_provider";
+      },
+      default:undefined,
+    },
+    location: {
+      type: String,
+      required: function () {
+        return this.role === "service_provider";
+      },
+      ion() {
+        return this.role === "service_provider";
+      },
     },
     phone: {
       type: String,
+      required: function () {
+        return this.role === "service_provider";
+      },
+      ion() {
+        return this.role === "service_provider";
+      },
       trim: true,
     },
-    is_verified: {
+    image: {
+      type: String,
+      default:undefined,
+      
+    },
+    isVerified: {
       type: Boolean,
       default: false,
+    },
+    status: {
+      type: String,
+      default:undefined,
+      enum: ["pending", "approved", "denied"],
+      default: "pending",
     },
     created_at: {
       type: Date,
@@ -51,11 +91,19 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    verificationToken: {
+      type: String,
+    },
+    resetPasswordToken: {
+      type: String,
+    },
+    resetPasswordExpires: {
+      type: Date,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 export default User;

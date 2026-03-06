@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ["admin","customer", "service_provider"],
+      enum: ["admin", "customer", "service_provider"],
       default: "customer",
     },
     serviceDescription: {
@@ -40,14 +40,14 @@ const userSchema = new mongoose.Schema(
     },
     serviceCategory: {
       type: [String],
-    
+
       required: function () {
         return this.role === "service_provider";
       },
       ion() {
         return this.role === "service_provider";
       },
-      default:undefined,
+      default: undefined,
     },
     location: {
       type: String,
@@ -70,8 +70,7 @@ const userSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      default:undefined,
-      
+      default: undefined,
     },
     isVerified: {
       type: Boolean,
@@ -79,18 +78,12 @@ const userSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      default:undefined,
       enum: ["pending", "approved", "denied"],
-      default: "pending",
+     default: function () {
+        return this.role === "service_provider" ? "pending" : undefined;
+      },
     },
-    created_at: {
-      type: Date,
-      default: Date.now,
-    },
-    updated_at: {
-      type: Date,
-      default: Date.now,
-    },
+
     verificationToken: {
       type: String,
     },

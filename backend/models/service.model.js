@@ -6,7 +6,8 @@ const serviceSchema = new mongoose.Schema({
   description: { type: String, required: true },
   price: { type: Number, required: true },
   category: { type: String, required: true },
-  availability: [{ type: Date }],
+  availability: [{ type: String, enum: ['available', 'unavailable'] }],
+  image: { type: String },
   rating: { type: Number, default: 0 },
 }, { timestamps: true });
 

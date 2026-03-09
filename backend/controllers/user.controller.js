@@ -5,9 +5,9 @@ import bcrypt from "bcryptjs";
 export const getProfile = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const user = await User.findById(userId).select(
-      "-password -verificationToken -resetPasswordToken"
-    ).lean(); 
+    const user = await User.findById(userId)
+      .select("-password -verificationToken -resetPasswordToken")
+      .lean();
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -28,7 +28,6 @@ export const updateProfile = async (req, res) => {
   try {
     const userId = req.user.userId;
     const updates = {};
-
 
     const allowedFields = [
       "firstName",

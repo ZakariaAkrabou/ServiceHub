@@ -34,9 +34,6 @@ const userSchema = new mongoose.Schema(
       required: function () {
         return this.role === "service_provider";
       },
-      ion() {
-        return this.role === "service_provider";
-      },
     },
     serviceCategory: {
       type: [String],
@@ -78,9 +75,9 @@ const userSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "approved", "denied"],
-     default: function () {
-        return this.role === "service_provider" ? "pending" : undefined;
+      enum: ["pending", "approved", "rejected"],
+      required: function () {
+        return this.role === "service_provider";
       },
     },
 

@@ -9,4 +9,5 @@ router.get("/verify-email/:token", verifyEmail);
 router.post("/login", loginUser, loginValidator);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
+
 export default router;

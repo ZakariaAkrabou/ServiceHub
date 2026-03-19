@@ -7,6 +7,8 @@ const router = express.Router();
 
 router.get('/allusers', authenticated, isAdmin, adminController.allUsers);
 
-router.patch("/providers/:userId/status", authenticated, isAdmin, adminController.updateProviderStatus);    
+router.patch("/providers/:userId/status", authenticated, isAdmin, adminController.updateProviderStatus);   
+
+router.delete("/users/:userId", authenticated, isAdmin, adminController.deleteUser);
 
 export default router;

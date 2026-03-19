@@ -33,3 +33,19 @@ export const updateProviderStatus = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+export const deleteUser = async (req,res) => {
+  
+  try{
+    const userId = req.params.userId;
+
+    await User.findByIdAndDelete(userId);
+
+    return res.status(200).json({ message: "User deleted successfully" });
+
+  }
+
+  catch(error){
+    return res.status(500).json({ message: "Server error" });
+  }
+}

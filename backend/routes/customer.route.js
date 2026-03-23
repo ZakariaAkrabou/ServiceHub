@@ -11,7 +11,7 @@ import {
 const router = express.Router();
 
 
-router.get('/search-services', authenticated, searchServices);
+router.get('/search-services', searchServices);
 
 router.post('/create-bookings', authenticated, createBooking);
 

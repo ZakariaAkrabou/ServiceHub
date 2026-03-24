@@ -3,22 +3,82 @@ import Booking from "../models/booking.model.js";
 
 export const searchServices = async (req, res) => {
   try {
-    const { category, location, rating } = req.query;
-    const filter = {};
+    const { keyword } = req.query;
 
-    if (category) filter.category = { $regex: category, $options: "i" };
-    if (location) filter.location = { $regex: location, $options: "i" };
-    if (rating) filter.rating = { $gte: parseFloat(rating) };
+    if (!keyword) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Keyword is required." });
+    }
+    const services = await Service.find({
+      $or: [
+        { name: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } },
+        { category: { $regex: keyword, $options: "i" } },
+      ],
+    }).populate("provider_id", "name email");
 
-    const services = await Service.find(filter).populate(
-      "provider_id",
-      "name email",
-    );
+    if (services.length === 0) {
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "No services found matching your search criteria.",
+        });
+    }
     res
       .status(200)
       .json({ success: true, count: services.length, data: services });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const filterServices = async (req, res) => {
+  try {
+    const {
+      category,
+      minPrice,
+      maxPrice,
+      rating,
+      availability,
+    } = req.query;
+
+    let filter = {};
+
+    if (category) {
+      filter.category = category;
+    }
+
+
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = Number(minPrice);
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+
+    if (rating) {
+      filter.rating = { $gte: Number(rating) };
+    }
+
+    if (availability) {
+      filter.availability = availability;
+    }
+
+    const services = await Service.find(filter)
+      .populate("provider_id", "firstName lastName")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      results: services.length,
+      data: services,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
@@ -65,7 +125,7 @@ export const createBooking = async (req, res) => {
 export const getBookings = async (req, res) => {
   try {
     const userId = req.user.userId;
-    
+
     let bookings;
 
     if (req.user.role === "customer") {
@@ -103,12 +163,10 @@ export const updateBookingStatus = async (req, res) => {
 
     const validStatuses = ["pending", "confirmed", "completed", "cancelled"];
     if (!validStatuses.includes(status))
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: `Invalid status. Allowed values: ${validStatuses.join(", ")}`,
-        });
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status. Allowed values: ${validStatuses.join(", ")}`,
+      });
 
     const booking = await Booking.findById(id);
     if (!booking)
@@ -138,13 +196,11 @@ export const updateBookingStatus = async (req, res) => {
     booking.status = status;
     await booking.save();
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: `Status updated: ${status}`,
-        data: booking,
-      });
+    res.status(200).json({
+      success: true,
+      message: `Status updated: ${status}`,
+      data: booking,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

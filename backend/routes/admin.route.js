@@ -11,4 +11,8 @@ router.patch("/providers/:userId/status", authenticated, isAdmin, adminControlle
 
 router.delete("/users/:userId", authenticated, isAdmin, adminController.deleteUser);
 
+router.get("/bookings", authenticated, isAdmin, adminController.getAllBookings);
+
+router.get("/bookings/filter", authenticated, isAdmin, adminController.filtreBookings);
+
 export default router;

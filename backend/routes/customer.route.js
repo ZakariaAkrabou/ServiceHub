@@ -1,24 +1,21 @@
 import express from 'express';
 import { authenticated } from '../middlewares/authMiddleware.js';  
-import { isAdmin } from '../middlewares/roleMiddleware.js';        
-import {
-  searchServices,
-  createBooking,
-  getBookings,
-  updateBookingStatus,
-} from '../controllers/customer.controller.js';
+     
+import * as customerController from '../controllers/customer.controller.js';
 
 const router = express.Router();
 
 
-router.get('/services', authenticated, searchServices);
+router.get('/search-services', customerController.searchServices);
 
-router.post('/bookings', authenticated, createBooking);
+router.get('/filter-services', customerController.filterServices);
+
+router.post('/create-bookings', authenticated, customerController.createBooking);
 
 
-router.get('/bookings', authenticated, getBookings);
+router.get('/all-bookings', authenticated, customerController.getBookings);
 
 
-router.patch('/bookings/:id', authenticated, updateBookingStatus);
+router.patch('/bookings/status/:id', authenticated, customerController.updateBookingStatus);
 
 export default router;

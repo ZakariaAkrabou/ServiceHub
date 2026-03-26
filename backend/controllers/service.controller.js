@@ -47,3 +47,60 @@ export const getServiceById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+export const updateService = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const service = await Service.findById(id);
+
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+
+    if (service.provider_id.toString() !== req.user.userId) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    if (req.file && req.file.cloudinaryUrl) {
+      req.body.image = req.file.cloudinaryUrl;
+    }
+
+    const updatedService = await Service.findByIdAndUpdate(
+      id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json(updatedService);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteService = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const service = await Service.findById(id);
+
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+
+    if (service.provider_id.toString() !== req.user.userId) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    await service.deleteOne();
+
+    res.status(200).json({
+      message: "Service deleted successfully",
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

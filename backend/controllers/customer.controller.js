@@ -54,7 +54,7 @@ export const createBooking = async (req, res) => {
 export const getBookings = async (req, res) => {
   try {
     const userId = req.user.userId; 
-    console.log("userId =", userId); 
+
     let bookings;
 
     if (req.user.role === 'customer') {

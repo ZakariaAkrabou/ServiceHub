@@ -1,5 +1,6 @@
 import Service from "../models/service.model.js";
 import Booking from "../models/booking.model.js";
+import Review from "../models/review.model.js";
 
 export const searchServices = async (req, res) => {
   try {
@@ -200,6 +201,100 @@ export const updateBookingStatus = async (req, res) => {
       success: true,
       message: `Status updated: ${status}`,
       data: booking,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+  
+};
+// Review 
+ 
+export const leaveReview = async (req, res) => {
+  try {
+    const customerId = req.user.userId;
+    const { booking_id, rating, review } = req.body;
+ 
+    if (!booking_id || rating === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: "booking_id and rating are required.",
+      });
+    }
+ 
+    const booking = await Booking.findById(booking_id);
+    if (!booking)
+      return res
+        .status(404)
+        .json({ success: false, message: "Booking not found." });
+ 
+    if (String(booking.customer_id) !== String(customerId))
+      return res
+        .status(403)
+        .json({ success: false, message: "Access denied." });
+ 
+    if (booking.status !== "completed")
+      return res.status(400).json({
+        success: false,
+        message: "You can only review a completed booking.",
+      });
+ 
+    const existing = await Review.findOne({ booking_id });
+    if (existing)
+      return res.status(409).json({
+        success: false,
+        message: "You have already submitted a review for this booking.",
+      });
+ 
+    const newReview = await Review.create({
+      booking_id,
+      customer_id: customerId,
+      service_id: booking.service_id,
+      rating,
+      review: review || "",
+    });
+ 
+    res.status(201).json({
+      success: true,
+      message: "Review submitted successfully.",
+      data: newReview,
+    });
+  } catch (error) {
+    if (error.code === 11000)
+      return res.status(409).json({
+        success: false,
+        message: "You have already submitted a review for this booking.",
+      });
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+ 
+export const getServiceReviews = async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+ 
+    const service = await Service.findById(serviceId);
+    if (!service)
+      return res
+        .status(404)
+        .json({ success: false, message: "Service not found." });
+ 
+    const reviews = await Review.find({ service_id: serviceId })
+      .populate("customer_id", "firstName lastName")
+      .sort({ createdAt: -1 });
+ 
+    const totalReviews = reviews.length;
+    const averageRating =
+      totalReviews > 0
+        ? Math.round(
+            (reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews) * 10
+          ) / 10
+        : 0;
+ 
+    res.status(200).json({
+      success: true,
+      count: totalReviews,
+      averageRating,
+      data: reviews,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

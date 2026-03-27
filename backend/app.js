@@ -7,6 +7,7 @@ import userRoutes from './routes/user.route.js';
 import adminRoutes from "./routes/admin.route.js"
 import cors from 'cors';
 import customerRoutes from './routes/customer.route.js'; 
+import reviewRoutes from "./routes/review.route.js";
 
 
 dotenv.config();
@@ -26,6 +27,7 @@ app.use('/api/services', serviceRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/customer', customerRoutes); 
+app.use('/api/reviews', reviewRoutes);
 
 
 

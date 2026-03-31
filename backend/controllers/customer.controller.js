@@ -1,5 +1,6 @@
 import Service from "../models/service.model.js";
 import Booking from "../models/booking.model.js";
+import Notification from "../models/notification.model.js";
 
 export const searchServices = async (req, res) => {
   try {
@@ -42,6 +43,7 @@ export const filterServices = async (req, res) => {
       maxPrice,
       rating,
       availability,
+      location,
     } = req.query;
 
     let filter = {};
@@ -63,6 +65,10 @@ export const filterServices = async (req, res) => {
 
     if (availability) {
       filter.availability = availability;
+    }
+
+    if(location){
+      filter.location = { $regex: location, $options: "i" };
     }
 
     const services = await Service.find(filter)
@@ -89,14 +95,16 @@ export const createBooking = async (req, res) => {
 
     const service = await Service.findById(service_id);
     if (!service)
-      return res
-        .status(404)
-        .json({ success: false, message: "Service not found." });
+      return res.status(404).json({ success: false, message: "Service not found." });
 
     if (new Date(booking_time) < new Date())
-      return res
-        .status(400)
-        .json({ success: false, message: "The date must be in the future." });
+      return res.status(400).json({ success: false, message: "The date must be in the future." });
+
+    if (String(service.provider_id) === String(userId))
+      return res.status(400).json({
+        success: false,
+        message: "You cannot book your own service.",
+      });
 
     const conflict = await Booking.findOne({
       service_id,
@@ -104,9 +112,7 @@ export const createBooking = async (req, res) => {
       status: { $in: ["pending", "confirmed"] },
     });
     if (conflict)
-      return res
-        .status(409)
-        .json({ success: false, message: "This slot is already booked." });
+      return res.status(409).json({ success: false, message: "This slot is already booked." });
 
     const booking = await Booking.create({
       customer_id: userId,
@@ -114,9 +120,23 @@ export const createBooking = async (req, res) => {
       booking_time: new Date(booking_time),
     });
 
-    res
-      .status(201)
-      .json({ success: true, message: "Booking created.", data: booking });
+    const notification = await Notification.create({
+      user_id: service.provider_id,
+      booking_id: booking._id,
+      type: "booking_created",
+      message: `New booking request for "${service.name}" at ${new Date(
+        booking_time
+      ).toLocaleString()}`,
+    });
+
+    const io = req.app.get("io");
+    io.to(service.provider_id.toString()).emit("newBooking", {
+      booking_id: booking._id,
+      message: notification.message,
+      type: notification.type,
+    });
+
+    res.status(201).json({ success: true, message: "Booking created.", data: booking });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -155,53 +175,5 @@ export const getBookings = async (req, res) => {
   }
 };
 
-export const updateBookingStatus = async (req, res) => {
-  try {
-    const userId = req.user.userId;
-    const { id } = req.params;
-    const { status } = req.body;
 
-    const validStatuses = ["pending", "confirmed", "completed", "cancelled"];
-    if (!validStatuses.includes(status))
-      return res.status(400).json({
-        success: false,
-        message: `Invalid status. Allowed values: ${validStatuses.join(", ")}`,
-      });
 
-    const booking = await Booking.findById(id);
-    if (!booking)
-      return res
-        .status(404)
-        .json({ success: false, message: "Booking not found." });
-
-    if (req.user.role === "customer") {
-      if (status !== "cancelled")
-        return res
-          .status(403)
-          .json({ success: false, message: "A customer can only cancel." });
-      if (String(booking.customer_id) !== String(userId))
-        return res
-          .status(403)
-          .json({ success: false, message: "Access denied." });
-    }
-
-    if (req.user.role === "provider") {
-      const service = await Service.findById(booking.service_id);
-      if (!service || String(service.provider_id) !== String(userId))
-        return res
-          .status(403)
-          .json({ success: false, message: "Access denied." });
-    }
-
-    booking.status = status;
-    await booking.save();
-
-    res.status(200).json({
-      success: true,
-      message: `Status updated: ${status}`,
-      data: booking,
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};

@@ -6,9 +6,10 @@ import { isProvider } from '../middlewares/roleMiddleware.js';
 
 const router = express.Router();
 
-router.get('/all', authenticated, serviceController.getAllServices);
+router.get('/all',  serviceController.getAllServices);
 router.post('/create', authenticated, uploadMiddleware, isProvider, serviceController.createService);
-router.get('/service/:id', authenticated, isProvider, serviceController.getServiceById);
+router.get('/service/:id', authenticated, serviceController.getServiceById);
 router.delete('/delete/:id', authenticated, isProvider, serviceController.deleteService);
+router.patch('/bookings/status/:id', authenticated, isProvider ,serviceController.updateBookingStatus);
 
 export default router;

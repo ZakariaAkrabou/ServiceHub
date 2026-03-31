@@ -16,6 +16,6 @@ router.post('/create-bookings', authenticated, customerController.createBooking)
 router.get('/all-bookings', authenticated, customerController.getBookings);
 
 
-router.patch('/bookings/status/:id', authenticated, customerController.updateBookingStatus);
+
 
 export default router;

@@ -1,4 +1,5 @@
 import Service from '../models/service.model.js';
+import Booking from '../models/booking.model.js';
 
 export const getAllServices = async (req, res) => {
   try {
@@ -104,3 +105,188 @@ export const deleteService = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// all things related to booking , status updates and notifications for provider
+
+export const updateBookingStatus = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const validStatuses = ["pending", "confirmed", "completed", "cancelled"];
+
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status. Allowed: ${validStatuses.join(", ")}`,
+      });
+    }
+
+    const booking = await Booking.findById(id);
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found.",
+      });
+    }
+
+    
+    if (booking.status === status) {
+      return res.status(400).json({
+        success: false,
+        message: "Booking already has this status.",
+      });
+    }
+
+    if (req.user.role === "customer") {
+      if (status !== "cancelled") {
+        return res.status(403).json({
+          success: false,
+          message: "Customer can only cancel bookings.",
+        });
+      }
+
+      if (String(booking.customer_id) !== String(userId)) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied.",
+        });
+      }
+
+      if (booking.status !== "pending") {
+        return res.status(400).json({
+          success: false,
+          message: "You can only cancel pending bookings.",
+        });
+      }
+    }
+
+  
+    let service;
+
+    if (req.user.role === "provider") {
+      service = await Service.findById(booking.service_id);
+
+      if (!service || String(service.provider_id) !== String(userId)) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied.",
+        });
+      }
+
+      if (booking.status === "pending") {
+        if (!["confirmed", "cancelled"].includes(status)) {
+          return res.status(400).json({
+            success: false,
+            message: "From pending, only confirmed or cancelled allowed.",
+          });
+        }
+      } else if (booking.status === "confirmed") {
+        if (status !== "completed") {
+          return res.status(400).json({
+            success: false,
+            message: "From confirmed, only completed allowed.",
+          });
+        }
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "This booking can no longer be updated.",
+        });
+      }
+    }
+
+
+    booking.status = status;
+
+    if (status === "confirmed") booking.confirmedAt = new Date();
+    if (status === "completed") booking.completedAt = new Date();
+    if (status === "cancelled") booking.cancelledAt = new Date();
+
+    await booking.save();
+
+    
+    const io = req.app.get("io");
+
+    let notifications = [];
+
+    if (req.user.role === "provider") {
+      let message = "";
+
+      if (status === "confirmed") {
+        message = "Your booking has been accepted.";
+      } else if (status === "completed") {
+        message = "Your booking has been completed.";
+      } else if (status === "cancelled") {
+        message = "Your booking was rejected by the provider.";
+      }
+
+      const notif = await Notification.create({
+        user_id: booking.customer_id,
+        booking_id: booking._id,
+        type: "booking_updated",
+        message,
+      });
+
+      notifications.push({
+        userId: booking.customer_id,
+        data: notif,
+      });
+    }
+
+
+    if (req.user.role === "customer") {
+      const serviceData = await Service.findById(booking.service_id);
+
+      const notif = await Notification.create({
+        user_id: serviceData.provider_id,
+        booking_id: booking._id,
+        type: "booking_cancelled",
+        message: "A customer cancelled a booking.",
+      });
+
+      notifications.push({
+        userId: serviceData.provider_id,
+        data: notif,
+      });
+    }
+
+    
+    notifications.forEach((n) => {
+      io.to(n.userId.toString()).emit("bookingUpdate", {
+        booking_id: n.data.booking_id,
+        message: n.data.message,
+        type: n.data.type,
+      });
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Booking status updated to ${status}`,
+      data: booking,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getBookingsForService = async (req, res) => {
+  try{
+    const userId = req.user.userId;
+
+       const notifications = await Notification.find({ user_id: userId })
+      .sort({ createdAt: -1 })
+      .populate("booking_id");
+
+      res.status(200).json({success: true, data: notifications});
+  }
+  catch(error){
+    res.status(500).json({success: false, message: error.message});
+  }
+}
+

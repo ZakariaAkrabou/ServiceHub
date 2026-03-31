@@ -6,7 +6,9 @@ import serviceRoutes from './routes/service.route.js';
 import userRoutes from './routes/user.route.js';
 import adminRoutes from "./routes/admin.route.js"
 import cors from 'cors';
-import customerRoutes from './routes/customer.route.js'; 
+import customerRoutes from './routes/customer.route.js';
+import { initSocket } from './config/socket.js';
+import http from 'http';
 
 
 dotenv.config();
@@ -27,9 +29,13 @@ app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/customer', customerRoutes); 
 
-
-
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = http.createServer(app);
+const io = initSocket(server);
+
+app.set('io', io);
+
+
+server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

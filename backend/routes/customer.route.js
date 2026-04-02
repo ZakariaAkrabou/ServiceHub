@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticated } from '../middlewares/authMiddleware.js';  
-     
+import { isCustomer } from '../middlewares/roleMiddleware.js';
 import * as customerController from '../controllers/customer.controller.js';
 
 const router = express.Router();
@@ -18,6 +18,11 @@ router.post('/create-bookings', authenticated, customerController.createBooking)
 router.get('/all-bookings', authenticated, customerController.getBookings);
 router.patch('/cancel-bookings/:id', authenticated, customerController.cancelBooking);
 
+
+router.post("/review", authenticated, customerController.leaveReview);
+
+
+router.get("/reviews/:serviceId", customerController.getServiceReviews);
 
 
 

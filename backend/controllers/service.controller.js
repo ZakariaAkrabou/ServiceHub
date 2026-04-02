@@ -5,8 +5,15 @@ export const getAllServices = async (req, res) => {
   try {
     
     const services = await Service.find({ provider_id: req.user.userId })
-      .populate('provider_id', 'first_name last_name email');
-    res.status(200).json(services);
+      .populate('provider_id', 'firstName last_name email')
+      .lean();
+
+      if (services.length === 0) {
+        return res.status(200).json({ success: false, message: "You have not created any services yet." });
+      }
+
+      return res.status(200).json({ success: true, data: services });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -71,7 +78,7 @@ export const updateService = async (req, res) => {
     const updatedService = await Service.findByIdAndUpdate(
       id,
       req.body,
-      { new: true, runValidators: true }
+      { returnDocument: 'after', runValidators: true }
     );
 
     res.status(200).json(updatedService);
@@ -275,18 +282,36 @@ export const updateBookingStatus = async (req, res) => {
   }
 };
 
-export const getBookingsForService = async (req, res) => {
-  try{
-    const userId = req.user.userId;
+export const getProviderBookings = async (req, res) => {
+  try {
+    const providerId = req.user?.userId;
+    if (!providerId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
 
-       const notifications = await Notification.find({ user_id: userId })
-      .sort({ createdAt: -1 })
-      .populate("booking_id");
 
-      res.status(200).json({success: true, data: notifications});
+    const services = await Service.find({ provider_id: providerId }).select("_id").lean();
+    const serviceIds = services.map(s => s._id);
+
+
+    const bookings = await Booking.find({ service_id: { $in: serviceIds } })
+      .populate("customer_id", "firstName lastName email") 
+      .populate("service_id", "name price category")       
+      .sort({ booking_time: -1 }) 
+      .lean(); 
+
+      if (bookings.length === 0) {
+        return res.status(200).json({ success: true, message: "No bookings found for your services.", });
+      }
+
+    return res.status(200).json({
+      success: true,
+      count: bookings.length,
+      data: bookings
+    });
+  } catch (error) {
+    console.error("Provider bookings error:", error);
+    return res.status(500).json({ success: false, message: error.message });
   }
-  catch(error){
-    res.status(500).json({success: false, message: error.message});
-  }
-}
+};
 

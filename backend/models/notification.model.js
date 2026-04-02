@@ -14,7 +14,7 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["booking_created","booking_updated", "new_booking"],
+      enum: [ "new_booking","booking_updated", "booking_cancelled"],
       required: true,
     },
     message: { type: String, required: true },

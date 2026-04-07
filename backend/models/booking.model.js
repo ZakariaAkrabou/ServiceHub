@@ -1,28 +1,33 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
   {
     customer_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     service_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Service',
+      ref: "Service",
       required: true,
     },
-    booking_time : {
+    booking_time: {
       type: Date,
       required: true,
     },
     status: {
       type: String,
-      enum: ['pending', 'confirmed', 'completed', 'cancelled'],
-      default: 'pending',
+      enum: ["pending", "confirmed", "completed", "cancelled"],
+      default: "pending",
+    },
+    chosenContactMethod: {
+      type: String,
+      enum: ["email", "phone", "chat"],
+      default: null,
     },
   },
-  { timestamps: true } 
+  { timestamps: true },
 );
 
-export default mongoose.model('Booking', bookingSchema);
+export default mongoose.model("Booking", bookingSchema);

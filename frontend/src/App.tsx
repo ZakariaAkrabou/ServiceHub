@@ -1,15 +1,16 @@
-import './App.css'
+import "./App.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import AdminRoutes from "./routes/AdminRoutes";
 
 function App() {
-
-
   return (
-    <>
-      
-      <h1 className="text-3xl font-bold underline text-red-500" >Vite + React</h1>
-      
-    </>
-  )
+    <Router>
+      <Routes>
+        <Route path="/admin/*" element={<AdminRoutes />} />
+       
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;

@@ -89,25 +89,7 @@ export default function Login() {
             keep your platform running smoothly — all from one place.
           </p>
 
-          <div className="flex gap-8 pt-4">
-            {[
-              { value: "2.4k+", label: "Providers" },
-              { value: "98%", label: "Uptime" },
-              { value: "12k+", label: "Orders" },
-            ].map((stat) => (
-              <div key={stat.label}>
-                <p className="text-2xl font-bold" style={{ color: "#081D3A" }}>
-                  {stat.value}
-                </p>
-                <p
-                  className="text-xs mt-0.5"
-                  style={{ color: "#17171A" }}
-                >
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </div>
+        
         </div>
 
         <p
@@ -231,7 +213,7 @@ export default function Login() {
                     Password
                   </label>
                   <a
-                    href="#"
+                    href="/admin/forgot-password" 
                     className="text-xs font-medium transition-colors duration-150 hover:underline"
                     style={{ color: "#081D3A" }}
                   >

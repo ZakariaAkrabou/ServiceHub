@@ -2,7 +2,7 @@ import { ChevronDown } from "lucide-react";
 
 export default function Header() {
   return (
-    <header className="flex items-center justify-between w-full h-[88px] mb-2 shrink-0">
+    <header className="flex items-center justify-between w-full h-22 mb-2 shrink-0">
       <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
       
       <div className="flex items-center gap-4">

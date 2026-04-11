@@ -233,7 +233,7 @@ export default function ForgotPassword() {
               </form>
             ) : (
               <div className="flex flex-col items-center justify-center py-6 text-center">
-                <div 
+                <div
                   className="w-16 h-16 rounded-full flex items-center justify-center mb-6"
                   style={{ backgroundColor: "rgba(246, 227, 4, 0.2)" }}
                 >
@@ -241,7 +241,7 @@ export default function ForgotPassword() {
                 </div>
                 <h3 className="text-xl font-bold mb-2" style={{ color: "#000000" }}>Check your inbox</h3>
                 <p className="text-sm mb-6" style={{ color: "#17171A" }}>
-                  We've sent a password reset link to <br/>
+                  We've sent a password reset link to <br />
                   <span className="font-semibold">{email}</span>
                 </p>
                 <button

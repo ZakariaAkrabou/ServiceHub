@@ -4,9 +4,9 @@ import Header from "../components/admin/Header";
 
 export default function AdminLayouts() {
   return (
-    <div 
+    <div
       className="flex h-screen overflow-hidden p-[26px] gap-[30px]"
-      style={{ 
+      style={{
         backgroundColor: "#F2F5F9",
         fontFamily: "'Inter', sans-serif"
       }}

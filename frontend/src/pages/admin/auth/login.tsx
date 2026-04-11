@@ -89,7 +89,7 @@ export default function Login() {
             keep your platform running smoothly — all from one place.
           </p>
 
-        
+
         </div>
 
         <p
@@ -213,7 +213,7 @@ export default function Login() {
                     Password
                   </label>
                   <a
-                    href="/admin/forgot-password" 
+                    href="/admin/forgot-password"
                     className="text-xs font-medium transition-colors duration-150 hover:underline"
                     style={{ color: "#081D3A" }}
                   >

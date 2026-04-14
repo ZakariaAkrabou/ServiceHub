@@ -16,7 +16,7 @@ export default function Sidebar() {
 
   const navigation = [
     { name: "Dashboard", href: "/admin/dashboard", icon: LayoutGrid },
-    { name: "Users", href: "/admin/users", icon: Users },
+    { name: "Users", href: "/admin/customers", icon: Users },
     { name: "Providers", href: "/admin/providers", icon: HandCoins },
     { name: "Bookings", href: "/admin/bookings", icon: FileText },
     { name: "Services", href: "/admin/services", icon: Briefcase },

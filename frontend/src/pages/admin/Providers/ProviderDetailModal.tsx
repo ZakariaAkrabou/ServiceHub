@@ -1,4 +1,4 @@
-import { X, Star, Briefcase, CheckCircle2, XCircle, MapPin, Phone, Mail, Calendar, Award } from "lucide-react";
+import { X, Star, Briefcase, CheckCircle2, XCircle, Mail, Calendar } from "lucide-react";
 import { type Provider, statusStyle } from "./data/providersMockData";
 
 interface ProviderDetailModalProps {
@@ -12,172 +12,146 @@ export default function ProviderDetailModal({ provider, onClose, onStatusChange 
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-[#081D3A]/40 backdrop-blur-md transition-opacity"
+        className="absolute inset-0 bg-[#081D3A]/30 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
       />
       
-      {/* Modal Container */}
-      <div className="relative bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-300 border border-white/20">
+      {/* Compact Modal Container */}
+      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
         
-        {/* Banner header */}
-        <div className="h-32 w-full bg-gradient-to-r from-[#081D3A] to-[#17171A] relative">
-          <button 
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-all backdrop-blur-sm"
-          >
-            <X className="w-5 h-5" />
-          </button>
+        {/* Header Ribbon */}
+        <div className="h-24 bg-gray-50 border-b border-gray-100 flex items-start justify-between px-6 pt-6">
+           <div className="flex items-center gap-4">
+              <div 
+                className="w-16 h-16 rounded-2xl flex items-center justify-center text-[#081D3A] font-bold text-2xl shadow-sm border-2 border-white -mt-2" 
+                style={{ backgroundColor: "#F6E304" }}
+              >
+                {provider.name.charAt(0)}
+              </div>
+              <div className="pb-2">
+                <h3 className="text-xl font-bold text-[#081D3A] leading-tight">{provider.name}</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-xs font-mono text-gray-500">{provider.id}</p>
+                  <span className="text-gray-300">&bull;</span>
+                  <span className={`inline-flex shrink-0 items-center justify-center text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${statusStyle[provider.status]}`}>
+                    {provider.status}
+                  </span>
+                </div>
+              </div>
+           </div>
+           
+           <button 
+             onClick={onClose}
+             className="p-2 bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-900 rounded-full transition-colors"
+           >
+             <X className="w-4 h-4" />
+           </button>
         </div>
 
-        {/* Modal Body */}
-        <div className="px-8 pb-8 pt-0 overflow-y-auto max-h-[70vh]">
-          {/* Avatar floating over banner */}
-          <div className="flex flex-col sm:flex-row gap-6 relative -mt-12 sm:-mt-16 items-start">
-            <div 
-              className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl flex items-center justify-center text-[#081D3A] font-bold text-4xl sm:text-5xl shadow-xl border-4 border-white shrink-0" 
-              style={{ backgroundColor: "#F6E304" }}
-            >
-              {provider.name.charAt(0)}
+        {/* Body Content - No scrolling needed */}
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Column 1: Info Stack */}
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-3 text-sm text-gray-700">
+                <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center border border-gray-100 shrink-0">
+                  <Briefcase className="w-4 h-4 text-gray-500" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Specialty</p>
+                  <p className="font-semibold text-gray-900">{provider.specialty}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 text-sm text-gray-700">
+                <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center border border-gray-100 shrink-0">
+                  <Mail className="w-4 h-4 text-gray-500" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Email</p>
+                  <p className="font-semibold text-gray-900">{provider.email}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 text-sm text-gray-700">
+                <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center border border-gray-100 shrink-0">
+                  <Calendar className="w-4 h-4 text-gray-500" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Joined Date</p>
+                  <p className="font-semibold text-gray-900">{provider.joinedDate}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Column 2: Stats & Notes Box */}
+            <div className="flex flex-col gap-4">
+              <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Global Rating</p>
+                  <div className="flex items-center gap-1.5">
+                    <Star className={`w-4 h-4 ${provider.rating > 0 ? "fill-amber-400 text-amber-400" : "text-gray-300"}`} />
+                    <span className="font-bold text-xl text-gray-900">{provider.rating > 0 ? provider.rating : "N/A"}</span>
+                  </div>
+                </div>
+                <div className="h-10 w-px bg-gray-200"></div>
+                <div>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Jobs Done</p>
+                  <p className="font-bold text-xl text-[#081D3A]">{provider.jobsCompleted}</p>
+                </div>
+              </div>
+
+              {provider.status === "Pending" ? (
+                 <div className="bg-amber-50 border border-amber-100 rounded-xl p-3.5 text-[13px] text-amber-800 font-medium">
+                   Awaiting manual review for platform access. Check credentials before approving.
+                 </div>
+              ) : (
+                 <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5 text-[13px] text-gray-600 font-medium">
+                   Provider is currently marked as <strong>{provider.status}</strong> on the platform.
+                 </div>
+              )}
             </div>
             
-            <div className="pt-2 sm:pt-20 flex-1">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-[#081D3A] tracking-tight">{provider.name}</h3>
-                  <p className="text-sm font-medium text-gray-500 mt-1">{provider.id}</p>
-                </div>
-                <span className={`inline-flex items-center justify-center text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider ${statusStyle[provider.status]}`}>
-                  {provider.status}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Left Column: Contact & Basic Info */}
-            <div className="flex flex-col gap-6">
-              <div>
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Contact Information</h4>
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Mail className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm font-medium">{provider.email}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Phone className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm font-medium">+1 (555) 123-4567</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <MapPin className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm font-medium">New York, NY</span>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Professional Details</h4>
-                <div className="flex flex-col gap-4">
-                  <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0">
-                      <Briefcase className="w-5 h-5 text-[#081D3A]" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 font-medium">Specialty</p>
-                      <p className="text-sm font-bold text-gray-900">{provider.specialty}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0">
-                      <Calendar className="w-5 h-5 text-[#081D3A]" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 font-medium">Joined Date</p>
-                      <p className="text-sm font-bold text-gray-900">{provider.joinedDate}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column: Performance & Stats */}
-            <div className="flex flex-col gap-6">
-              <div>
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Performance Metrics</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gradient-to-br from-[#081D3A] to-[#17171A] p-5 rounded-2xl text-white relative overflow-hidden group hover:shadow-lg transition-all">
-                    <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:scale-110 group-hover:opacity-30 transition-all duration-500">
-                      <Star className="w-16 h-16" />
-                    </div>
-                    <p className="text-white/60 text-xs font-medium uppercase tracking-wider mb-1">Rating</p>
-                    <div className="flex items-end gap-2">
-                      <span className="text-3xl font-bold text-[#F6E304]">{provider.rating > 0 ? provider.rating : "N/A"}</span>
-                      <span className="text-white/60 text-sm font-medium pb-1">/ 5.0</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all">
-                    <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Jobs Done</p>
-                    <div className="flex items-center gap-3">
-                      <span className="text-3xl font-bold text-gray-900">{provider.jobsCompleted}</span>
-                      <Award className="w-6 h-6 text-emerald-500" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="h-full bg-[#F3F3F3] p-5 rounded-2xl border border-gray-200/60 relative">
-                <div className="absolute top-0 left-0 w-1 h-full bg-[#F6E304] rounded-l-2xl"/>
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Background Check</h4>
-                <p className="text-sm text-gray-600 leading-relaxed font-medium">
-                  Identity verified. Clean criminal record. All mandatory certifications for "{provider.specialty}" are uploaded and validated by the system.
-                </p>
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* Modal Footer */}
-        <div className="px-8 py-5 bg-gray-50/80 border-t border-gray-100 flex flex-col sm:flex-row items-center gap-4 justify-between backdrop-blur-xl">
-          <span className="text-xs font-medium text-gray-500 hidden sm:inline-block">Manage provider operational status</span>
+        {/* Footer Actions */}
+        <div className="bg-white border-t border-gray-100 p-4 px-6 flex items-center justify-between">
+          <span className="text-xs font-semibold text-gray-400 hidden sm:block uppercase tracking-wider">
+            Manage Provider
+          </span>
           
-          <div className="flex w-full sm:w-auto items-center justify-end gap-3">
+          <div className="flex items-center justify-end gap-3 w-full sm:w-auto">
             {provider.status === "Pending" ? (
               <>
                 <button 
                   onClick={() => { onStatusChange(provider.id, "Rejected"); onClose(); }}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-xl transition-all border border-red-100"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-5 py-2.5 text-sm font-semibold text-red-700 bg-white border border-red-200 hover:bg-red-50 rounded-xl transition-all"
                 >
-                  <XCircle className="w-4 h-4" strokeWidth={2.5} /> Reject
+                  <XCircle className="w-4 h-4" /> Reject
                 </button>
                 <button 
                   onClick={() => { onStatusChange(provider.id, "Active"); onClose(); }}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold text-emerald-700 bg-emerald-400 hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-200 rounded-xl transition-all border border-emerald-500"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-5 py-2.5 text-sm font-semibold text-white bg-[#081D3A] hover:bg-[#081D3A]/90 rounded-xl transition-all shadow-sm"
                 >
-                  <CheckCircle2 className="w-4 h-4" strokeWidth={2.5} /> Accept Provider
+                  <CheckCircle2 className="w-4 h-4" /> Approve
                 </button>
               </>
             ) : (
-              <>
-                <button 
-                  onClick={onClose}
-                  className="px-5 py-2.5 text-sm font-bold text-gray-700 bg-white hover:bg-gray-100 border border-gray-200 rounded-xl transition-all"
-                >
-                  Cancel
-                </button>
-                <select 
-                  className="px-5 py-2.5 text-sm font-bold bg-[#081D3A] text-white rounded-xl outline-none hover:bg-[#081D3A]/90 transition-all cursor-pointer focus:ring-4 focus:ring-[#081D3A]/20 shadow-lg shadow-[#081D3A]/20"
-                  value={provider.status}
-                  onChange={(e) => onStatusChange(provider.id, e.target.value as any)}
-                >
-                  <option value="Active">Change to Active</option>
-                  <option value="Pending">Change to Pending</option>
-                  <option value="Rejected">Change to Rejected</option>
-                </select>
-              </>
+              <select 
+                className="w-full sm:w-auto px-5 py-2.5 text-sm font-semibold bg-white border border-gray-200 text-[#081D3A] rounded-xl outline-none hover:border-gray-300 focus:border-[#081D3A] transition-all cursor-pointer shadow-sm appearance-none pr-8 bg-no-repeat bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5z%22%20fill%3D%22%239CA3AF%22%2F%3E%3C%2Fsvg%3E')] bg-position-[right_8px_center]"
+                value={provider.status}
+                onChange={(e) => { onStatusChange(provider.id, e.target.value as any); }}
+              >
+                <option value="Active">Set Active</option>
+                <option value="Pending">Set Pending</option>
+                <option value="Rejected">Set Rejected</option>
+              </select>
             )}
           </div>
         </div>
+        
       </div>
     </div>
   );

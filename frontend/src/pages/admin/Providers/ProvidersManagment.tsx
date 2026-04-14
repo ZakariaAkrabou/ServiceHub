@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { 
   Search, 
-  MoreVertical, 
   Star,
   CheckCircle2,
   XCircle,
@@ -17,14 +16,14 @@ export default function ProvidersManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   
-  // Pagination
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Modal State
+
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
 
-  // Handler for changing status
+
   const handleStatusChange = (id: string, newStatus: "Active" | "Rejected" | "Pending") => {
     setProviders((prev) => 
       prev.map((provider) => {
@@ -49,13 +48,13 @@ export default function ProvidersManagement() {
     return matchesSearch && matchesStatus;
   });
 
-  // Pagination Logic
+  
   const totalItems = filteredProviders.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentProviders = filteredProviders.slice(startIndex, startIndex + itemsPerPage);
 
-  // Reset pagination if filters change
+ 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
@@ -68,7 +67,7 @@ export default function ProvidersManagement() {
 
   return (
     <div className="flex flex-col gap-6 pb-6 min-h-full">
-      {/* ── Page header ── */}
+      
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Providers</h1>
@@ -76,7 +75,7 @@ export default function ProvidersManagement() {
         </div>
       </div>
 
-      {/* ── Filters and Search ── */}
+      
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="relative w-full sm:max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -104,11 +103,11 @@ export default function ProvidersManagement() {
         </div>
       </div>
 
-      {/* ── Providers List (Responsive) ── */}
+    
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col shrink-0 mb-6">
         <div className="overflow-x-visible">
           
-          {/* Mobile Card View */}
+          
           <div className="md:hidden flex flex-col divide-y divide-gray-100">
             {currentProviders.map((provider) => (
               <div key={provider.id} className="p-4 flex flex-col gap-4 group hover:bg-gray-50/50 transition-colors">
@@ -124,7 +123,7 @@ export default function ProvidersManagement() {
                   </div>
                   <button 
                     onClick={() => setSelectedProvider(provider)}
-                    className="p-1 text-gray-400 hover:text-[#081D3A] hover:bg-gray-100 rounded-lg transition-colors"
+                    className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-50 hover:bg-[#F6E304] text-[#081D3A] transition-all border border-gray-200/60 shadow-sm"
                   >
                     <Eye className="w-4 h-4" />
                   </button>
@@ -159,7 +158,7 @@ export default function ProvidersManagement() {
                   </div>
                 </div>
                 
-                {/* Mobile Actions */}
+                
                 <div className="flex items-center gap-2 pt-1">
                   {provider.status === "Pending" ? (
                     <>
@@ -178,13 +177,13 @@ export default function ProvidersManagement() {
                     </>
                   ) : (
                     <select 
-                      className="w-full text-xs font-medium bg-white border border-gray-200 text-gray-700 rounded-xl outline-none py-2 px-3 hover:bg-gray-50 transition-colors focus:ring-2 focus:ring-[#081D3A]"
+                      className="w-full text-xs font-semibold bg-gray-50 border border-gray-200 text-[#081D3A] rounded-xl outline-none py-2 px-3 hover:border-gray-300 transition-all focus:ring-1 focus:ring-[#081D3A] appearance-none focus:bg-white"
                       value={provider.status}
                       onChange={(e) => handleStatusChange(provider.id, e.target.value as any)}
                     >
-                      <option value="Active">Mark Active</option>
-                      <option value="Pending">Mark Pending</option>
-                      <option value="Rejected">Mark Rejected</option>
+                      <option value="Active">Set Active</option>
+                      <option value="Pending">Set Pending</option>
+                      <option value="Rejected">Set Rejected</option>
                     </select>
                   )}
                 </div>
@@ -204,7 +203,7 @@ export default function ProvidersManagement() {
             )}
           </div>
 
-          {/* Desktop Table View */}
+          
           <table className="w-full text-sm hidden md:table">
             <thead>
               <tr className="text-left text-xs text-gray-400 border-b border-gray-100 bg-gray-50/50">
@@ -260,15 +259,7 @@ export default function ProvidersManagement() {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <button 
-                        onClick={() => setSelectedProvider(provider)}
-                        className="p-2 text-gray-400 hover:text-[#081D3A] hover:bg-gray-100 rounded-lg transition-colors border border-transparent hover:border-gray-200"
-                        title="View Details"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-
+                    <div className="flex items-center justify-end gap-2.5">
                       {provider.status === "Pending" ? (
                         <>
                           <button 
@@ -288,18 +279,22 @@ export default function ProvidersManagement() {
                         </>
                       ) : (
                         <select 
-                          className="text-xs font-medium bg-white border border-gray-200 text-gray-700 rounded-lg outline-none py-1.5 px-2 hover:bg-gray-50 transition-colors cursor-pointer focus:ring-2 focus:ring-[#081D3A]"
+                          className="text-xs font-semibold bg-gray-50 border border-gray-200 text-[#081D3A] rounded-lg outline-none py-1.5 px-3 hover:border-gray-300 transition-all cursor-pointer focus:ring-1 focus:ring-[#081D3A] appearance-none focus:bg-white"
                           value={provider.status}
                           onChange={(e) => handleStatusChange(provider.id, e.target.value as any)}
                         >
-                          <option value="Active">Mark Active</option>
-                          <option value="Pending">Mark Pending</option>
-                          <option value="Rejected">Mark Rejected</option>
+                          <option value="Active">Set Active</option>
+                          <option value="Pending">Set Pending</option>
+                          <option value="Rejected">Set Rejected</option>
                         </select>
                       )}
                       
-                      <button className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors ml-1">
-                        <MoreVertical className="w-4 h-4" />
+                      <button 
+                        onClick={() => setSelectedProvider(provider)}
+                        className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-50 hover:bg-[#F6E304] text-[#081D3A] transition-all border border-gray-200/60 shadow-sm"
+                        title="View Details"
+                      >
+                        <Eye className="w-4 h-4" />
                       </button>
                     </div>
                   </td>

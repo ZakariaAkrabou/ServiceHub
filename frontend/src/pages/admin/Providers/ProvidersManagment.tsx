@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { 
   Search, 
-  Star,
-  CheckCircle2,
   XCircle,
   Briefcase,
   Eye,
+  Phone,
 } from "lucide-react";
 
 import { type Provider, initialProvidersList, statusStyle } from "./data/providersMockData";
@@ -66,284 +65,254 @@ export default function ProvidersManagement() {
   };
 
   return (
-    <div className="flex flex-col gap-6 pb-6 min-h-full">
+    <div className="flex flex-col gap-8 pb-10 min-h-screen bg-[#F8FAFC]">
       
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Providers</h1>
-          <p className="text-sm text-gray-400 mt-0.5">View and manage service provider applications</p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-2">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-black text-[#081D3A] tracking-tight">Providers</h1>
+          <p className="text-sm font-medium text-slate-500">Manage and verify your professional service network</p>
         </div>
       </div>
 
-      
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="relative w-full sm:max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input 
-            type="text"
-            placeholder="Search by name, ID, or specialty..."
-            value={searchTerm}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#F6E304] focus:border-transparent transition-all"
-          />
+      <div className="grid grid-cols-1 gap-8">
+        {/* ── Search & Filter Bar ── */}
+        <div className="bg-white rounded-4xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-6 flex flex-col lg:flex-row gap-6 items-center justify-between">
+          <div className="relative w-full lg:max-w-xl group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#081D3A] transition-colors" />
+            <input 
+              type="text"
+              placeholder="Search by name, ID, or specialty..."
+              value={searchTerm}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-transparent rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#081D3A]/10 focus:bg-white focus:border-[#081D3A] transition-all"
+            />
+          </div>
+          
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+            <div className="flex items-center gap-3 w-full sm:w-auto bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Filter by Status</span>
+              <select 
+                value={statusFilter}
+                onChange={(e) => handleFilterChange(e.target.value)}
+                className="bg-transparent text-sm font-bold text-[#081D3A] outline-none cursor-pointer pr-4"
+              >
+                <option value="All">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Pending">Pending</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <span className="text-sm font-medium text-gray-500 whitespace-nowrap hidden sm:block">Filter by Status:</span>
-          <select 
-            value={statusFilter}
-            onChange={(e) => handleFilterChange(e.target.value)}
-            className="w-full sm:w-auto px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#081D3A] transition-all cursor-pointer hover:bg-gray-50"
-          >
-            <option value="All">All Statuses</option>
-            <option value="Active">Active</option>
-            <option value="Pending">Pending</option>
-            <option value="Rejected">Rejected</option>
-          </select>
-        </div>
-      </div>
 
-    
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col shrink-0 mb-6">
-        <div className="overflow-x-visible">
+        {/* ── Main List Container ── */}
+        <div className="bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(8,29,58,0.05)] border border-slate-100 overflow-hidden">
           
-          
-          <div className="md:hidden flex flex-col divide-y divide-gray-100">
+          {/* Mobile View (Cards) */}
+          <div className="md:hidden divide-y divide-slate-50">
             {currentProviders.map((provider) => (
-              <div key={provider.id} className="p-4 flex flex-col gap-4 group hover:bg-gray-50/50 transition-colors">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-700 font-bold shrink-0" style={{ backgroundColor: "#F3F3F3" }}>
+              <div key={provider.id} className="p-6 space-y-6 hover:bg-slate-50/50 transition-colors">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-[#F6E304] flex items-center justify-center text-[#081D3A] font-black text-xl shadow-inner border border-white/50">
                       {provider.name.charAt(0)}
                     </div>
-                    <div>
-                      <p className="font-semibold text-gray-900 group-hover:text-[#081D3A] transition-colors">{provider.name}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{provider.email}</p>
+                    <div className="space-y-1">
+                      <h3 className="font-bold text-slate-900">{provider.name}</h3>
+                      <p className="text-xs font-semibold text-slate-400">{provider.email}</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setSelectedProvider(provider)}
-                    className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-50 hover:bg-[#F6E304] text-[#081D3A] transition-all border border-gray-200/60 shadow-sm"
+                    className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#081D3A] hover:bg-[#F6E304]/20 transition-all border border-slate-100"
                   >
-                    <Eye className="w-4 h-4" />
+                    <Eye className="w-5 h-5" />
                   </button>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-3 text-xs bg-gray-50/50 p-3 rounded-xl border border-gray-100">
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-gray-400 font-medium">Status</span>
-                    <span
-                      className={`w-max text-[10px] font-semibold px-2 py-0.5 rounded-full ${statusStyle[provider.status]}`}
-                    >
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100/50 space-y-1">
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Role</p>
+                    <p className="text-[10px] font-bold text-[#081D3A]">Service Provider</p>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100/50 space-y-1">
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Status</p>
+                    <span className={`inline-block px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${statusStyle[provider.status]}`}>
                       {provider.status}
                     </span>
                   </div>
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-gray-400 font-medium">Specialty</span>
-                    <span className="font-medium text-gray-700 flex items-center gap-1.5">
-                      <Briefcase className="w-3 h-3 text-gray-400" /> {provider.specialty}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-1.5 mt-1">
-                    <span className="text-gray-400 font-medium">Performance</span>
-                    <div className="flex items-center gap-1">
-                      <Star className={`w-3.5 h-3.5 ${provider.rating > 0 ? "fill-[#F6E304] text-[#F6E304]" : "fill-gray-200 text-gray-200"}`} />
-                      <span className="font-semibold text-gray-700">{provider.rating > 0 ? provider.rating : "N/A"}</span>
-                      <span className="text-gray-400 ml-1">({provider.jobsCompleted})</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1.5 mt-1">
-                    <span className="text-gray-400 font-medium">Joined</span>
-                    <span className="text-gray-600 font-medium">{provider.joinedDate}</span>
-                  </div>
                 </div>
-                
-                
-                <div className="flex items-center gap-2 pt-1">
+
+                <div className="flex items-center gap-3 pt-2">
                   {provider.status === "Pending" ? (
                     <>
                       <button 
                         onClick={() => handleStatusChange(provider.id, "Active")}
-                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors border border-emerald-200"
+                        className="flex-1 py-3 bg-emerald-500 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all"
                       >
-                        <CheckCircle2 className="w-4 h-4" /> Accept
+                        Approve
                       </button>
                       <button 
                         onClick={() => handleStatusChange(provider.id, "Rejected")}
-                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 rounded-xl transition-colors border border-red-200"
+                        className="flex-1 py-3 bg-white text-slate-400 text-xs font-black uppercase tracking-widest rounded-xl border border-slate-200 hover:bg-slate-50 transition-all"
                       >
-                        <XCircle className="w-4 h-4" /> Reject
+                        Reject
                       </button>
                     </>
                   ) : (
-                    <select 
-                      className="w-full text-xs font-semibold bg-gray-50 border border-gray-200 text-[#081D3A] rounded-xl outline-none py-2 px-3 hover:border-gray-300 transition-all focus:ring-1 focus:ring-[#081D3A] appearance-none focus:bg-white"
-                      value={provider.status}
-                      onChange={(e) => handleStatusChange(provider.id, e.target.value as any)}
-                    >
-                      <option value="Active">Set Active</option>
-                      <option value="Pending">Set Pending</option>
-                      <option value="Rejected">Set Rejected</option>
-                    </select>
+                    <div className="w-full relative">
+                      <select 
+                        className="w-full py-3 px-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-[#081D3A] uppercase tracking-widest appearance-none outline-none focus:border-[#081D3A] transition-all"
+                        value={provider.status}
+                        onChange={(e) => handleStatusChange(provider.id, e.target.value as any)}
+                      >
+                        <option value="Active">Set Active</option>
+                        <option value="Pending">Set Pending</option>
+                        <option value="Rejected">Set Rejected</option>
+                      </select>
+                    </div>
                   )}
                 </div>
               </div>
             ))}
-            
-            {currentProviders.length === 0 && (
-              <div className="p-8 text-center text-gray-500">
-                <div className="flex flex-col items-center justify-center">
-                  <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mb-3">
-                    <Search className="w-5 h-5 text-gray-400" />
-                  </div>
-                  <p className="font-medium text-gray-900">No providers found</p>
-                  <p className="text-sm mt-1">Try adjusting your search query or filters.</p>
-                </div>
-              </div>
-            )}
           </div>
 
-          
-          <table className="w-full text-sm hidden md:table">
-            <thead>
-              <tr className="text-left text-xs text-gray-400 border-b border-gray-100 bg-gray-50/50">
-                <th className="px-6 py-4 font-medium">Provider Details</th>
-                <th className="px-6 py-4 font-medium">Specialty</th>
-                <th className="px-6 py-4 font-medium hidden lg:table-cell">Joined Date</th>
-                <th className="px-6 py-4 font-medium">Performance</th>
-                <th className="px-6 py-4 font-medium">Status</th>
-                <th className="px-6 py-4 font-medium text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {currentProviders.map((provider) => (
-                <tr
-                  key={provider.id}
-                  className="hover:bg-gray-50/60 transition-colors group"
-                >
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-700 font-bold shrink-0" style={{ backgroundColor: "#F3F3F3" }}>
-                        {provider.name.charAt(0)}
+          {/* Desktop View (Table) */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-slate-50/50 border-y border-slate-100">
+                  <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] min-w-50">Provider Profile</th>
+                  <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] whitespace-nowrap">Phone Number</th>
+                  <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] whitespace-nowrap">Specialization</th>
+                  <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] whitespace-nowrap">Role</th>
+                  <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] whitespace-nowrap">Current Status</th>
+                  <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] whitespace-nowrap">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100/50">
+                {currentProviders.map((provider) => (
+                  <tr key={provider.id} className="group hover:bg-blue-50/20 transition-all duration-300">
+                    <td className="px-8 py-6">
+                      <div className="flex items-center gap-5">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-[#081D3A] font-black text-lg border border-slate-100 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                          {provider.name.charAt(0)}
+                        </div>
+                        <div className="space-y-1">
+                          <p className="font-bold text-slate-900 group-hover:text-[#081D3A] transition-colors">{provider.name}</p>
+                          <p className="text-xs font-semibold text-slate-400">{provider.email}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold text-gray-900 group-hover:text-[#081D3A] transition-colors">{provider.name}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">{provider.email}</p>
-                        <p className="text-[10px] font-mono text-gray-400 mt-0.5">{provider.id}</p>
+                    </td>
+                    <td className="px-6 py-6 font-semibold text-slate-600 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-3.5 h-3.5 text-slate-300" />
+                        <span className="text-xs">{provider.phone}</span>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-gray-600">
-                    <div className="flex items-center gap-1.5">
-                      <Briefcase className="w-3.5 h-3.5 text-gray-400" />
-                      <span className="font-medium text-gray-700">{provider.specialty}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-gray-500 text-xs hidden lg:table-cell">
-                    {provider.joinedDate}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1.5">
-                        <Star className={`w-3.5 h-3.5 ${provider.rating > 0 ? "fill-[#F6E304] text-[#F6E304]" : "fill-gray-200 text-gray-200"}`} />
-                        <span className="font-semibold text-gray-700">{provider.rating > 0 ? provider.rating : "N/A"}</span>
+                    </td>
+                    <td className="px-6 py-6 font-semibold text-slate-600 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="w-4 h-4 text-slate-300" />
+                        <span>{provider.specialty}</span>
                       </div>
-                      <span className="text-xs text-gray-400">{provider.jobsCompleted} jobs</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusStyle[provider.status]}`}
-                    >
-                      {provider.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-2.5">
-                      {provider.status === "Pending" ? (
-                        <>
-                          <button 
-                            onClick={() => handleStatusChange(provider.id, "Active")}
-                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors border border-emerald-200"
-                            title="Accept"
-                          >
-                            <CheckCircle2 className="w-3.5 h-3.5" /> <span className="hidden xl:inline">Accept</span>
-                          </button>
-                          <button 
-                            onClick={() => handleStatusChange(provider.id, "Rejected")}
-                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-200"
-                            title="Reject"
-                          >
-                            <XCircle className="w-3.5 h-3.5" /> <span className="hidden xl:inline">Reject</span>
-                          </button>
-                        </>
-                      ) : (
-                        <select 
-                          className="text-xs font-semibold bg-gray-50 border border-gray-200 text-[#081D3A] rounded-lg outline-none py-1.5 px-3 hover:border-gray-300 transition-all cursor-pointer focus:ring-1 focus:ring-[#081D3A] appearance-none focus:bg-white"
-                          value={provider.status}
-                          onChange={(e) => handleStatusChange(provider.id, e.target.value as any)}
+                    </td>
+                    <td className="px-6 py-6 whitespace-nowrap">
+                      <span className="inline-flex px-3 py-1.5 rounded-lg bg-[#081D3A]/5 text-[#081D3A] text-[10px] font-black uppercase tracking-widest border border-[#081D3A]/10">
+                        Service Provider
+                      </span>
+                    </td>
+                    <td className="px-6 py-6 whitespace-nowrap">
+                      <span className={`inline-flex px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${statusStyle[provider.status]}`}>
+                        {provider.status}
+                      </span>
+                    </td>
+                    <td className="px-8 py-6 whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-3">
+                        {provider.status === "Pending" ? (
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => handleStatusChange(provider.id, "Active")}
+                              className="px-4 py-2 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all active:scale-95"
+                            >
+                              Approve
+                            </button>
+                            <button 
+                              onClick={() => handleStatusChange(provider.id, "Rejected")}
+                              className="w-9 h-9 flex items-center justify-center bg-white text-slate-300 hover:text-red-500 hover:border-red-200 border border-slate-200 rounded-xl transition-all"
+                            >
+                              <XCircle className="w-5 h-5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="relative group/select">
+                            <select 
+                              className="pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black text-[#081D3A] uppercase tracking-widest appearance-none outline-none focus:bg-white focus:border-[#081D3A] transition-all cursor-pointer"
+                              value={provider.status}
+                              onChange={(e) => handleStatusChange(provider.id, e.target.value as any)}
+                            >
+                              <option value="Active">Set Active</option>
+                              <option value="Pending">Set Pending</option>
+                              <option value="Rejected">Set Rejected</option>
+                            </select>
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover/select:text-[#081D3A]">
+                              <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
+                            </div>
+                          </div>
+                        )}
+                        <button 
+                          onClick={() => setSelectedProvider(provider)}
+                          className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#081D3A] hover:bg-[#F6E304] transition-all border border-slate-100 shadow-sm"
+                          title="View Details"
                         >
-                          <option value="Active">Set Active</option>
-                          <option value="Pending">Set Pending</option>
-                          <option value="Rejected">Set Rejected</option>
-                        </select>
-                      )}
-                      
-                      <button 
-                        onClick={() => setSelectedProvider(provider)}
-                        className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-50 hover:bg-[#F6E304] text-[#081D3A] transition-all border border-gray-200/60 shadow-sm"
-                        title="View Details"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {currentProviders.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
-                    <div className="flex flex-col items-center justify-center">
-                      <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mb-3">
-                        <Search className="w-5 h-5 text-gray-400" />
+                          <Eye className="w-5 h-5" />
+                        </button>
                       </div>
-                      <p className="font-medium text-gray-900">No providers found</p>
-                      <p className="text-sm mt-1">Try adjusting your search query or filters.</p>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-        
-        {/* Pagination footer */}
-        {totalPages > 0 && (
-          <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between">
-            <span className="text-xs text-gray-500">
-              Showing <span className="font-medium text-gray-900">{startIndex + 1}-{Math.min(startIndex + itemsPerPage, totalItems)}</span> of <span className="font-medium text-gray-900">{totalItems}</span> results
-            </span>
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                Previous
-              </button>
-              <span className="text-xs font-medium text-gray-500 px-2 hidden sm:block">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button 
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                Next
-              </button>
-            </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        )}
+
+          {/* Pagination Footer */}
+          {totalPages > 0 && (
+            <div className="px-8 py-6 border-t border-slate-50 bg-slate-50/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Page Results</span>
+                <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-[#081D3A]">
+                  {startIndex + 1}-{Math.min(startIndex + itemsPerPage, totalItems)} of {totalItems}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-6 py-2.5 text-[10px] font-black text-slate-500 uppercase tracking-widest bg-white border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+                >
+                  Prev
+                </button>
+                <div className="flex gap-1">
+                   {[...Array(totalPages)].map((_, i) => (
+                     <button
+                       key={i}
+                       onClick={() => setCurrentPage(i + 1)}
+                       className={`w-9 h-9 rounded-xl text-[10px] font-black transition-all ${currentPage === i + 1 ? "bg-[#081D3A] text-white shadow-lg shadow-[#081D3A]/20" : "bg-white text-slate-400 hover:bg-slate-50 border border-slate-100"}`}
+                     >
+                       {i + 1}
+                     </button>
+                   ))}
+                </div>
+                <button 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-6 py-2.5 text-[10px] font-black text-slate-500 uppercase tracking-widest bg-white border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── Provider Details Modal ── */}

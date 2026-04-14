@@ -1,4 +1,4 @@
-import { X, Star, Briefcase, CheckCircle2, XCircle, Mail, Calendar } from "lucide-react";
+import { X, Star, Briefcase, CheckCircle2, XCircle, Mail, Calendar, Phone } from "lucide-react";
 import { type Provider, statusStyle } from "./data/providersMockData";
 
 interface ProviderDetailModalProps {
@@ -71,6 +71,16 @@ export default function ProviderDetailModal({ provider, onClose, onStatusChange 
                 <div>
                   <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Email</p>
                   <p className="font-semibold text-gray-900">{provider.email}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 text-sm text-gray-700">
+                <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center border border-gray-100 shrink-0">
+                  <Phone className="w-4 h-4 text-gray-500" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Phone Number</p>
+                  <p className="font-semibold text-gray-900">{provider.phone}</p>
                 </div>
               </div>
 

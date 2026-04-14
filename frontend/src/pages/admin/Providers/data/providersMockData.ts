@@ -7,6 +7,7 @@ export interface Provider {
   rating: number;
   jobsCompleted: number;
   joinedDate: string;
+  phone: string;
 }
 
 export const initialProvidersList: Provider[] = [
@@ -19,6 +20,7 @@ export const initialProvidersList: Provider[] = [
     rating: 4.8,
     jobsCompleted: 142,
     joinedDate: "2025-10-12",
+    phone: "+212 661-445566",
   },
   {
     id: "PRV-1030",
@@ -29,6 +31,7 @@ export const initialProvidersList: Provider[] = [
     rating: 4.9,
     jobsCompleted: 310,
     joinedDate: "2024-03-05",
+    phone: "+212 610-112233",
   },
   {
     id: "PRV-1031",
@@ -39,6 +42,7 @@ export const initialProvidersList: Provider[] = [
     rating: 0,
     jobsCompleted: 0,
     joinedDate: "2026-04-10",
+    phone: "+212 654-998877",
   },
   {
     id: "PRV-1032",
@@ -49,6 +53,7 @@ export const initialProvidersList: Provider[] = [
     rating: 4.7,
     jobsCompleted: 89,
     joinedDate: "2025-11-20",
+    phone: "+212 708-223344",
   },
   {
     id: "PRV-1033",
@@ -59,6 +64,7 @@ export const initialProvidersList: Provider[] = [
     rating: 3.2,
     jobsCompleted: 45,
     joinedDate: "2025-01-15",
+    phone: "+212 611-334455",
   },
   {
     id: "PRV-1034",
@@ -69,6 +75,7 @@ export const initialProvidersList: Provider[] = [
     rating: 4.6,
     jobsCompleted: 215,
     joinedDate: "2024-08-01",
+    phone: "+212 622-556677",
   },
   {
     id: "PRV-1035",
@@ -79,6 +86,7 @@ export const initialProvidersList: Provider[] = [
     rating: 4.9,
     jobsCompleted: 420,
     joinedDate: "2023-05-22",
+    phone: "+212 633-778899",
   },
 ];
 

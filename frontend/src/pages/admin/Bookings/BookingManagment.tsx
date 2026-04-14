@@ -76,24 +76,24 @@ function PaymentBadge({ status }: { status: PaymentStatus }) {
     );
 }
 
-function ActionButtons({ onView, onApprove, onReject, onDelete }: { onView: () => void, onApprove: () => void, onReject: () => void, onDelete: () => void }) {
-    return (
-        <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-            <button title="View Details" onClick={onView} className="cursor-pointer text-gray-400 hover:text-indigo-600 transition p-1.5 rounded-lg hover:bg-indigo-50">
-                <EyeIcon />
-            </button>
-            <button title="Approve" onClick={onApprove} className="cursor-pointer text-green-500 hover:text-green-600 transition p-1.5 rounded-lg hover:bg-green-50">
-                <CheckIcon />
-            </button>
-            <button title="Reject" onClick={onReject} className="cursor-pointer text-orange-400 hover:text-orange-500 transition p-1.5 rounded-lg hover:bg-orange-50">
-                <XIcon />
-            </button>
-            <button title="Delete" onClick={onDelete} className="cursor-pointer text-gray-400 hover:text-red-500 transition p-1.5 rounded-lg hover:bg-red-50">
-                <TrashIcon />
-            </button>
-        </div>
-    );
-}
+// function ActionButtons({ onView, onApprove, onReject, onDelete }: { onView: () => void, onApprove: () => void, onReject: () => void, onDelete: () => void }) {
+//     return (
+//         <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+//             <button title="View Details" onClick={onView} className="cursor-pointer text-gray-400 hover:text-indigo-600 transition p-1.5 rounded-lg hover:bg-indigo-50">
+//                 <EyeIcon />
+//             </button>
+//             <button title="Approve" onClick={onApprove} className="cursor-pointer text-green-500 hover:text-green-600 transition p-1.5 rounded-lg hover:bg-green-50">
+//                 <CheckIcon />
+//             </button>
+//             <button title="Reject" onClick={onReject} className="cursor-pointer text-orange-400 hover:text-orange-500 transition p-1.5 rounded-lg hover:bg-orange-50">
+//                 <XIcon />
+//             </button>
+//             <button title="Delete" onClick={onDelete} className="cursor-pointer text-gray-400 hover:text-red-500 transition p-1.5 rounded-lg hover:bg-red-50">
+//                 <TrashIcon />
+//             </button>
+//         </div>
+//     );
+// }
 
 function FilterSelect({
     label, value, onChange, options,
@@ -225,7 +225,7 @@ export default function BookingManagement() {
                                 <span>Date</span>
                                 <span>Status</span>
                                 <span>Payment</span>
-                                <span className="text-right pr-2">Action</span>
+                                {/* <span className="text-right pr-2">Action</span> */}
                             </div>
 
                             {filtered.map((booking, i) => (
@@ -258,14 +258,14 @@ export default function BookingManagement() {
                                         <PaymentBadge status={booking.paymentStatus} />
                                     </div>
 
-                                    <div className="flex justify-end">
-                                        <ActionButtons 
-                                            onView={() => setSelectedBooking(booking)} 
+                                    {/* <div className="flex justify-end">
+                                        <ActionButtons
+                                            onView={() => setSelectedBooking(booking)}
                                             onApprove={() => setBookingToApprove(booking)}
                                             onReject={() => setBookingToReject(booking)}
-                                            onDelete={() => setBookingToDelete(booking)} 
+                                            onDelete={() => setBookingToDelete(booking)}
                                         />
-                                    </div>
+                                    </div> */}
                                 </div>
                             ))}
                         </div>
@@ -293,12 +293,12 @@ export default function BookingManagement() {
                                             <p className="text-xs text-gray-400">{booking.id}</p>
                                         </div>
                                     </div>
-                                    <ActionButtons 
-                                        onView={() => setSelectedBooking(booking)} 
+                                    {/* <ActionButtons
+                                        onView={() => setSelectedBooking(booking)}
                                         onApprove={() => setBookingToApprove(booking)}
                                         onReject={() => setBookingToReject(booking)}
-                                        onDelete={() => setBookingToDelete(booking)} 
-                                    />
+                                        onDelete={() => setBookingToDelete(booking)}
+                                    /> */}
                                 </div>
 
                                 <div className="space-y-2 text-sm border-t border-gray-50 pt-3">
@@ -329,14 +329,14 @@ export default function BookingManagement() {
                 Showing {filtered.length} of {mockBookings.length} bookings
             </p>
 
-            {selectedBooking && (
+            {/* {selectedBooking && (
                 <BookingDetailModal
                     booking={selectedBooking}
                     onClose={() => setSelectedBooking(null)}
                 />
-            )}
+            )} */}
 
-            {bookingToDelete && (
+            {/* {bookingToDelete && (
                 <BookingDeleteConfirmationModal
                     booking={bookingToDelete}
                     onClose={() => setBookingToDelete(null)}
@@ -345,9 +345,9 @@ export default function BookingManagement() {
 
                     }}
                 />
-            )}
+            )} */}
 
-            {bookingToApprove && (
+            {/* {bookingToApprove && (
                 <BookingApproveConfirmationModal
                     booking={bookingToApprove}
                     onClose={() => setBookingToApprove(null)}
@@ -355,9 +355,9 @@ export default function BookingManagement() {
                         console.log("Approve booking", bookingToApprove.id);
                     }}
                 />
-            )}
+            )} */}
 
-            {bookingToReject && (
+            {/* {bookingToReject && (
                 <BookingRejectConfirmationModal
                     booking={bookingToReject}
                     onClose={() => setBookingToReject(null)}
@@ -365,7 +365,7 @@ export default function BookingManagement() {
                         console.log("Reject booking", bookingToReject.id);
                     }}
                 />
-            )}
+            )} */}
         </div>
     );
 }

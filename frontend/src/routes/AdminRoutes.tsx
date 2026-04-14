@@ -3,6 +3,7 @@ import Login from "../pages/admin/auth/login";
 import ForgotPassword from "../pages/admin/auth/forgot-password";
 import ResetPassword from "../pages/admin/auth/reset-password";
 import Dashboard from "../pages/admin/Dashboard/Dashboard";
+import ProvidersManagement from "../pages/admin/Providers/ProvidersManagment";
 import AdminLayouts from "../layouts/AdminLayouts";
 
 export default function AdminRoutes() {
@@ -14,6 +15,7 @@ export default function AdminRoutes() {
 
       <Route element={<AdminLayouts />}>
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/providers" element={<ProvidersManagement />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/admin/login" />} />

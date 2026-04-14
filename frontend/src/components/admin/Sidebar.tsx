@@ -15,14 +15,14 @@ export default function Sidebar() {
   const location = useLocation();
 
   const navigation = [
-    { name: "Dashboard", href: "/", icon: LayoutGrid },
-    { name: "Users", href: "/users", icon: Users },
-    { name: "Providers", href: "/providers", icon: HandCoins },
-    { name: "Bookings", href: "/bookings", icon: FileText },
-    { name: "Services", href: "/services", icon: Briefcase },
-    { name: "Reviews", href: "/reviews", icon: Star },
-    { name: "Notifications", href: "/notifications", icon: Bell },
-    { name: "Settings", href: "/settings", icon: Settings },
+    { name: "Dashboard", href: "/admin/dashboard", icon: LayoutGrid },
+    { name: "Users", href: "/admin/users", icon: Users },
+    { name: "Providers", href: "/admin/providers", icon: HandCoins },
+    { name: "Bookings", href: "/admin/bookings", icon: FileText },
+    { name: "Services", href: "/admin/services", icon: Briefcase },
+    { name: "Reviews", href: "/admin/reviews", icon: Star },
+    { name: "Notifications", href: "/admin/notifications", icon: Bell },
+    { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
 
   return (
@@ -55,8 +55,8 @@ export default function Sidebar() {
       <nav className="flex-1 flex flex-col items-center justify-center gap-2 w-full">
         {navigation.map((item) => {
           const isActive =
-            item.href === "/"
-              ? location.pathname === "/" ||
+            item.name === "Dashboard"
+              ? location.pathname === "/admin/dashboard" ||
                 location.pathname === "/admin" ||
                 location.pathname === "/admin/"
               : location.pathname.includes(item.href);

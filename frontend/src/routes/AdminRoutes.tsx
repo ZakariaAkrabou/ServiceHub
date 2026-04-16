@@ -8,6 +8,7 @@ import AdminLayouts from "../layouts/AdminLayouts";
 import CustomerManagement from "../pages/admin/Cutomers/CustomerManagment";
 import BookingManagement from "../pages/admin/Bookings/BookingManagment";
 import ServicesManagement from "../pages/admin/Services/ServicesManagment";
+import SetingsManagment from "../pages/admin/Setings/SetingsManagment";
 
 export default function AdminRoutes() {
   return (
@@ -22,6 +23,7 @@ export default function AdminRoutes() {
         <Route path="/customers" element={<CustomerManagement />} />
         <Route path="/bookings" element={<BookingManagement />} />
         <Route path="/services" element={<ServicesManagement />} />
+        <Route path="/settings" element={<SetingsManagment />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/admin/login" />} />

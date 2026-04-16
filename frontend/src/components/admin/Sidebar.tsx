@@ -3,7 +3,6 @@ import {
   Users,
   HandCoins,
   FileText,
-  Star,
   Bell,
   Settings,
   LogOut,
@@ -20,7 +19,6 @@ export default function Sidebar() {
     { name: "Providers", href: "/admin/providers", icon: HandCoins },
     { name: "Bookings", href: "/admin/bookings", icon: FileText },
     { name: "Services", href: "/admin/services", icon: Briefcase },
-    { name: "Reviews", href: "/admin/reviews", icon: Star },
     { name: "Notifications", href: "/admin/notifications", icon: Bell },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
@@ -28,7 +26,7 @@ export default function Sidebar() {
   return (
     <aside className="group w-22.5 hover:w-64 h-full bg-white rounded-4xl shadow-sm flex flex-col py-4 shrink-0 z-10 box-border overflow-hidden transition-all duration-300">
       {/* Logo */}
-      <div className="flex items-center gap-3 mb-6 w-full px-[25px] group-hover:px-6 transition-all duration-300">
+      <div className="flex items-center gap-3 mb-6 w-full px-6.25 group-hover:px-6 transition-all duration-300">
         <div 
           className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm shrink-0"
           style={{ backgroundColor: "#F6E304" }}
@@ -52,7 +50,7 @@ export default function Sidebar() {
       </div>
 
       {/* Nav items */}
-      <nav className="flex-1 flex flex-col gap-2 w-full px-[25px] group-hover:px-4 transition-all duration-300">
+      <nav className="flex-1 flex flex-col gap-2 w-full px-6.25 group-hover:px-4 transition-all duration-300">
         {navigation.map((item) => {
           const isActive =
             item.name === "Dashboard"
@@ -93,7 +91,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Profile & Logout */}
-      <div className="flex flex-col gap-2 mt-auto pt-4 w-full px-[25px] group-hover:px-4 transition-all duration-300 border-t border-gray-50/50">
+      <div className="flex flex-col gap-2 mt-auto pt-4 w-full px-6.25 group-hover:px-4 transition-all duration-300 border-t border-gray-50/50">
         <Link
           to="/admin/profile"
           className="h-10 flex items-center rounded-2xl transition-all duration-200 overflow-hidden w-10 group-hover:w-full shrink-0"
@@ -132,7 +130,7 @@ export default function Sidebar() {
           <div className="w-10 h-10 shrink-0 flex items-center justify-center opacity-70">
             <LogOut className="w-5 h-5" />
           </div>
-          <span className="font-medium whitespace-nowrap ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 opacity-70">
+          <span className="font-medium whitespace-nowrap ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             Logout
           </span>
         </Link>

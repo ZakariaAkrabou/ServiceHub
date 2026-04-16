@@ -1,4 +1,4 @@
-import { X, Calendar, User, Briefcase, CreditCard } from "lucide-react";
+import { X, Calendar, User, Briefcase } from "lucide-react";
 import { type Booking } from "../Providers/data/bookingMockData";
 
 interface BookingDetailModalProps {
@@ -34,11 +34,6 @@ export default function BookingDetailModal({ booking, onClose }: BookingDetailMo
                         'bg-red-100 text-red-700'
                   }`}>
                   {booking.status}
-                </span>
-                <span className="text-gray-300">&bull;</span>
-                <span className={`inline-flex shrink-0 items-center justify-center text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${booking.paymentStatus === 'Paid' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-700'
-                  }`}>
-                  Payment: {booking.paymentStatus}
                 </span>
               </div>
             </div>
@@ -90,11 +85,7 @@ export default function BookingDetailModal({ booking, onClose }: BookingDetailMo
 
 
             <div className="flex flex-col gap-4">
-              <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 flex flex-col gap-3">
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1.5"><CreditCard className="w-3 h-3" /> Payment Status</p>
-                <p className="font-bold text-xl text-[#081D3A]">{booking.paymentStatus === "Paid" ? "Completed" : "Pending Action"}</p>
-                <p className="text-xs text-gray-500 mt-1">Please ensure payment is collected according to terms.</p>
-              </div>
+
 
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-3.5 text-[13px] text-blue-800 font-medium">
                 Booking ID <strong>{booking.id}</strong> is currently <strong>{booking.status}</strong>.

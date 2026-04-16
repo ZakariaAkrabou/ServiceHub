@@ -1,5 +1,4 @@
 export type BookingStatus = "Pending" | "Confirmed" | "Completed" | "Cancelled";
-export type PaymentStatus = "Paid" | "Pending";
 
 export interface Booking {
     id: string;
@@ -9,7 +8,6 @@ export interface Booking {
     provider: string;
     bookingDate: string;
     status: BookingStatus;
-    paymentStatus: PaymentStatus;
 }
 
 export const mockBookings: Booking[] = [
@@ -21,7 +19,6 @@ export const mockBookings: Booking[] = [
         provider: "CleanCo",
         bookingDate: "2026-04-15",
         status: "Pending",
-        paymentStatus: "Pending"
     },
     {
         id: "BK-1002",
@@ -31,7 +28,6 @@ export const mockBookings: Booking[] = [
         provider: "QuickFix Plumbing",
         bookingDate: "2026-04-14",
         status: "Confirmed",
-        paymentStatus: "Paid"
     },
     {
         id: "BK-1003",
@@ -41,7 +37,6 @@ export const mockBookings: Booking[] = [
         provider: "Sparky Elecs",
         bookingDate: "2026-04-12",
         status: "Completed",
-        paymentStatus: "Paid"
     },
     {
         id: "BK-1004",
@@ -51,7 +46,6 @@ export const mockBookings: Booking[] = [
         provider: "Green Grass LLC",
         bookingDate: "2026-04-18",
         status: "Cancelled",
-        paymentStatus: "Pending"
     },
     {
         id: "BK-1005",

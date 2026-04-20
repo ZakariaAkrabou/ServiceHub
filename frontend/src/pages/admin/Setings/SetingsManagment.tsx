@@ -1,25 +1,24 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useProfileQuery } from "../../../app/api/AuthApi";
 import {
   User,
-  Bell,
   Lock,
+  Bell,
+  Layout,
   Globe,
   Save,
   Shield,
-  Smartphone,
   Mail,
-  Moon,
+  Smartphone,
   Sun,
-  Layout
+  Moon,
 } from "lucide-react";
-import {
-  generalSettingsData,
-  notificationsData,
-  localizationOptions,
-} from "../Providers/data/SetingsMockData";
+import { localizationOptions, notificationsData } from "../Providers/data/SetingsMockData";
 
 export default function SetingsManagment() {
   const [activeTab, setActiveTab] = useState("general");
+  const { data, isLoading, isError } = useProfileQuery(undefined);
+  const profile = data?.user;
 
   return (
     <div className="flex flex-col gap-6 pb-6 h-full">
@@ -108,54 +107,63 @@ export default function SetingsManagment() {
               <h2 className="text-base font-semibold text-gray-800 mb-5">
                 General Information
               </h2>
-              <div className="flex flex-col gap-5">
-                <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-200">
-                    <User className="w-8 h-8" />
+              {isLoading ? (
+                <div>Loading...</div>
+              ) : isError || !profile ? (
+                <div className="text-red-500">Failed to load profile data.</div>
+              ) : (
+                <div className="flex flex-col gap-5">
+                  <div className="flex items-center gap-6">
+                    <div className="w-20 h-20 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-200">
+                      <User className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <button className="text-sm font-medium px-4 py-2 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200">
+                        Change Avatar
+                      </button>
+                      <p className="text-xs text-gray-400 mt-2">
+                        JPG, GIF or PNG. 1MB max.
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <button className="text-sm font-medium px-4 py-2 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200">
-                      Change Avatar
-                    </button>
-                    <p className="text-xs text-gray-400 mt-2">
-                      JPG, GIF or PNG. 1MB max.
-                    </p>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5">
-                      First Name
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue={generalSettingsData.firstName}
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#f6e304]/50 focus:border-[#081D3A] transition-shadow"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5">
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue={generalSettingsData.lastName}
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#f6e304]/50 focus:border-[#081D3A] transition-shadow"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      defaultValue={generalSettingsData.email}
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#f6e304]/50 focus:border-[#081D3A] transition-shadow"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                        First Name
+                      </label>
+                      <input
+                        type="text"
+                        defaultValue={profile.firstName}
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#f6e304]/50 focus:border-[#081D3A] transition-shadow"
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                        Last Name
+                      </label>
+                      <input
+                        type="text"
+                        defaultValue={profile.lastName}
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#f6e304]/50 focus:border-[#081D3A] transition-shadow"
+                        readOnly
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        defaultValue={profile.email}
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#f6e304]/50 focus:border-[#081D3A] transition-shadow"
+                        readOnly
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
@@ -234,7 +242,7 @@ export default function SetingsManagment() {
               <p className="text-xs text-gray-400 mb-5">
                 Choose how you receive updates and alerts
               </p>
-              
+
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 border border-gray-100 rounded-xl">
                   <div className="flex items-start gap-3">
@@ -251,8 +259,12 @@ export default function SetingsManagment() {
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                    <input type="checkbox" className="sr-only peer" defaultChecked={notificationsData.email} />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#081D3A]"></div>
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      defaultChecked={notificationsData.email}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#081D3A]"></div>
                   </label>
                 </div>
 
@@ -271,8 +283,12 @@ export default function SetingsManagment() {
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                    <input type="checkbox" className="sr-only peer" defaultChecked={notificationsData.push} />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#081D3A]"></div>
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      defaultChecked={notificationsData.push}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#081D3A]"></div>
                   </label>
                 </div>
               </div>
@@ -295,7 +311,9 @@ export default function SetingsManagment() {
                   </div>
                   <div className="flex items-center gap-3 mb-3">
                     <Sun className="w-5 h-5 text-amber-500" />
-                    <p className="text-sm font-medium text-gray-800">Light Mode</p>
+                    <p className="text-sm font-medium text-gray-800">
+                      Light Mode
+                    </p>
                   </div>
                   <div className="h-24 bg-gray-50 rounded-lg border border-gray-200 overflow-hidden flex flex-col">
                     <div className="h-4 bg-white border-b border-gray-200"></div>
@@ -309,7 +327,9 @@ export default function SetingsManagment() {
                 <div className="border-2 border-transparent rounded-xl p-4 cursor-pointer hover:border-gray-200 transition-colors">
                   <div className="flex items-center gap-3 mb-3">
                     <Moon className="w-5 h-5 text-indigo-500" />
-                    <p className="text-sm font-medium text-gray-800">Dark Mode</p>
+                    <p className="text-sm font-medium text-gray-800">
+                      Dark Mode
+                    </p>
                   </div>
                   <div className="h-24 bg-gray-900 rounded-lg border border-gray-700 overflow-hidden flex flex-col">
                     <div className="h-4 bg-gray-800 border-b border-gray-700"></div>

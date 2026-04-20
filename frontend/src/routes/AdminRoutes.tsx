@@ -9,21 +9,39 @@ import CustomerManagement from "../pages/admin/Cutomers/CustomerManagment";
 import BookingManagement from "../pages/admin/Bookings/BookingManagment";
 import ServicesManagement from "../pages/admin/Services/ServicesManagment";
 import SetingsManagment from "../pages/admin/Setings/SetingsManagment";
+import RequireAuth from "./RequireAuth";
+import { useSelector } from "react-redux";
+import type { RootState } from "../app/store/store";
 
 export default function AdminRoutes() {
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated,
+  );
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? (
+            <Navigate to="/admin/dashboard" replace />
+          ) : (
+            <Login />
+          )
+        }
+      />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-      <Route element={<AdminLayouts />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/providers" element={<ProvidersManagement />} />
-        <Route path="/customers" element={<CustomerManagement />} />
-        <Route path="/bookings" element={<BookingManagement />} />
-        <Route path="/services" element={<ServicesManagement />} />
-        <Route path="/settings" element={<SetingsManagment />} />
+      {/* Protected routes */}
+      <Route element={<RequireAuth />}>
+        <Route element={<AdminLayouts />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/providers" element={<ProvidersManagement />} />
+          <Route path="/customers" element={<CustomerManagement />} />
+          <Route path="/bookings" element={<BookingManagement />} />
+          <Route path="/services" element={<ServicesManagement />} />
+          <Route path="/settings" element={<SetingsManagment />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/admin/login" />} />

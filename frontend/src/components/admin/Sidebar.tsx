@@ -10,11 +10,14 @@ import {
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLogoutMutation } from "../../app/api/AuthApi";
+import { useDispatch } from "react-redux";
+import { logout as logoutAction } from "../../app/slices/AuthSlice";
 
 export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const [logout] = useLogoutMutation();
+  const dispatch = useDispatch();
 
   const navigation = [
     { name: "Dashboard", href: "/admin/dashboard", icon: LayoutGrid },
@@ -99,7 +102,7 @@ export default function Sidebar() {
       {/* Profile & Logout */}
       <div className="flex flex-col gap-2 mt-auto pt-4 w-full px-6.25 group-hover:px-4 transition-all duration-300 border-t border-gray-50/50">
         <Link
-          to="/admin/profile"
+          to="/admin/settings"
           className="h-10 flex items-center rounded-2xl transition-all duration-200 overflow-hidden w-10 group-hover:w-full shrink-0"
           style={{ color: "#17171A" }}
           onMouseEnter={(e) => {
@@ -137,10 +140,9 @@ export default function Sidebar() {
           onClick={async () => {
             try {
               await logout({}).unwrap();
+              dispatch(logoutAction());
               navigate("/admin/login");
-            } catch (err) {
-             
-            }
+            } catch (err) {}
           }}
         >
           <div className="w-10 h-10 shrink-0 flex items-center justify-center opacity-70">

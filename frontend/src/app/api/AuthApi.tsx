@@ -39,6 +39,13 @@ export const authApi = api.injectEndpoints({
       }),
       invalidatesTags: ["Auth"],
     }),
+    profile: builder.query({
+      query: () => ({
+        url: "/api/user/profile",
+        method: "GET",
+      }),
+      providesTags: ["Auth"],
+    }),
   }),
 });
 
@@ -48,4 +55,5 @@ export const {
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useLogoutMutation,
+  useProfileQuery,
 } = authApi;

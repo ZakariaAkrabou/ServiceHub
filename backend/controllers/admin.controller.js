@@ -66,6 +66,7 @@ export const getAllBookings = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
 export const filtreBookings = async (req, res) => {
   try {
     const { status, customerId, providerId } = req.query;
@@ -87,3 +88,4 @@ export const filtreBookings = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+

@@ -136,10 +136,10 @@ export default function Sidebar() {
           }}
           onClick={async () => {
             try {
-              await logout().unwrap();
+              await logout({}).unwrap();
               navigate("/admin/login");
             } catch (err) {
-              // Optionally handle error
+             
             }
           }}
         >

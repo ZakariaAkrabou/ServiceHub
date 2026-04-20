@@ -1,4 +1,4 @@
-import { api } from "./config";
+import { api } from "./Config";
 
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({

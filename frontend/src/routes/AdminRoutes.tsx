@@ -15,7 +15,7 @@ export default function AdminRoutes() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
 
       <Route element={<AdminLayouts />}>
         <Route path="/dashboard" element={<Dashboard />} />

@@ -239,7 +239,7 @@ export default function BookingManagement() {
                   </div>
                   <div className="flex justify-center">
                     <button
-                      className="px-3 py-1.5 rounded-lg bg-yellow-50 text-yellow-700 text-xs font-semibold border border-yellow-200 hover:bg-yellow-100 transition"
+                      className="px-3 py-1.5 rounded-lg bg-yellow-50 text-yellow-700 text-xs font-semibold border border-yellow-200 hover:bg-yellow-100 transition cursor-pointer"
                       onClick={() => setSelectedBooking(booking)}
                     >
                       Details
@@ -289,10 +289,10 @@ export default function BookingManagement() {
                     <span className="text-gray-400">Date</span>
                     <span className="text-gray-700">{booking.bookingDate}</span>
                   </div>
-                  <div className="flex justify-between items-center pt-1">
+                  <div className="flex justify-between items-center pt-1 ">
                     <StatusBadge status={booking.status} />
                     <button
-                      className="px-3 py-1.5 rounded-lg bg-yellow-50 text-yellow-700 text-xs font-semibold border border-yellow-200 hover:bg-yellow-100 transition"
+                      className="px-3 py-1.5 rounded-lg bg-yellow-50  text-yellow-700 text-xs font-semibold border border-yellow-200 hover:bg-yellow-100  transition cursor-pointer"
                       onClick={() => setSelectedBooking(booking)}
                     >
                       Details

@@ -1,15 +1,50 @@
 import { useState } from "react";
+import { useLoginMutation } from "../../../app/api/AuthApi";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../../app/slices/AuthSlice";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [login] = useLoginMutation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 2000);
+    setError(null);
+    try {
+      const result = await login({ email, password }).unwrap();
+      dispatch(setCredentials({ user: result.user, token: result.token }));
+      setIsLoading(false);
+      navigate("/admin/dashboard");
+    } catch (err: any) {
+      setIsLoading(false);
+      if (
+        typeof err === "object" &&
+        err &&
+        "data" in err &&
+        typeof err.data === "string"
+      ) {
+        setError(err.data);
+      } else if (
+        typeof err === "object" &&
+        err &&
+        "data" in err &&
+        typeof err.data === "object" &&
+        err.data.message
+      ) {
+        setError(err.data.message);
+      } else {
+        setError("Login failed. Please try again.");
+      }
+    }
   };
 
   return (
@@ -17,7 +52,8 @@ export default function Login() {
       className="min-h-screen flex"
       style={{
         backgroundColor: "#ffffff",
-        fontFamily: "'Times New Roman', sans-serif, Geist, 'Geist Placeholder', Inter, 'Inter Placeholder', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', ui-sans-serif, system-ui",
+        fontFamily:
+          "'Times New Roman', sans-serif, Geist, 'Geist Placeholder', Inter, 'Inter Placeholder', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', ui-sans-serif, system-ui",
       }}
     >
       <div
@@ -77,7 +113,16 @@ export default function Login() {
           >
             Manage your
             <br />
-            <span style={{ color: "#17171A", borderBottom: "4px solid #F6E304", paddingBottom: "2px" }}>service</span> network
+            <span
+              style={{
+                color: "#17171A",
+                borderBottom: "4px solid #F6E304",
+                paddingBottom: "2px",
+              }}
+            >
+              service
+            </span>{" "}
+            network
             <br />
             with confidence.
           </h1>
@@ -88,8 +133,6 @@ export default function Login() {
             Access real-time dashboards, oversee providers, track orders, and
             keep your platform running smoothly — all from one place.
           </p>
-
-
         </div>
 
         <p
@@ -412,6 +455,11 @@ export default function Login() {
                   </>
                 )}
               </button>
+              {error && (
+                <div className="mt-3 text-sm text-red-600 text-center font-semibold">
+                  {error}
+                </div>
+              )}
             </form>
           </div>
 

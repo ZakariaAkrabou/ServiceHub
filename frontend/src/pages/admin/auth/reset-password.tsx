@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Lock, ArrowRight, Loader2, ShieldCheck, CheckCircle2 } from "lucide-react";
+import {
+  Lock,
+  ArrowRight,
+  Loader2,
+  ShieldCheck,
+  CheckCircle2,
+} from "lucide-react";
+import { useResetPasswordMutation } from "../../../app/api/AuthApi";
+import { useParams } from "react-router-dom";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -8,17 +16,44 @@ export default function ResetPassword() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [resetPassword] = useResetPasswordMutation();
+  const { token } = useParams<{ token: string }>();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
     setIsLoading(true);
-    setTimeout(() => {
+    setError(null);
+    try {
+      await resetPassword({ token, newPassword: password }).unwrap();
       setIsLoading(false);
       setIsSuccess(true);
-    }, 2000);
+    } catch (err: any) {
+      setIsLoading(false);
+      if (
+        typeof err === "object" &&
+        err &&
+        "data" in err &&
+        typeof err.data === "string"
+      ) {
+        setError(err.data);
+      } else if (
+        typeof err === "object" &&
+        err &&
+        "data" in err &&
+        typeof err.data === "object" &&
+        err.data.message
+      ) {
+        setError(err.data.message);
+      } else {
+        setError("Failed to reset password. Please try again.");
+      }
+    }
   };
 
   return (
@@ -26,7 +61,8 @@ export default function ResetPassword() {
       className="min-h-screen flex"
       style={{
         backgroundColor: "#ffffff",
-        fontFamily: "'Times New Roman', sans-serif, Geist, 'Geist Placeholder', Inter, 'Inter Placeholder', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', ui-sans-serif, system-ui",
+        fontFamily:
+          "'Times New Roman', sans-serif, Geist, 'Geist Placeholder', Inter, 'Inter Placeholder', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', ui-sans-serif, system-ui",
       }}
     >
       {/* Left Panel */}
@@ -87,7 +123,16 @@ export default function ResetPassword() {
           >
             Manage your
             <br />
-            <span style={{ color: "#17171A", borderBottom: "4px solid #F6E304", paddingBottom: "2px" }}>service</span> network
+            <span
+              style={{
+                color: "#17171A",
+                borderBottom: "4px solid #F6E304",
+                paddingBottom: "2px",
+              }}
+            >
+              service
+            </span>{" "}
+            network
             <br />
             with confidence.
           </h1>
@@ -139,7 +184,9 @@ export default function ResetPassword() {
               Set new password
             </h2>
             <p className="text-sm" style={{ color: "#17171A" }}>
-              {isSuccess ? "Your password has been reset successfully" : "Please enter your new password below"}
+              {isSuccess
+                ? "Your password has been reset successfully"
+                : "Please enter your new password below"}
             </p>
           </div>
 
@@ -181,7 +228,8 @@ export default function ResetPassword() {
                       }}
                       onFocus={(e) => {
                         e.target.style.borderColor = "#F6E304";
-                        e.target.style.boxShadow = "0 0 0 3px rgba(246, 227, 4, 0.2)";
+                        e.target.style.boxShadow =
+                          "0 0 0 3px rgba(246, 227, 4, 0.2)";
                       }}
                       onBlur={(e) => {
                         e.target.style.borderColor = "rgba(8, 29, 58, 0.15)";
@@ -195,9 +243,54 @@ export default function ResetPassword() {
                       style={{ color: "#17171A" }}
                     >
                       {showPassword ? (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /><line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <path
+                            d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+                          <path
+                            d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+                          <line
+                            x1="1"
+                            y1="1"
+                            x2="23"
+                            y2="23"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+                        </svg>
                       ) : (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="2" /><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" /></svg>
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <path
+                            d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          />
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="3"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          />
+                        </svg>
                       )}
                     </button>
                   </div>
@@ -231,7 +324,8 @@ export default function ResetPassword() {
                       }}
                       onFocus={(e) => {
                         e.target.style.borderColor = "#F6E304";
-                        e.target.style.boxShadow = "0 0 0 3px rgba(246, 227, 4, 0.2)";
+                        e.target.style.boxShadow =
+                          "0 0 0 3px rgba(246, 227, 4, 0.2)";
                       }}
                       onBlur={(e) => {
                         e.target.style.borderColor = "rgba(8, 29, 58, 0.15)";
@@ -240,47 +334,123 @@ export default function ResetPassword() {
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 p-0.5 transition-opacity hover:opacity-70"
                       style={{ color: "#17171A" }}
                     >
                       {showConfirmPassword ? (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /><line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <path
+                            d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+                          <path
+                            d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+                          <line
+                            x1="1"
+                            y1="1"
+                            x2="23"
+                            y2="23"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+                        </svg>
                       ) : (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="2" /><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" /></svg>
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <path
+                            d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          />
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="3"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          />
+                        </svg>
                       )}
                     </button>
                   </div>
-                  {password !== confirmPassword && confirmPassword.length > 0 && (
-                    <p className="text-xs text-red-500 mt-1">Passwords do not match.</p>
-                  )}
+                  {password !== confirmPassword &&
+                    confirmPassword.length > 0 && (
+                      <p className="text-xs text-red-500 mt-1">
+                        Passwords do not match.
+                      </p>
+                    )}
                 </div>
 
                 <div className="pt-2">
                   <button
                     id="reset-submit"
                     type="submit"
-                    disabled={isLoading || (password !== confirmPassword && confirmPassword.length > 0)}
+                    disabled={
+                      isLoading ||
+                      (password !== confirmPassword &&
+                        confirmPassword.length > 0)
+                    }
                     className="w-full py-3.5 rounded-xl text-sm font-semibold tracking-wide transition-all duration-200 flex items-center justify-center gap-2"
                     style={{
-                      backgroundColor: (isLoading || (password !== confirmPassword && confirmPassword.length > 0)) ? "#17171A" : "#081D3A",
+                      backgroundColor:
+                        isLoading ||
+                        (password !== confirmPassword &&
+                          confirmPassword.length > 0)
+                          ? "#17171A"
+                          : "#081D3A",
                       color: "#F3F3F3",
-                      opacity: (isLoading || (password !== confirmPassword && confirmPassword.length > 0)) ? 0.75 : 1,
-                      cursor: (isLoading || (password !== confirmPassword && confirmPassword.length > 0)) ? "not-allowed" : "pointer",
+                      opacity:
+                        isLoading ||
+                        (password !== confirmPassword &&
+                          confirmPassword.length > 0)
+                          ? 0.75
+                          : 1,
+                      cursor:
+                        isLoading ||
+                        (password !== confirmPassword &&
+                          confirmPassword.length > 0)
+                          ? "not-allowed"
+                          : "pointer",
                       boxShadow: "0 4px 14px rgba(8, 29, 58, 0.2)",
                     }}
                     onMouseEnter={(e) => {
                       if (!isLoading && password === confirmPassword)
-                        (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#000000";
+                        (
+                          e.currentTarget as HTMLButtonElement
+                        ).style.backgroundColor = "#000000";
                     }}
                     onMouseLeave={(e) => {
                       if (!isLoading && password === confirmPassword)
-                        (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#081D3A";
+                        (
+                          e.currentTarget as HTMLButtonElement
+                        ).style.backgroundColor = "#081D3A";
                     }}
                   >
                     {isLoading ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" stroke="rgba(243, 243, 243, 0.8)" />
+                        <Loader2
+                          className="w-4 h-4 animate-spin"
+                          stroke="rgba(243, 243, 243, 0.8)"
+                        />
                         Updating password...
                       </>
                     ) : (
@@ -290,6 +460,11 @@ export default function ResetPassword() {
                       </>
                     )}
                   </button>
+                  {error && (
+                    <div className="mt-3 text-sm text-red-600 text-center font-semibold">
+                      {error}
+                    </div>
+                  )}
                 </div>
               </form>
             ) : (
@@ -298,11 +473,20 @@ export default function ResetPassword() {
                   className="w-16 h-16 rounded-full flex items-center justify-center mb-6"
                   style={{ backgroundColor: "rgba(246, 227, 4, 0.2)" }}
                 >
-                  <CheckCircle2 className="w-8 h-8" style={{ color: "#081D3A" }} />
+                  <CheckCircle2
+                    className="w-8 h-8"
+                    style={{ color: "#081D3A" }}
+                  />
                 </div>
-                <h3 className="text-xl font-bold mb-2" style={{ color: "#000000" }}>All done!</h3>
+                <h3
+                  className="text-xl font-bold mb-2"
+                  style={{ color: "#000000" }}
+                >
+                  All done!
+                </h3>
                 <p className="text-sm mb-8" style={{ color: "#17171A" }}>
-                  Your password has been successfully reset. You can now use your new password to log in.
+                  Your password has been successfully reset. You can now use
+                  your new password to log in.
                 </p>
                 <a
                   href="/admin/login"
@@ -313,10 +497,14 @@ export default function ResetPassword() {
                     boxShadow: "0 4px 14px rgba(8, 29, 58, 0.2)",
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#000000";
+                    (
+                      e.currentTarget as HTMLAnchorElement
+                    ).style.backgroundColor = "#000000";
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#081D3A";
+                    (
+                      e.currentTarget as HTMLAnchorElement
+                    ).style.backgroundColor = "#081D3A";
                   }}
                 >
                   Return to login
@@ -348,7 +536,10 @@ export default function ResetPassword() {
               border: "1px solid rgba(246, 227, 4, 0.3)",
             }}
           >
-            <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#081D3A" }} />
+            <ShieldCheck
+              className="w-4 h-4 mt-0.5 shrink-0"
+              style={{ color: "#081D3A" }}
+            />
             <p className="text-xs leading-relaxed" style={{ color: "#17171A" }}>
               Your session is protected with end-to-end encryption. Unauthorized
               access attempts are logged and monitored.

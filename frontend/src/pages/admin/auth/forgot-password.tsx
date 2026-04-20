@@ -1,18 +1,50 @@
 import { useState } from "react";
-import { Mail, ArrowLeft, Loader2, ArrowRight, ShieldCheck } from "lucide-react";
+import {
+  Mail,
+  ArrowLeft,
+  Loader2,
+  ArrowRight,
+  ShieldCheck,
+} from "lucide-react";
+import { useForgotPasswordMutation } from "../../../app/api/AuthApi";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [forgotPassword] = useForgotPasswordMutation();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
+    setError(null);
+    try {
+      await forgotPassword(email).unwrap();
       setIsLoading(false);
       setIsSent(true);
-    }, 2000);
+    } catch (err: any) {
+      setIsLoading(false);
+      if (
+        typeof err === "object" &&
+        err &&
+        "data" in err &&
+        typeof err.data === "string"
+      ) {
+        setError(err.data);
+      } else if (
+        typeof err === "object" &&
+        err &&
+        "data" in err &&
+        typeof err.data === "object" &&
+        err.data.message
+      ) {
+        setError(err.data.message);
+      } else {
+        setError("Failed to send reset link. Please try again.");
+      }
+    }
   };
 
   return (
@@ -20,7 +52,8 @@ export default function ForgotPassword() {
       className="min-h-screen flex"
       style={{
         backgroundColor: "#ffffff",
-        fontFamily: "'Times New Roman', sans-serif, Geist, 'Geist Placeholder', Inter, 'Inter Placeholder', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', ui-sans-serif, system-ui",
+        fontFamily:
+          "'Times New Roman', sans-serif, Geist, 'Geist Placeholder', Inter, 'Inter Placeholder', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', ui-sans-serif, system-ui",
       }}
     >
       <div
@@ -80,7 +113,16 @@ export default function ForgotPassword() {
           >
             Manage your
             <br />
-            <span style={{ color: "#17171A", borderBottom: "4px solid #F6E304", paddingBottom: "2px" }}>service</span> network
+            <span
+              style={{
+                color: "#17171A",
+                borderBottom: "4px solid #F6E304",
+                paddingBottom: "2px",
+              }}
+            >
+              service
+            </span>{" "}
+            network
             <br />
             with confidence.
           </h1>
@@ -140,7 +182,9 @@ export default function ForgotPassword() {
               Reset password
             </h2>
             <p className="text-sm" style={{ color: "#17171A" }}>
-              {isSent ? "Check your email for a reset link" : "Enter your email to receive a reset link"}
+              {isSent
+                ? "Check your email for a reset link"
+                : "Enter your email to receive a reset link"}
             </p>
           </div>
 
@@ -220,7 +264,10 @@ export default function ForgotPassword() {
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" stroke="rgba(243, 243, 243, 0.8)" />
+                      <Loader2
+                        className="w-4 h-4 animate-spin"
+                        stroke="rgba(243, 243, 243, 0.8)"
+                      />
                       Sending reset link...
                     </>
                   ) : (
@@ -230,6 +277,11 @@ export default function ForgotPassword() {
                     </>
                   )}
                 </button>
+                {error && (
+                  <div className="mt-3 text-sm text-red-600 text-center font-semibold">
+                    {error}
+                  </div>
+                )}
               </form>
             ) : (
               <div className="flex flex-col items-center justify-center py-6 text-center">
@@ -239,7 +291,12 @@ export default function ForgotPassword() {
                 >
                   <Mail className="w-8 h-8" style={{ color: "#081D3A" }} />
                 </div>
-                <h3 className="text-xl font-bold mb-2" style={{ color: "#000000" }}>Check your inbox</h3>
+                <h3
+                  className="text-xl font-bold mb-2"
+                  style={{ color: "#000000" }}
+                >
+                  Check your inbox
+                </h3>
                 <p className="text-sm mb-6" style={{ color: "#17171A" }}>
                   We've sent a password reset link to <br />
                   <span className="font-semibold">{email}</span>
@@ -254,12 +311,18 @@ export default function ForgotPassword() {
                     border: "1.5px solid rgba(8, 29, 58, 0.15)",
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "#F6E304";
-                    (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#ffffff";
+                    (e.currentTarget as HTMLButtonElement).style.borderColor =
+                      "#F6E304";
+                    (
+                      e.currentTarget as HTMLButtonElement
+                    ).style.backgroundColor = "#ffffff";
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(8, 29, 58, 0.15)";
-                    (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#F3F3F3";
+                    (e.currentTarget as HTMLButtonElement).style.borderColor =
+                      "rgba(8, 29, 58, 0.15)";
+                    (
+                      e.currentTarget as HTMLButtonElement
+                    ).style.backgroundColor = "#F3F3F3";
                   }}
                 >
                   Try another email
@@ -291,7 +354,10 @@ export default function ForgotPassword() {
               border: "1px solid rgba(246, 227, 4, 0.3)",
             }}
           >
-            <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#081D3A" }} />
+            <ShieldCheck
+              className="w-4 h-4 mt-0.5 shrink-0"
+              style={{ color: "#081D3A" }}
+            />
             <p className="text-xs leading-relaxed" style={{ color: "#17171A" }}>
               Your session is protected with end-to-end encryption. Unauthorized
               access attempts are logged and monitored.

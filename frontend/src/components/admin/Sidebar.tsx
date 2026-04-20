@@ -8,10 +8,13 @@ import {
   LogOut,
   Briefcase,
 } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLogoutMutation } from "../../app/api/AuthApi";
 
 export default function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [logout] = useLogoutMutation();
 
   const navigation = [
     { name: "Dashboard", href: "/admin/dashboard", icon: LayoutGrid },
@@ -27,7 +30,7 @@ export default function Sidebar() {
     <aside className="group w-22.5 hover:w-64 h-full bg-white rounded-4xl shadow-sm flex flex-col py-4 shrink-0 z-10 box-border overflow-hidden transition-all duration-300">
       {/* Logo */}
       <div className="flex items-center gap-3 mb-6 w-full px-6.25 group-hover:px-6 transition-all duration-300">
-        <div 
+        <div
           className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm shrink-0"
           style={{ backgroundColor: "#F6E304" }}
         >
@@ -72,10 +75,13 @@ export default function Sidebar() {
                   : { color: "#17171A", opacity: 0.7 }
               }
               onMouseEnter={(e) => {
-                if (!isActive) e.currentTarget.style.backgroundColor = "rgba(8, 29, 58, 0.05)";
+                if (!isActive)
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(8, 29, 58, 0.05)";
               }}
               onMouseLeave={(e) => {
-                if (!isActive) e.currentTarget.style.backgroundColor = "transparent";
+                if (!isActive)
+                  e.currentTarget.style.backgroundColor = "transparent";
               }}
               title={item.name}
             >
@@ -103,8 +109,10 @@ export default function Sidebar() {
             e.currentTarget.style.backgroundColor = "transparent";
           }}
         >
-          <div className="w-10 h-10 shrink-0 rounded-[14px] flex items-center justify-center overflow-hidden ring-2 ring-white shadow-sm transition-all hover:ring-[#F6E304]"
-               style={{ backgroundColor: "#F3F3F3" }}>
+          <div
+            className="w-10 h-10 shrink-0 rounded-[14px] flex items-center justify-center overflow-hidden ring-2 ring-white shadow-sm transition-all hover:ring-[#F6E304]"
+            style={{ backgroundColor: "#F3F3F3" }}
+          >
             <img
               src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=transparent"
               alt="Profile"
@@ -115,16 +123,24 @@ export default function Sidebar() {
             Profile
           </span>
         </Link>
-        
-        <Link
-          to="/admin/login"
-          className="h-10 flex items-center rounded-2xl transition-all duration-200 overflow-hidden w-10 group-hover:w-full shrink-0"
-          style={{ color: "#17171A" }}
+
+        <button
+          type="button"
+          className="h-10 flex items-center rounded-2xl transition-all duration-200 overflow-hidden w-10 group-hover:w-full shrink-0 bg-transparent border-none outline-none"
+          style={{ color: "#17171A", cursor: "pointer" }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = "rgba(8, 29, 58, 0.05)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = "transparent";
+          }}
+          onClick={async () => {
+            try {
+              await logout().unwrap();
+              navigate("/admin/login");
+            } catch (err) {
+              // Optionally handle error
+            }
           }}
         >
           <div className="w-10 h-10 shrink-0 flex items-center justify-center opacity-70">
@@ -133,9 +149,8 @@ export default function Sidebar() {
           <span className="font-medium whitespace-nowrap ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             Logout
           </span>
-        </Link>
+        </button>
       </div>
     </aside>
   );
 }
-

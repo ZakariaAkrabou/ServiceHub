@@ -2,12 +2,22 @@ import { createSlice } from "@reduxjs/toolkit";
 import { authApi } from "../api/AuthApi";
 import type { RootState } from "../store/store";
 
-const initialState = {
+import type { User } from "../../types/user";
+
+interface AuthState {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+}
+
+const initialState: AuthState = {
   user: null,
   token: null,
   isAuthenticated: false,
   isLoading: false,
-  error: null as string | null,
+  error: null,
 };
 const authSlice = createSlice({
   name: "auth",

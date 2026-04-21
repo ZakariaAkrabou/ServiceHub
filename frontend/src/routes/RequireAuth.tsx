@@ -4,12 +4,16 @@ import type { RootState } from "../app/store/store";
 import { useProfileQuery } from "../app/api/AuthApi";
 import { setCredentials, logout } from "../app/slices/AuthSlice";
 import React from "react";
+import type { User } from "../types/user";
 
 export default function RequireAuth() {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
   );
+  const user = useSelector(
+    (state: RootState) => state.auth.user,
+  ) as User | null;
   const { data, isLoading, isError } = useProfileQuery(undefined);
 
   React.useEffect(() => {
@@ -38,6 +42,10 @@ export default function RequireAuth() {
   }
   if (!isAuthenticated) {
     return <Navigate to="/admin/login" replace />;
+  }
+
+  if (!user || user.role !== "admin") {
+    return <Navigate to="/not-authorized" replace />;
   }
   return <Outlet />;
 }

@@ -67,6 +67,32 @@ export const getAllBookings = async (req, res) => {
   }
 };
 
+export const getBookingById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const booking = await Booking.findById(id)
+      .populate("customer_id", "firstName lastName email")
+      .populate({
+        path: "service_id",
+        populate: {
+          path: "provider_id",
+          select: "firstName lastName email",
+        },
+      });
+    if (booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    return res
+      .status(200)
+      .json({ message: "Booking retrieved successfully", data: booking });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 export const filtreBookings = async (req, res) => {
   try {
     const { status, customerId, providerId } = req.query;
@@ -88,4 +114,3 @@ export const filtreBookings = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
-

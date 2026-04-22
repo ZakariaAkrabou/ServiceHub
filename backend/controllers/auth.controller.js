@@ -129,14 +129,22 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
-    // Set token in httpOnly cookie
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60 * 60 * 1000, // 1 hour
+      maxAge: 60 * 60 * 1000,
     });
-    res.status(200).json({ message: "Login Successful" });
+    if (user.isBanned) {
+      return res.status(403).json({
+        message: "Your account is banned",
+        reason: user.banInfo?.reason,
+        duration: user.banInfo?.duration,
+        expiresAt: user.banInfo?.expiresAt,
+      });
+    }
+    res.status(200).json({ message: "Login Successful", token });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });

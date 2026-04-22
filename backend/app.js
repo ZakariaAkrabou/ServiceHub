@@ -8,6 +8,7 @@ import helmet from "helmet";
 
 
 import { initSocket } from "./config/socket.js";
+import { startCronJobs } from "./utils/corn.js";
 
 import authRoutes from "./routes/auth.route.js";
 import serviceRoutes from "./routes/service.route.js";
@@ -48,6 +49,7 @@ const server = http.createServer(app);
 const io = initSocket(server);
 
 app.set("io", io);
+startCronJobs();
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

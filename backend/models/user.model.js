@@ -80,6 +80,16 @@ const userSchema = new mongoose.Schema(
         return this.role === "service_provider";
       },
     },
+    isBanned: {
+      type: Boolean,
+      default: false,
+    },
+    banInfo: {
+      reason: String,
+      duration: Number, 
+      bannedAt: Date,
+      expiresAt: Date,
+    },
 
     verificationToken: {
       type: String,

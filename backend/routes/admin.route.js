@@ -13,8 +13,9 @@ router.delete("/users/:userId", authenticated, isAdmin, adminController.deleteUs
 
 router.get("/bookings", authenticated, isAdmin, adminController.getAllBookings);
 
+router.get("/bookings/filter", authenticated, isAdmin, adminController.filtreBookings);
+
 router.get("/bookings/:id", authenticated, isAdmin, adminController.getBookingById);
 
-router.get("/bookings/filter", authenticated, isAdmin, adminController.filtreBookings);
 
 export default router;

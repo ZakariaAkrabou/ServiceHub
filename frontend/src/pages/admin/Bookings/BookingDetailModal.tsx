@@ -87,20 +87,12 @@ export default function BookingDetailModal({ booking, onClose }: BookingDetailMo
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center border border-gray-100 shrink-0">
-                  <Hash className="w-4 h-4 text-gray-500" />
-                </div>
-                <div>
-                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">ID Complet</p>
-                  <p className="font-mono text-xs text-gray-600 break-all">{booking._id}</p>
-                </div>
-              </div>
+             
             </div>
 
             <div className="flex flex-col gap-4">
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-3.5 text-[13px] text-blue-800 font-medium">
-                La réservation <strong>#{bookingId}</strong> est actuellement <strong>{status}</strong>.
+                La réservation de <strong>{customerName}</strong> est actuellement <strong>{status}</strong>.
                 {status.toLowerCase() === "pending" && " Une confirmation peut être requise."}
               </div>
               {booking.chosenContactMethod && (

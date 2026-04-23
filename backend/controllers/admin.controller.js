@@ -74,7 +74,6 @@ export const getBookingById = async (req, res) => {
         },
       });
 
-    // ✅ BUG 5 CORRIGÉ : était "if (booking)" — retournait 404 quand le booking existait !
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
@@ -93,7 +92,6 @@ export const filtreBookings = async (req, res) => {
 
     let filter = {};
 
-    // ✅ BUG 2 CORRIGÉ : le champ dans booking.model.js s'appelle "status", pas "booking_status"
     if (status) filter.status = status;
     if (customerId) filter.customer_id = customerId;
     if (providerId) {
@@ -104,7 +102,6 @@ export const filtreBookings = async (req, res) => {
 
     const bookings = await Booking.find(filter)
       .populate("customer_id", "firstName lastName email")
-      // ✅ BUG 3 CORRIGÉ : nested populate pour avoir provider_id dans service_id
       .populate({
         path: "service_id",
         populate: {

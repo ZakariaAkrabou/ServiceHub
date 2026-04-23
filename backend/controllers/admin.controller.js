@@ -127,20 +127,6 @@ export const updateProviderStatus = async (req, res) => {
   }
 };
 
-
-export const deleteUser = async (req, res) => {
-  try {
-    const userId = req.params.userId;
-
-    await User.findByIdAndDelete(userId);
-
-    return res.status(200).json({ message: "User deleted successfully" });
-  } catch (error) {
-    return res.status(500).json({ message: "Server error" });
-  }
-};
-
-
 export const getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find()
@@ -231,7 +217,7 @@ export const banUser = async (req, res) => {
 
     const bannedAt = new Date();
     const expiresAt = new Date(
-      bannedAt.getTime() + duration * 24 * 60 * 60 * 1000
+      bannedAt.getTime() + duration * 24 * 60 * 60 * 1000,
     );
 
     user.isBanned = true;
@@ -243,6 +229,13 @@ export const banUser = async (req, res) => {
     };
 
     await user.save();
+
+    if (user.role === "service_provider") {
+      await Service.updateMany(
+        { provider_id: user._id },
+        { $set: { hidden: true } },
+      );
+    }
 
     return res.status(200).json({
       message: "User banned successfully",
@@ -271,9 +264,36 @@ export const unbanUser = async (req, res) => {
 
     await user.save();
 
+    // If the user is a service provider, unhide all their services
+    if (user.role === "service_provider") {
+      await Service.updateMany(
+        { provider_id: user._id },
+        { $set: { hidden: false } },
+      );
+    }
+
     return res.status(200).json({
       message: "User unbanned successfully",
     });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+export const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.role === "service_provider") {
+      await Service.deleteMany({ provider_id: user._id });
+    }
+
+    await User.findByIdAndDelete(userId);
+
+    return res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }

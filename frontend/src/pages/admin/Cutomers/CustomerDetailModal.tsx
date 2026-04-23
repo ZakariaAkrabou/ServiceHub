@@ -4,7 +4,6 @@ import {
   Phone,
   Calendar,
   ShoppingBag,
-  CreditCard,
 } from "lucide-react";
 import {
   type Customer,

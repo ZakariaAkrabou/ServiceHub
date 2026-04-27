@@ -37,11 +37,7 @@ const userSchema = new mongoose.Schema(
     },
     serviceCategory: {
       type: [String],
-
       required: function () {
-        return this.role === "service_provider";
-      },
-      ion() {
         return this.role === "service_provider";
       },
       default: undefined,
@@ -51,16 +47,10 @@ const userSchema = new mongoose.Schema(
       required: function () {
         return this.role === "service_provider";
       },
-      ion() {
-        return this.role === "service_provider";
-      },
     },
     phone: {
       type: String,
       required: function () {
-        return this.role === "service_provider";
-      },
-      ion() {
         return this.role === "service_provider";
       },
       trim: true,

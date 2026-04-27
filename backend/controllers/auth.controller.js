@@ -102,40 +102,66 @@ export const verifyEmail = async (req, res) => {
   }
 };
 
+export const generateAccessToken = (user) => {
+  return jwt.sign(
+    {
+      userId: user._id,
+      role: user.role,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "15m" },
+  );
+};
+export const generateRefreshToken = (user) => {
+  return jwt.sign(
+    {
+      userId: user._id,
+    },
+    process.env.JWT_REFRESH_SECRET,
+    { expiresIn: "7d" },
+  );
+};
+
+export const refreshTokenController = async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+    if (!token) return res.status(401).json({ message: "No refresh token" });
+
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    const user = await User.findById(decoded.userId);
+    if (!user) return res.status(401).json({ message: "User not found" });
+
+    const accessToken = generateAccessToken(user);
+    return res.status(200).json({ accessToken });
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid refresh token" });
+  }
+};
+
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
+
   try {
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required",
+      });
+    }
+
     const user = await User.findOne({ email });
+
     if (!user) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({
+        message: "Invalid email or password",
+      });
     }
 
     if (!user.isVerified) {
-      return res
-        .status(400)
-        .json({ message: "Please verify your email before logging in" });
+      return res.status(400).json({
+        message: "Please verify your email before logging in",
+      });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid email or password" });
-    }
-
-    const payload = {
-      userId: user._id,
-      role: user.role,
-    };
-
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 1000,
-    });
     if (user.isBanned) {
       return res.status(403).json({
         message: "Your account is banned",
@@ -144,10 +170,31 @@ export const loginUser = async (req, res) => {
         expiresAt: user.banInfo?.expiresAt,
       });
     }
-    res.status(200).json({ message: "Login Successful", token });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Invalid email or password",
+      });
+    }
+
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({ message: "Login successful", accessToken });
+  } catch (error) {
+    console.error("Login Error:", error);
+    return res.status(500).json({
+      message: "Server error",
+    });
   }
 };
 
@@ -213,10 +260,11 @@ export const resetPassword = async (req, res) => {
 };
 
 export const logoutUser = (req, res) => {
-  res.clearCookie("token", {
+  res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
   });
+
   res.status(200).json({ message: "Logged out successfully" });
 };

@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import Booking from "../models/booking.model.js";
 import Service from "../models/service.model.js";
+import mongoose from "mongoose";
 
 export const allUsers = async (req, res) => {
   try {
@@ -17,6 +18,7 @@ export const allUsers = async (req, res) => {
       User.find({ role: { $ne: "admin" } }, "-password")
         .skip(skip)
         .limit(limit)
+        .sort({ createdAt: -1 })
         .lean(),
     ]);
 
@@ -28,20 +30,55 @@ export const allUsers = async (req, res) => {
       else if (user.role === "service_provider") providerIds.push(user._id);
     }
 
-    const [customerBookingCounts, providerServices] = await Promise.all([
-      customerIds.length
+   
+    const providerObjectIds = providerIds.map(
+      (id) => new mongoose.Types.ObjectId(id.toString()),
+    );
+    const customerObjectIds = customerIds.map(
+      (id) => new mongoose.Types.ObjectId(id.toString()),
+    );
+
+    const [customerBookingCounts, providerStats] = await Promise.all([
+      customerObjectIds.length
         ? Booking.aggregate([
-            { $match: { customer_id: { $in: customerIds } } },
+            { $match: { customer_id: { $in: customerObjectIds } } },
             { $group: { _id: "$customer_id", count: { $sum: 1 } } },
           ])
         : [],
-      providerIds.length
-        ? Service.find(
-            { provider_id: { $in: providerIds } },
-            "_id provider_id",
-          ).lean()
+      providerObjectIds.length
+        ? Service.aggregate([
+            { $match: { provider_id: { $in: providerObjectIds } } },
+            {
+              $group: {
+                _id: "$provider_id",
+                serviceCount: { $sum: 1 },
+                totalRating: { $sum: "$rating" },
+                ratingCount: {
+                  $sum: { $cond: [{ $gt: ["$rating", 0] }, 1, 0] },
+                },
+              },
+            },
+          ])
         : [],
     ]);
+
+   
+    const customerCountMap = Object.fromEntries(
+      customerBookingCounts.map(({ _id, count }) => [_id.toString(), count]),
+    );
+
+    
+    const providerStatsMap = Object.fromEntries(
+      providerStats.map((stat) => [stat._id.toString(), stat]),
+    );
+
+   
+    const providerServices = providerObjectIds.length
+      ? await Service.find(
+          { provider_id: { $in: providerObjectIds } },
+          "_id provider_id",
+        ).lean()
+      : [];
 
     const serviceToProvider = Object.fromEntries(
       providerServices.map((s) => [s._id.toString(), s.provider_id.toString()]),
@@ -55,26 +92,31 @@ export const allUsers = async (req, res) => {
         ])
       : [];
 
-    const customerCountMap = Object.fromEntries(
-      customerBookingCounts.map(({ _id, count }) => [_id.toString(), count]),
-    );
-
-    const providerCountMap = {};
+    const providerBookingCountMap = {};
     for (const { _id, count } of providerBookingCounts) {
       const providerId = serviceToProvider[_id.toString()];
       if (providerId) {
-        providerCountMap[providerId] =
-          (providerCountMap[providerId] ?? 0) + count;
+        providerBookingCountMap[providerId] =
+          (providerBookingCountMap[providerId] ?? 0) + count;
       }
     }
 
     const usersWithStats = users.map((user) => {
       const id = user._id.toString();
-      let totalBookings = 0;
+      let jobsCompleted = 0;
+      let serviceCount = 0;
+      let rating = 0;
 
-      if (user.role === "customer") totalBookings = customerCountMap[id] ?? 0;
-      else if (user.role === "service_provider")
-        totalBookings = providerCountMap[id] ?? 0;
+      if (user.role === "customer") {
+        jobsCompleted = customerCountMap[id] ?? 0;
+      } else if (user.role === "service_provider") {
+        jobsCompleted = providerBookingCountMap[id] ?? 0;
+        const stats = providerStatsMap[id];
+        if (stats) {
+          serviceCount = stats.serviceCount;
+          rating = stats.ratingCount > 0 ? stats.totalRating / stats.ratingCount : 0;
+        }
+      }
 
       return {
         _id: user._id,
@@ -84,7 +126,22 @@ export const allUsers = async (req, res) => {
         phone: user.phone,
         role: user.role,
         status: user.status,
-        totalBookings,
+        serviceCount,
+        jobsCompleted,
+        rating: Number(rating.toFixed(1)),
+        joinedDate: user.createdAt
+          ? new Date(user.createdAt).toLocaleDateString()
+          : "N/A",
+        specialty:
+          user.serviceCategory &&
+          (Array.isArray(user.serviceCategory)
+            ? user.serviceCategory.length > 0
+            : true)
+            ? Array.isArray(user.serviceCategory)
+              ? user.serviceCategory.join(", ")
+              : user.serviceCategory
+            : "N/A",
+        serviceDescription: user.serviceDescription || "",
         isBanned: user.isBanned || false,
         banInfo: user.banInfo || null,
       };
@@ -98,7 +155,7 @@ export const allUsers = async (req, res) => {
       data: usersWithStats,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error in allUsers:", error);
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -264,7 +321,7 @@ export const unbanUser = async (req, res) => {
 
     await user.save();
 
-    // If the user is a service provider, unhide all their services
+    
     if (user.role === "service_provider") {
       await Service.updateMany(
         { provider_id: user._id },

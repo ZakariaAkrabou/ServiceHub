@@ -46,6 +46,12 @@ export const authApi = api.injectEndpoints({
       }),
       providesTags: ["Auth"],
     }),
+    refreshToken: builder.mutation({
+      query: () => ({
+        url: "/api/auth/refresh-token",
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -56,4 +62,5 @@ export const {
   useResetPasswordMutation,
   useLogoutMutation,
   useProfileQuery,
+  useRefreshTokenMutation,
 } = authApi;

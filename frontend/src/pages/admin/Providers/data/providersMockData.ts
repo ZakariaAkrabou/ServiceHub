@@ -1,4 +1,6 @@
 export interface Provider {
+  serviceCount: number;
+  serviceDescription: string;
   id: string;
   name: string;
   specialty: string;

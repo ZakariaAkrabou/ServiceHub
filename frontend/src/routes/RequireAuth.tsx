@@ -14,23 +14,23 @@ export default function RequireAuth({
 }: RequireAuthProps) {
   const dispatch = useDispatch();
 
-  const { isAuthenticated, user } = useSelector(
+  const { isAuthenticated, user, token } = useSelector(
     (state: RootState) => state.auth,
-  ) as { isAuthenticated: boolean; user: User | null };
+  ) as { isAuthenticated: boolean; user: User | null; token: string | null };
 
   const { data, isLoading, isError, error } = useProfileQuery(undefined, {
-    skip: !!user,
+    skip: !token || !!user,
   });
 
   React.useEffect(() => {
     if (data?.user) {
-      dispatch(setCredentials({ user: data.user, token: null }));
+      dispatch(setCredentials({ user: data.user, token }));
     }
 
     if (isError && (error as any)?.status === 401) {
       dispatch(logout());
     }
-  }, [data, isError, error, dispatch]);
+  }, [data, isError, error, dispatch, token]);
 
   if (isLoading && !user) {
     return (

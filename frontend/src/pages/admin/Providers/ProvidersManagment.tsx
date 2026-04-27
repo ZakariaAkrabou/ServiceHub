@@ -1,60 +1,80 @@
-import { useState } from "react";
-import { Search, XCircle, Briefcase, Eye, Phone } from "lucide-react";
-
+import { useState, useMemo } from "react";
+import { Search, Eye, Phone, Briefcase, XCircle } from "lucide-react";
 import {
-  type Provider,
-  initialProvidersList,
-  statusStyle,
-} from "./data/providersMockData";
+  useGetAllProvidersQuery,
+  useUpdateProviderStatusMutation,
+} from "../../../app/api/ProviderApi";
 import ProviderDetailModal from "./ProviderDetailModal";
 
+const statusStyle: Record<string, string> = {
+  Active: "bg-emerald-50 text-emerald-600 border-emerald-100",
+  Pending: "bg-amber-50 text-amber-600 border-amber-100",
+  Rejected: "bg-rose-50 text-rose-600 border-rose-100",
+};
+
 export default function ProvidersManagement() {
-  const [providers, setProviders] = useState<Provider[]>(initialProvidersList);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const [selectedProvider, setSelectedProvider] = useState<any>(null);
 
-  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
-    null,
-  );
+  const { data, isLoading, isError, refetch } = useGetAllProvidersQuery({
+    page: currentPage,
+    limit: itemsPerPage,
+  });
+  const [updateProviderStatus] = useUpdateProviderStatusMutation();
 
-  const handleStatusChange = (
-    id: string,
-    newStatus: "Active" | "Rejected" | "Pending",
-  ) => {
-    setProviders((prev) =>
-      prev.map((provider) => {
-        if (provider.id === id) {
-          const updated = { ...provider, status: newStatus };
-          if (selectedProvider?.id === id) setSelectedProvider(updated);
-          return updated;
-        }
-        return provider;
-      }),
-    );
-  };
+  const statusMap = {
+    pending: "Pending",
+    approved: "Active",
+    rejected: "Rejected",
+  } as const;
+
+  const reverseStatusMap = {
+    Pending: "pending",
+    Active: "approved",
+    Rejected: "rejected",
+  } as const;
+
+  const providers = useMemo(() => {
+    if (!data?.data) return [];
+    return data.data.map((p: any) => ({
+      ...p,
+      id: p._id,
+      name: `${p.firstName} ${p.lastName}`,
+      status: statusMap[p.status as keyof typeof statusMap] || "Pending",
+    }));
+  }, [data]);
 
   const filteredProviders = providers.filter((provider) => {
     const matchesSearch =
       provider.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      provider.specialty.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      provider.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       provider.id.toLowerCase().includes(searchTerm.toLowerCase());
-
     const matchesStatus =
       statusFilter === "All" || provider.status === statusFilter;
-
     return matchesSearch && matchesStatus;
   });
 
   const totalItems = filteredProviders.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const totalPages = data?.totalPages || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentProviders = filteredProviders.slice(
-    startIndex,
-    startIndex + itemsPerPage,
-  );
+  const currentProviders = filteredProviders;
+
+  const handleStatusChange = async (
+    id: string,
+    newStatus: "Active" | "Rejected",
+  ) => {
+    const backendStatus = reverseStatusMap[newStatus] as
+      | "approved"
+      | "rejected";
+    if (selectedProvider?.id === id) {
+      setSelectedProvider({ ...selectedProvider, status: newStatus });
+    }
+    await updateProviderStatus({ userId: id, status: backendStatus });
+    refetch();
+  };
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -65,6 +85,17 @@ export default function ProvidersManagement() {
     setStatusFilter(value);
     setCurrentPage(1);
   };
+
+  if (isLoading) {
+    return <div className="p-10 text-center text-lg">Loading providers...</div>;
+  }
+  if (isError) {
+    return (
+      <div className="p-10 text-center text-red-500">
+        Failed to load providers.
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8 pb-10 min-h-screen bg-[#F8FAFC]">
@@ -80,7 +111,6 @@ export default function ProvidersManagement() {
       </div>
 
       <div className="grid grid-cols-1 gap-8">
-        {/* ── Search & Filter Bar ── */}
         <div className="bg-white rounded-4xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-6 flex flex-col lg:flex-row gap-6 items-center justify-between">
           <div className="relative w-full lg:max-w-xl group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#081D3A] transition-colors" />
@@ -112,9 +142,7 @@ export default function ProvidersManagement() {
           </div>
         </div>
 
-        {/* ── Main List Container ── */}
         <div className="bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(8,29,58,0.05)] border border-slate-100 overflow-hidden">
-          {/* Mobile View (Cards) */}
           <div className="md:hidden divide-y divide-slate-50">
             {currentProviders.map((provider) => (
               <div
@@ -190,11 +218,13 @@ export default function ProvidersManagement() {
                         className="w-full py-3 px-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-[#081D3A] uppercase tracking-widest appearance-none outline-none focus:border-[#081D3A] transition-all"
                         value={provider.status}
                         onChange={(e) =>
-                          handleStatusChange(provider.id, e.target.value as any)
+                          handleStatusChange(
+                            provider.id,
+                            e.target.value as "Active" | "Rejected",
+                          )
                         }
                       >
                         <option value="Active">Set Active</option>
-                        <option value="Pending">Set Pending</option>
                         <option value="Rejected">Set Rejected</option>
                       </select>
                     </div>
@@ -204,7 +234,6 @@ export default function ProvidersManagement() {
             ))}
           </div>
 
-          {/* Desktop View (Table) */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
@@ -308,7 +337,6 @@ export default function ProvidersManagement() {
                               }
                             >
                               <option value="Active">Set Active</option>
-                              <option value="Pending">Set Pending</option>
                               <option value="Rejected">Set Rejected</option>
                             </select>
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover/select:text-[#081D3A]">
@@ -336,7 +364,6 @@ export default function ProvidersManagement() {
             </table>
           </div>
 
-          {/* Pagination Footer */}
           {totalPages > 0 && (
             <div className="px-8 py-6 border-t border-slate-50 bg-slate-50/30 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -383,12 +410,18 @@ export default function ProvidersManagement() {
         </div>
       </div>
 
-      {/* ── Provider Details Modal ── */}
       {selectedProvider && (
         <ProviderDetailModal
           provider={selectedProvider}
           onClose={() => setSelectedProvider(null)}
-          onStatusChange={handleStatusChange}
+          onStatusChange={(id, status) => {
+         
+            const statusMap = {
+              approved: "Active",
+              rejected: "Rejected",
+            } as const;
+            handleStatusChange(id, statusMap[status]);
+          }}
         />
       )}
     </div>

@@ -1,16 +1,30 @@
 import { useState } from "react";
-import { useGetBookingsQuery } from "../../../app/api/BookingApi";
+import { useFilterBookingsQuery } from "../../../app/api/BookingApi";
 import BookingDetailModal from "./BookingDetailModal";
 
 const SearchIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <circle cx="11" cy="11" r="8" />
     <path d="m21 21-4.35-4.35" />
   </svg>
 );
 
 const ChevronIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <path d="m6 9 6 6 6-6" />
   </svg>
 );
@@ -36,7 +50,9 @@ function StatusBadge({ status }: { status: string }) {
       styles = "bg-gray-50 text-gray-700 border border-gray-200";
   }
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold w-fit capitalize ${styles}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold w-fit capitalize ${styles}`}
+    >
       {status}
     </span>
   );
@@ -55,7 +71,9 @@ function FilterSelect({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-gray-500 font-medium whitespace-nowrap">{label}</span>
+      <span className="text-sm text-gray-500 font-medium whitespace-nowrap">
+        {label}
+      </span>
       <div className="relative">
         <select
           value={value}
@@ -63,7 +81,9 @@ function FilterSelect({
           className="appearance-none pl-3 pr-8 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100 bg-white cursor-pointer transition"
         >
           {options.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
           ))}
         </select>
         <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
@@ -80,22 +100,38 @@ export default function BookingManagement() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
+  const [page, setPage] = useState(1);
+  const limit = 6;
 
-  const { data, isLoading, isError } = useGetBookingsQuery({
-    status: statusFilter === "All" ? undefined : statusFilter.toLowerCase(),
-  });
+  const {
+    data: filterData,
+    isLoading: isFilterLoading,
+    isError: isFilterError,
+  } = useFilterBookingsQuery(
+    {
+      status: statusFilter === "All" ? undefined : statusFilter.toLowerCase(),
+      page: page,
+      limit: limit,
+    },
+    {
+      skip: false,
+    },
+  );
 
-  const bookings = data?.data || [];
+  const bookings = filterData?.data || [];
 
   const filtered = bookings.filter((b: any) => {
     const q = search.toLowerCase();
-    const customerName = `${b.customer_id?.firstName} ${b.customer_id?.lastName}`.toLowerCase();
+    const customerName =
+      `${b.customer_id?.firstName} ${b.customer_id?.lastName}`.toLowerCase();
     const serviceName = b.service_id?.name?.toLowerCase() || "";
-    const providerName = `${b.service_id?.provider_id?.firstName} ${b.service_id?.provider_id?.lastName}`.toLowerCase();
+    const providerName =
+      `${b.service_id?.provider_id?.firstName} ${b.service_id?.provider_id?.lastName}`.toLowerCase();
 
     const matchSearch =
-      customerName.includes(q) || serviceName.includes(q) || providerName.includes(q);
-
+      customerName.includes(q) ||
+      serviceName.includes(q) ||
+      providerName.includes(q);
 
     let matchDate = true;
     const bDate = b.booking_time?.split("T")[0];
@@ -105,23 +141,51 @@ export default function BookingManagement() {
     return matchSearch && matchDate;
   });
 
+  const totalPages = filterData?.totalPages || 1;
+  const totalBookings = filterData?.totalBookings || 0;
+
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    setPage(1);
+  };
+
+  const handleStatusChange = (val: string) => {
+    setStatusFilter(val);
+    setPage(1);
+  };
+
+  const handleDateChange = (type: "from" | "to", val: string) => {
+    if (type === "from") setDateFrom(val);
+    else setDateTo(val);
+    setPage(1);
+  };
+
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif" }} className="min-h-screen bg-gray-50 p-4 sm:p-6">
+    <div
+      style={{ fontFamily: "'DM Sans', sans-serif" }}
+      className="min-h-screen bg-gray-50 p-4 sm:p-6"
+    >
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');`}</style>
 
       <div className="mb-5">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Bookings</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Manage and monitor all service bookings</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+          Bookings
+        </h1>
+        <p className="text-sm text-gray-500 mt-0.5">
+          Manage and monitor all service bookings
+        </p>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 sm:px-5 py-4 mb-5 flex flex-col gap-3">
         <div className="relative w-full">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><SearchIcon /></span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <SearchIcon />
+          </span>
           <input
             type="text"
             placeholder="Search by customer, service..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100 transition"
           />
         </div>
@@ -130,7 +194,7 @@ export default function BookingManagement() {
           <FilterSelect
             label="Status:"
             value={statusFilter}
-            onChange={setStatusFilter}
+            onChange={handleStatusChange}
             options={[
               { value: "All", label: "All statuses" },
               { value: "Pending", label: "Pending" },
@@ -141,29 +205,31 @@ export default function BookingManagement() {
           />
 
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500 font-medium whitespace-nowrap">Date:</span>
+            <span className="text-sm text-gray-500 font-medium whitespace-nowrap">
+              Date:
+            </span>
             <input
               type="date"
               value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
+              onChange={(e) => handleDateChange("from", e.target.value)}
               className="text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100 transition text-gray-700"
             />
             <span className="text-gray-400">-</span>
             <input
               type="date"
               value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
+              onChange={(e) => handleDateChange("to", e.target.value)}
               className="text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100 transition text-gray-700"
             />
           </div>
         </div>
       </div>
 
-      {isLoading ? (
+      {isFilterLoading ? (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm py-16 text-center text-gray-400">
           Loading bookings...
         </div>
-      ) : isError ? (
+      ) : isFilterError ? (
         <div className="bg-white rounded-2xl border border-red-100 shadow-sm py-16 text-center text-red-500">
           An error occurred while loading data.
         </div>
@@ -198,7 +264,8 @@ export default function BookingManagement() {
                     </div>
                     <div className="min-w-0">
                       <span className="block text-sm font-semibold text-gray-800 truncate">
-                        {booking.customer_id?.firstName} {booking.customer_id?.lastName}
+                        {booking.customer_id?.firstName}{" "}
+                        {booking.customer_id?.lastName}
                       </span>
                       <span className="block text-[10px] text-gray-400 mt-0.5 truncate uppercase">
                         ID: {booking._id?.slice(-6)}
@@ -206,18 +273,25 @@ export default function BookingManagement() {
                     </div>
                   </div>
 
-                  <span className="text-sm text-gray-700 font-medium truncate">{booking.service_id?.name}</span>
+                  <span className="text-sm text-gray-700 font-medium truncate">
+                    {booking.service_id?.name}
+                  </span>
                   <span className="text-sm text-gray-600 truncate">
-                    {booking.service_id?.provider_id?.firstName} {booking.service_id?.provider_id?.lastName}
+                    {booking.service_id?.provider_id?.firstName}{" "}
+                    {booking.service_id?.provider_id?.lastName}
                   </span>
 
                   <span className="text-sm text-gray-600 whitespace-nowrap">
                     {booking.booking_time
-                      ? new Date(booking.booking_time).toLocaleDateString("en-US")
+                      ? new Date(booking.booking_time).toLocaleDateString(
+                          "en-US",
+                        )
                       : "—"}
                   </span>
 
-                  <div><StatusBadge status={booking.status} /></div>
+                  <div>
+                    <StatusBadge status={booking.status} />
+                  </div>
                   <div className="flex justify-center">
                     <button
                       className="px-3 py-1.5 rounded-lg bg-yellow-50 text-yellow-700 text-xs font-semibold border border-yellow-200 hover:bg-yellow-100 transition cursor-pointer"
@@ -234,7 +308,10 @@ export default function BookingManagement() {
           {/* Vue Mobile */}
           <div className="lg:hidden flex flex-col gap-3">
             {filtered.map((booking: any) => (
-              <div key={booking._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4">
+              <div
+                key={booking._id}
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4"
+              >
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[#081D3A] font-bold shrink-0 bg-[#F3F3F3]">
@@ -242,9 +319,12 @@ export default function BookingManagement() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-gray-800 truncate">
-                        {booking.customer_id?.firstName} {booking.customer_id?.lastName}
+                        {booking.customer_id?.firstName}{" "}
+                        {booking.customer_id?.lastName}
                       </p>
-                      <p className="text-xs text-gray-400">ID: {booking._id?.slice(-6)}</p>
+                      <p className="text-xs text-gray-400">
+                        ID: {booking._id?.slice(-6)}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -252,14 +332,18 @@ export default function BookingManagement() {
                 <div className="space-y-2 text-sm border-t border-gray-50 pt-3">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-400">Service</span>
-                    <span className="text-gray-700 font-medium">{booking.service_id?.name}</span>
+                    <span className="text-gray-700 font-medium">
+                      {booking.service_id?.name}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-400">Date</span>
                     {/* ✅ BUG 4 CORRIGÉ */}
                     <span className="text-gray-700">
                       {booking.booking_time
-                        ? new Date(booking.booking_time).toLocaleDateString("en-US")
+                        ? new Date(booking.booking_time).toLocaleDateString(
+                            "en-US",
+                          )
                         : "—"}
                     </span>
                   </div>
@@ -280,9 +364,46 @@ export default function BookingManagement() {
         </>
       )}
 
-      <p className="text-xs text-gray-400 mt-3 pl-1">
-        Displaying {filtered.length} bookings
-      </p>
+      {totalPages > 0 && (
+        <div className="px-8 py-6 border-t border-slate-50 bg-slate-50/30 flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              Page Results
+            </span>
+            <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-[#081D3A]">
+              {(page - 1) * limit + 1}-{Math.min(page * limit, totalBookings)}{" "}
+              of {totalBookings}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-6 py-2.5 text-[10px] font-black text-slate-500 uppercase tracking-widest bg-white border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+            >
+              Prev
+            </button>
+            <div className="flex gap-1">
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPage(i + 1)}
+                  className={`w-9 h-9 rounded-xl text-[10px] font-black transition-all cursor-pointer ${page === i + 1 ? "bg-[#081D3A] text-white shadow-lg shadow-[#081D3A]/20" : "bg-white text-slate-400 hover:bg-slate-50 border border-slate-100"}`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-6 py-2.5 text-[10px] font-black text-slate-500 uppercase tracking-widest bg-white border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       {selectedBooking && (
         <BookingDetailModal

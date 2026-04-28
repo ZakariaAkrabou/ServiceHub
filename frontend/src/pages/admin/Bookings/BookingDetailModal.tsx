@@ -1,4 +1,4 @@
-import { X, Calendar, User, Briefcase, Hash } from "lucide-react";
+import { X, Calendar, User, Briefcase, Mail, Phone } from "lucide-react";
 
 interface BookingDetailModalProps {
   booking: any;
@@ -8,8 +8,8 @@ interface BookingDetailModalProps {
 export default function BookingDetailModal({ booking, onClose }: BookingDetailModalProps) {
   const customerName =
     `${booking.customer_id?.firstName ?? ""} ${booking.customer_id?.lastName ?? ""}`.trim() || "Inconnu";
-  const avatar = booking.customer_id?.firstName?.charAt(0)?.toUpperCase() || "?";
   const serviceName = booking.service_id?.name || "—";
+  const serviceImage = booking.service_id?.image;
   const providerName =
     `${booking.service_id?.provider_id?.firstName ?? ""} ${booking.service_id?.provider_id?.lastName ?? ""}`.trim() || "—";
 
@@ -23,7 +23,6 @@ export default function BookingDetailModal({ booking, onClose }: BookingDetailMo
 
  
   const status = booking.status || "unknown";
-  const bookingId = booking._id?.slice(-6) || "—";
 
   const statusStyles: Record<string, string> = {
     completed: "bg-green-100 text-green-700",
@@ -39,11 +38,15 @@ export default function BookingDetailModal({ booking, onClose }: BookingDetailMo
       <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-xl flex flex-col overflow-hidden">
         <div className="h-24 bg-gray-50 border-b border-gray-100 flex items-start justify-between px-6 pt-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-[#081D3A] bg-[#F3F3F3] font-bold text-2xl shadow-sm border-2 border-white -mt-2">
-              {avatar}
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-[#081D3A] bg-[#F3F3F3] font-bold text-2xl shadow-sm border-2 border-white -mt-2 overflow-hidden">
+              {serviceImage ? (
+                <img src={serviceImage} alt={serviceName} className="w-full h-full object-cover" />
+              ) : (
+                <Briefcase className="w-8 h-8 text-gray-400" />
+              )}
             </div>
             <div className="pb-2">
-              <h3 className="text-xl font-bold text-[#081D3A]">Réservation #{bookingId}</h3>
+              <h3 className="text-xl font-bold text-[#081D3A]">{serviceName}</h3>
               <span className={`inline-flex text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider mt-1 ${badgeStyle}`}>
                 {status}
               </span>
@@ -64,6 +67,18 @@ export default function BookingDetailModal({ booking, onClose }: BookingDetailMo
                 <div>
                   <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Client</p>
                   <p className="font-semibold text-gray-900">{customerName}</p>
+                  <div className="flex flex-col gap-0.5 mt-1">
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <Mail className="w-3 h-3" />
+                      <span>{booking.customer_id?.email || "—"}</span>
+                    </div>
+                    {booking.customer_id?.phone && (
+                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                        <Phone className="w-3 h-3" />
+                        <span>{booking.customer_id?.phone}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

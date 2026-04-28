@@ -177,12 +177,9 @@ export default function ServicesManagement() {
 
                   <div className="flex-1 min-w-0 px-1 md:py-2">
                     <div className="flex items-center gap-3 mb-1.5 md:mb-2 text-slate-400">
-                      <span className="px-2 py-0.5 md:px-3 md:py-1 bg-slate-900 text-white text-[8px] md:text-[9px] font-black uppercase tracking-widest rounded-lg">
+                      <span className="px-2 py-0.5 md:px-3 md:py-1 bg-[#081D3A] text-white text-[8px] md:text-[9px] font-black uppercase tracking-widest rounded-lg">
                         {service.category}
                       </span>
-                      <p className="text-[9px] md:text-[10px] font-mono font-bold">
-                        {service.id}
-                      </p>
                     </div>
                     <h3 className="text-lg md:text-xl font-black text-[#081D3A] tracking-tight group-hover:text-[#F6E304] transition-colors truncate">
                       {service.name}
@@ -200,8 +197,8 @@ export default function ServicesManagement() {
                           {service.providerName}
                         </p>
                       </div>
-                      <div className="flex items-center gap-1.5 line-height-1">
-                        <Star className="w-3 md:w-3.5 h-3 md:h-3.5 fill-[#F6E304] text-[#F6E304]" />
+                      <div className="flex items-center gap-1.5 leading-none">
+                        <Star className="w-3.5 h-3.5 fill-[#F6E304] text-[#F6E304] -mt-0.5" />
                         <p className="text-[10px] md:text-xs font-black text-[#081D3A]">
                           {service.rating}
                         </p>
@@ -223,86 +220,55 @@ export default function ServicesManagement() {
                       </span>
                     </div>
 
-                    <Button
+                    <button
                       onClick={() => setSelectedService(service)}
-                      variant="primary"
-                      icon={Eye}
-                      className="rounded-xl! md:rounded-2xl! shrink-0"
+                      className="px-3 py-1.5 rounded-xl bg-[#F6E304] text-[#081D3A] text-[10px] font-black uppercase tracking-wider hover:bg-[#081D3A] hover:text-[#F6E304] transition-all cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95"
                     >
-                      <span className="hidden sm:inline">View Detail</span>
-                      <span className="sm:hidden">View</span>
-                    </Button>
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>Details</span>
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
 
             {totalPages > 0 && (
-              <div className="px-6 py-6 md:px-8 md:py-8 mt-4 bg-white rounded-4xl md:rounded-[3rem] shadow-[0_20px_50px_rgba(8,29,58,0.03)] border border-slate-100 flex flex-col lg:flex-row items-center justify-between gap-6">
-                <div className="flex flex-col items-center lg:items-start gap-1">
-                  <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Data Visualization
+              <div className="px-8 py-6 border-t border-slate-50 bg-slate-50/30 flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 rounded-3xl">
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    Page Results
                   </span>
-                  <p className="text-[10px] md:text-xs font-bold text-[#081D3A]">
-                    Showing {startIndex + 1}-
-                    {Math.min(startIndex + itemsPerPage, totalItems)} of{" "}
-                    {totalItems} Services
-                  </p>
+                  <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-[#081D3A]">
+                    {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, totalItems)}{" "}
+                    of {totalItems}
+                  </span>
                 </div>
-
-                <div className="flex items-center gap-2 md:gap-3">
-                  <Button
+                <div className="flex items-center gap-2">
+                  <button
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
-                    variant="outline"
-                    size="sm"
-                    icon={ChevronLeft}
-                    className="p-0! w-10 h-10 md:w-12 md:h-12 rounded-xl! md:rounded-2xl!"
-                  />
-
-                  <div className="flex gap-1.5 md:gap-2">
-                    {[...Array(totalPages)].map((_, i) => {
-                      if (
-                        totalPages > 5 &&
-                        Math.abs(currentPage - (i + 1)) > 1 &&
-                        i !== 0 &&
-                        i !== totalPages - 1
-                      ) {
-                        if (i === 1 || i === totalPages - 2)
-                          return (
-                            <span key={i} className="text-slate-300">
-                              ...
-                            </span>
-                          );
-                        return null;
-                      }
-                      return (
-                        <Button
-                          key={i}
-                          onClick={() => setCurrentPage(i + 1)}
-                          variant={
-                            currentPage === i + 1 ? "secondary" : "outline"
-                          }
-                          size="sm"
-                          className={`w-10 h-10 md:w-12 md:h-12 p-0! rounded-xl! md:rounded-2xl! ${currentPage === i + 1 ? "shadow-xl shadow-[#081D3A]/20" : ""}`}
-                        >
-                          {i + 1}
-                        </Button>
-                      );
-                    })}
+                    className="px-6 py-2.5 text-[10px] font-black text-slate-500 uppercase tracking-widest bg-white border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm cursor-pointer"
+                  >
+                    Prev
+                  </button>
+                  <div className="flex gap-1">
+                    {[...Array(totalPages)].map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentPage(i + 1)}
+                        className={`w-9 h-9 rounded-xl text-[10px] font-black transition-all cursor-pointer ${currentPage === i + 1 ? "bg-[#081D3A] text-white shadow-lg shadow-[#081D3A]/20" : "bg-white text-slate-400 hover:bg-slate-50 border border-slate-100"}`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
                   </div>
-
-                  <Button
-                    onClick={() =>
-                      setCurrentPage((p) => Math.min(totalPages, p + 1))
-                    }
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
-                    variant="outline"
-                    size="sm"
-                    icon={ChevronRight}
-                    iconPosition="right"
-                    className="p-0! w-10 h-10 md:w-12 md:h-12 rounded-xl! md:rounded-2xl!"
-                  />
+                    className="px-6 py-2.5 text-[10px] font-black text-slate-500 uppercase tracking-widest bg-white border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm cursor-pointer"
+                  >
+                    Next
+                  </button>
                 </div>
               </div>
             )}

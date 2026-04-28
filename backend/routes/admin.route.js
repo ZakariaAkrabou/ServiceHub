@@ -21,5 +21,7 @@ router.get("/bookings/filter", authenticated, isAdmin, adminController.filtreBoo
 
 router.put("/users/ban/:userId", authenticated, isAdmin, adminController.banUser);
 router.put("/users/unban/:userId", authenticated, isAdmin, adminController.unbanUser);
+router.get("/services", authenticated, isAdmin, adminController.getAllServices);
+router.get("/services/:id", authenticated, isAdmin, adminController.getServiceById);
 
 export default router;

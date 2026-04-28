@@ -1,6 +1,8 @@
 import User from "../models/user.model.js";
 import Booking from "../models/booking.model.js";
 import Service from "../models/service.model.js";
+import Review from "../models/review.model.js";
+import Notification from "../models/notification.model.js";
 import mongoose from "mongoose";
 
 export const allUsers = async (req, res) => {
@@ -183,18 +185,33 @@ export const updateProviderStatus = async (req, res) => {
 
 export const getAllBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find()
-      .populate("customer_id", "firstName lastName email")
-      .populate({
-        path: "service_id",
-        populate: {
-          path: "provider_id",
-          select: "firstName lastName email",
-        },
-      })
-      .sort({ createdAt: -1 });
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit) || 6);
+    const skip = (page - 1) * limit;
 
-    return res.status(200).json({ result: bookings.length, data: bookings });
+    const [totalBookings, bookings] = await Promise.all([
+      Booking.countDocuments(),
+      Booking.find()
+        .populate("customer_id", "firstName lastName email phone")
+        .populate({
+          path: "service_id",
+          populate: {
+            path: "provider_id",
+            select: "firstName lastName email phone",
+          },
+        })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+    ]);
+
+    return res.status(200).json({
+      result: bookings.length,
+      totalBookings,
+      totalPages: Math.ceil(totalBookings / limit),
+      currentPage: page,
+      data: bookings,
+    });
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }
@@ -204,12 +221,12 @@ export const getBookingById = async (req, res) => {
   try {
     const { id } = req.params;
     const booking = await Booking.findById(id)
-      .populate("customer_id", "firstName lastName email")
+      .populate("customer_id", "firstName lastName email phone")
       .populate({
         path: "service_id",
         populate: {
           path: "provider_id",
-          select: "firstName lastName email",
+          select: "firstName lastName email phone",
         },
       });
 
@@ -228,6 +245,9 @@ export const getBookingById = async (req, res) => {
 export const filtreBookings = async (req, res) => {
   try {
     const { status, customerId, providerId } = req.query;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit) || 6);
+    const skip = (page - 1) * limit;
 
     let filter = {};
 
@@ -239,18 +259,29 @@ export const filtreBookings = async (req, res) => {
       filter.service_id = { $in: serviceIds };
     }
 
-    const bookings = await Booking.find(filter)
-      .populate("customer_id", "firstName lastName email")
-      .populate({
-        path: "service_id",
-        populate: {
-          path: "provider_id",
-          select: "firstName lastName email",
-        },
-      })
-      .sort({ createdAt: -1 });
+    const [totalBookings, bookings] = await Promise.all([
+      Booking.countDocuments(filter),
+      Booking.find(filter)
+        .populate("customer_id", "firstName lastName email phone")
+        .populate({
+          path: "service_id",
+          populate: {
+            path: "provider_id",
+            select: "firstName lastName email phone",
+          },
+        })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+    ]);
 
-    res.status(200).json({ result: bookings.length, data: bookings });
+    res.status(200).json({
+      result: bookings.length,
+      totalBookings,
+      totalPages: Math.ceil(totalBookings / limit),
+      currentPage: page,
+      data: bookings,
+    });
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }
@@ -341,6 +372,7 @@ export const unbanUser = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
 export const deleteUser = async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -350,13 +382,85 @@ export const deleteUser = async (req, res) => {
     }
 
     if (user.role === "service_provider") {
+      const services = await Service.find({ provider_id: user._id });
+      const serviceIds = services.map((s) => s._id);
+
+      await Booking.deleteMany({ service_id: { $in: serviceIds } });
+      await Review.deleteMany({ service_id: { $in: serviceIds } });
       await Service.deleteMany({ provider_id: user._id });
+    } else if (user.role === "customer") {
+
+      await Booking.deleteMany({ customer_id: user._id });
+
+      await Review.deleteMany({ customer_id: user._id });
     }
+
+    await Notification.deleteMany({ user_id: user._id });
 
     await User.findByIdAndDelete(userId);
 
-    return res.status(200).json({ message: "User deleted successfully" });
+    return res.status(200).json({ message: "User and all associated data deleted successfully" });
   } catch (error) {
+    console.error("Error in deleteUser:", error);
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+export const getAllServices = async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit) || 10);
+    const skip = (page - 1) * limit;
+
+    const [totalServices, services] = await Promise.all([
+      Service.countDocuments(),
+      Service.find()
+        .populate("provider_id", "firstName lastName email phone")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+    ]);
+
+    return res.status(200).json({
+      result: services.length,
+      totalServices,
+      totalPages: Math.ceil(totalServices / limit),
+      currentPage: page,
+      data: services,
+    });
+  } catch (error) {
+    console.error("Error in getAllServices:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getServiceById = async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    const { id } = req.params;
+    const service = await Service.findById(id).populate(
+      "provider_id",
+      "firstName lastName email phone",
+    );
+
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+
+    return res.status(200).json({
+      message: "Service retrieved successfully",
+      data: service,
+    });
+  } catch (error) {
+    console.error("Error in getServiceById:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+

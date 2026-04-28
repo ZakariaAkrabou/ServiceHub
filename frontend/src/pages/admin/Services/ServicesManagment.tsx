@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Search, Eye, Star, ChevronLeft, ChevronRight} from "lucide-react";
-import { servicesList, statusStyle, type Service } from "./data/servicesMockData";
+import { Search, Eye, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { statusStyle, type Service, servicesList as mockServicesList } from "./data/servicesMockData";
+import { useGetAllServicesQuery } from "../../../app/api/ServiceApi";
 import ServiceDetailModal from "./ServiceDetailModal";
 import { Button } from "../../../components/admin/ui/Button";
 
@@ -11,6 +12,27 @@ export default function ServicesManagement() {
   const itemsPerPage = 6;
   const [selectedService, setSelectedService] = useState<Service | null>(null);
 
+  const { data: apiResp, isError } = useGetAllServicesQuery({ page: currentPage, limit: itemsPerPage });
+
+  const apiServices = apiResp?.data ?? [];
+
+  let servicesList = (apiServices ?? []).map((s: any) => ({
+    id: s._id ?? s.id ?? String(Math.random()).slice(2, 8),
+    name: s.name ?? "",
+    description: s.description ?? "",
+    category: s.category ?? "General",
+    price: s.price ?? 0,
+    priceUnit: s.priceUnit ?? "hr",
+    providerName: `${s.provider_id?.firstName ?? s.provider_id?.first_name ?? ""} ${s.provider_id?.lastName ?? s.provider_id?.last_name ?? ""}`.trim() || "—",
+    status: s.status ?? "Active",
+    rating: s.rating ?? 0,
+    image: s.image ?? "https://via.placeholder.com/800x600?text=No+Image",
+  } as Service));
+
+  if (isError) {
+    servicesList = mockServicesList;
+  }
+
   const categories = ["All", ...new Set(servicesList.map(s => s.category))];
 
   const filteredServices = servicesList.filter(service => {
@@ -20,7 +42,7 @@ export default function ServicesManagement() {
   });
 
 
-  const totalItems = filteredServices.length;
+  const totalItems = apiResp?.meta?.total ?? filteredServices.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentServices = filteredServices.slice(startIndex, startIndex + itemsPerPage);
@@ -37,7 +59,7 @@ export default function ServicesManagement() {
 
   return (
     <div className="flex flex-col gap-6 md:gap-8 pb-10 min-h-screen bg-[#F8FAFC] px-4 sm:px-6">
-      
+
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -51,7 +73,7 @@ export default function ServicesManagement() {
         <div className="bg-white rounded-4xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-4 md:p-6 flex flex-col xl:flex-row gap-4 md:gap-6 items-center justify-between">
           <div className="relative w-full xl:max-w-xl group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-slate-400 group-focus-within:text-[#081D3A] transition-colors" />
-            <input 
+            <input
               type="text"
               placeholder="Search services or providers..."
               value={searchTerm}
@@ -59,11 +81,11 @@ export default function ServicesManagement() {
               className="w-full pl-10 md:pl-12 pr-4 md:pr-6 py-3 md:py-4 bg-slate-50 border border-transparent rounded-2xl text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#081D3A]/10 focus:bg-white focus:border-[#081D3A] transition-all"
             />
           </div>
-          
+
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
             <div className="flex items-center gap-3 w-full sm:w-auto bg-slate-50 px-4 py-2 md:py-2.5 rounded-2xl border border-slate-100">
               <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Category</span>
-              <select 
+              <select
                 value={categoryFilter}
                 onChange={(e) => handleCategoryChange(e.target.value)}
                 className="bg-transparent text-xs md:text-sm font-bold text-[#081D3A] outline-none cursor-pointer pr-4 w-full"
@@ -78,20 +100,20 @@ export default function ServicesManagement() {
 
         <div className="flex flex-col gap-4">
           {currentServices.map((service) => (
-            <div 
-              key={service.id} 
+            <div
+              key={service.id}
               className="group bg-white rounded-4xl md:rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-slate-100 transition-all duration-300 hover:shadow-[0_20px_50px_rgba(8,29,58,0.06)] flex flex-col md:flex-row items-stretch md:items-center p-3 md:p-4 gap-4 md:gap-6">
               <div className="relative w-full md:w-48 h-40 md:h-36 rounded-3xl md:rounded-4xl overflow-hidden shrink-0 shadow-inner">
-                <img 
-                  src={service.image} 
+                <img
+                  src={service.image}
                   alt={service.name}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors" />
                 <div className="absolute top-3 left-3">
-                   <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider shadow-sm backdrop-blur-md ${statusStyle[service.status]}`}>
-                     {service.status}
-                   </span>
+                  <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider shadow-sm backdrop-blur-md ${statusStyle[service.status]}`}>
+                    {service.status}
+                  </span>
                 </div>
               </div>
 
@@ -100,7 +122,6 @@ export default function ServicesManagement() {
                   <span className="px-2 py-0.5 md:px-3 md:py-1 bg-slate-900 text-white text-[8px] md:text-[9px] font-black uppercase tracking-widest rounded-lg">
                     {service.category}
                   </span>
-                  <p className="text-[9px] md:text-[10px] font-mono font-bold">{service.id}</p>
                 </div>
                 <h3 className="text-lg md:text-xl font-black text-[#081D3A] tracking-tight group-hover:text-[#F6E304] transition-colors truncate">
                   {service.name}
@@ -108,28 +129,28 @@ export default function ServicesManagement() {
                 <p className="text-xs md:text-sm font-medium text-slate-500 line-clamp-1 mt-1">
                   {service.description}
                 </p>
-                
+
                 <div className="flex items-center gap-4 md:gap-6 mt-3 md:mt-4">
-                   <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 md:w-7 md:h-7 rounded-lg bg-slate-50 flex items-center justify-center text-[#081D3A] font-black text-[9px] md:text-[10px] border border-slate-100">
-                        {service.providerName.charAt(0)}
-                      </div>
-                      <p className="text-[10px] md:text-xs font-bold text-slate-900">{service.providerName}</p>
-                   </div>
-                   <div className="flex items-center gap-1.5 line-height-1">
-                      <Star className="w-3 md:w-3.5 h-3 md:h-3.5 fill-[#F6E304] text-[#F6E304]" />
-                      <p className="text-[10px] md:text-xs font-black text-[#081D3A]">{service.rating}</p>
-                   </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 md:w-7 md:h-7 rounded-lg bg-slate-50 flex items-center justify-center text-[#081D3A] font-black text-[9px] md:text-[10px] border border-slate-100">
+                      {service.providerName.charAt(0)}
+                    </div>
+                    <p className="text-[10px] md:text-xs font-bold text-slate-900">{service.providerName}</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 line-height-1">
+                    <Star className="w-3 md:w-3.5 h-3 md:h-3.5 fill-[#F6E304] text-[#F6E304]" />
+                    <p className="text-[10px] md:text-xs font-black text-[#081D3A]">{service.rating}</p>
+                  </div>
                 </div>
               </div>
 
               <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3 md:gap-4 p-3 md:py-2 md:px-4 bg-slate-50 md:bg-transparent rounded-2xl md:rounded-none md:border-l md:border-slate-50 min-w-fit">
                 <div className="text-left md:text-right">
-                   <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest">Rate</p>
-                    {service.price} <span className="text-[10px] md:text-xs text-slate-400 font-bold uppercase">MAD</span><span className="text-[10px] md:text-xs text-slate-400 font-bold">/{service.priceUnit}</span>
+                  <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest">Rate</p>
+                  {service.price} <span className="text-[10px] md:text-xs text-slate-400 font-bold uppercase">MAD</span><span className="text-[10px] md:text-xs text-slate-400 font-bold">/{service.priceUnit}</span>
                 </div>
-                
-                <Button 
+
+                <Button
                   onClick={() => setSelectedService(service)}
                   variant="primary"
                   icon={Eye}
@@ -153,9 +174,9 @@ export default function ServicesManagement() {
                 Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, totalItems)} of {totalItems} Services
               </p>
             </div>
-            
+
             <div className="flex items-center gap-2 md:gap-3">
-              <Button 
+              <Button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 variant="outline"
@@ -163,14 +184,14 @@ export default function ServicesManagement() {
                 icon={ChevronLeft}
                 className="p-0! w-10 h-10 md:w-12 md:h-12 rounded-xl! md:rounded-2xl!"
               />
-              
+
               <div className="flex gap-1.5 md:gap-2">
-                 {[...Array(totalPages)].map((_, i) => {
-                   if (totalPages > 5 && Math.abs(currentPage - (i + 1)) > 1 && i !== 0 && i !== totalPages - 1) {
-                     if (i === 1 || i === totalPages - 2) return <span key={i} className="text-slate-300">...</span>;
-                     return null;
-                   }
-                   return (
+                {[...Array(totalPages)].map((_, i) => {
+                  if (totalPages > 5 && Math.abs(currentPage - (i + 1)) > 1 && i !== 0 && i !== totalPages - 1) {
+                    if (i === 1 || i === totalPages - 2) return <span key={i} className="text-slate-300">...</span>;
+                    return null;
+                  }
+                  return (
                     <Button
                       key={i}
                       onClick={() => setCurrentPage(i + 1)}
@@ -180,11 +201,11 @@ export default function ServicesManagement() {
                     >
                       {i + 1}
                     </Button>
-                   );
-                 })}
+                  );
+                })}
               </div>
 
-              <Button 
+              <Button
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
                 variant="outline"
@@ -208,11 +229,11 @@ export default function ServicesManagement() {
         )}
       </div>
 
-      
+
       {selectedService && (
-        <ServiceDetailModal 
-          service={selectedService} 
-          onClose={() => setSelectedService(null)} 
+        <ServiceDetailModal
+          service={selectedService}
+          onClose={() => setSelectedService(null)}
         />
       )}
     </div>

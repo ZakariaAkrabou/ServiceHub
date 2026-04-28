@@ -13,7 +13,7 @@ export default function CustomerBanConfirmationModal({ customer, onClose, onConf
   const [duration, setDuration] = useState("7_days");
 
   const handleConfirm = () => {
-    if (!reason.trim()) return; // Can enforce validation if needed
+    if (!reason.trim()) return; 
     onConfirm(reason, duration);
     onClose();
   };

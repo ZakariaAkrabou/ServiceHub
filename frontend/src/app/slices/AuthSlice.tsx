@@ -12,13 +12,10 @@ interface AuthState {
   error: string | null;
 }
 
-const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null;
-const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
 const initialState: AuthState = {
-  user: storedUser ? JSON.parse(storedUser) : null,
-  token: storedToken,
-  isAuthenticated: !!storedUser,
+  user: null,
+  token: null,
+  isAuthenticated: false,
   isLoading: false,
   error: null,
 };
@@ -31,15 +28,11 @@ const authSlice = createSlice({
       state.user = user;
       state.token = token;
       state.isAuthenticated = true;
-      if (user) localStorage.setItem("user", JSON.stringify(user));
-      if (token) localStorage.setItem("token", token || "");
     },
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
     },
     setError: (state, action) => {
       state.error = action.payload;
@@ -62,9 +55,6 @@ const authSlice = createSlice({
           state.isAuthenticated = true;
           state.token = payload.token;
           state.user = payload.user || null;
-          if (payload.user)
-            localStorage.setItem("user", JSON.stringify(payload.user));
-          if (payload.token) localStorage.setItem("token", payload.token);
         },
       )
       .addMatcher(
@@ -141,6 +131,16 @@ const authSlice = createSlice({
             typeof payload.data === "string"
               ? payload.data
               : "Reset password failed";
+        },
+      )
+      // Refresh Token
+      .addMatcher(
+        authApi.endpoints.refreshToken.matchFulfilled,
+        (state, { payload }) => {
+          if (payload?.accessToken) {
+            state.token = payload.accessToken;
+            state.isAuthenticated = true;
+          }
         },
       );
   },

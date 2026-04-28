@@ -37,11 +37,7 @@ const userSchema = new mongoose.Schema(
     },
     serviceCategory: {
       type: [String],
-
       required: function () {
-        return this.role === "service_provider";
-      },
-      ion() {
         return this.role === "service_provider";
       },
       default: undefined,
@@ -51,16 +47,10 @@ const userSchema = new mongoose.Schema(
       required: function () {
         return this.role === "service_provider";
       },
-      ion() {
-        return this.role === "service_provider";
-      },
     },
     phone: {
       type: String,
       required: function () {
-        return this.role === "service_provider";
-      },
-      ion() {
         return this.role === "service_provider";
       },
       trim: true,
@@ -79,6 +69,16 @@ const userSchema = new mongoose.Schema(
       required: function () {
         return this.role === "service_provider";
       },
+    },
+    isBanned: {
+      type: Boolean,
+      default: false,
+    },
+    banInfo: {
+      reason: String,
+      duration: Number, 
+      bannedAt: Date,
+      expiresAt: Date,
     },
 
     verificationToken: {

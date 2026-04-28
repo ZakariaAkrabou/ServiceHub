@@ -17,5 +17,9 @@ router.get("/bookings/filter", authenticated, isAdmin, adminController.filtreBoo
 
 router.get("/bookings/:id", authenticated, isAdmin, adminController.getBookingById);
 
+router.get("/bookings/filter", authenticated, isAdmin, adminController.filtreBookings);
+
+router.put("/users/ban/:userId", authenticated, isAdmin, adminController.banUser);
+router.put("/users/unban/:userId", authenticated, isAdmin, adminController.unbanUser);
 
 export default router;

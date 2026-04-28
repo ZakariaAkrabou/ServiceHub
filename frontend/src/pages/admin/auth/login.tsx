@@ -21,7 +21,13 @@ export default function Login() {
     setError(null);
     try {
       const result = await login({ email, password }).unwrap();
-      dispatch(setCredentials({ user: result.user, token: result.token }));
+      // The backend now returns { message, accessToken, user? }
+      dispatch(
+        setCredentials({
+          user: result.user || null,
+          token: result.accessToken,
+        }),
+      );
       setIsLoading(false);
       navigate("/admin/dashboard");
     } catch (err: any) {

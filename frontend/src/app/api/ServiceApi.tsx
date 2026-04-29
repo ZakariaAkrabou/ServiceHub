@@ -33,7 +33,16 @@ export const serviceApi = api.injectEndpoints({
         totalPages: response.totalPages,
         currentPage: response.currentPage,
       }),
-      providesTags: ["Services"],
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ _id }: any) => ({
+                type: "Service" as const,
+                id: String(_id),
+              })),
+              { type: "Service", id: "LIST" },
+            ]
+          : [{ type: "Service", id: "LIST" }],
     }),
     getServiceById: builder.query<Service, string>({
       query: (id) => ({
@@ -41,15 +50,46 @@ export const serviceApi = api.injectEndpoints({
         method: "GET",
       }),
       transformResponse: (response: any) => response.data,
-      providesTags: ["Services"],
+      providesTags: (_result, _error, id) => [{ type: "Service", id: String(id) }],
     }),
-
+    createService: builder.mutation<Service, Partial<Service>>({
+      query: (newService) => ({
+        url: "/api/services/create",
+        method: "POST",
+        body: newService,
+      }),
+      invalidatesTags: [{ type: "Service", id: "LIST" }],
+    }),
+    updateService: builder.mutation<Service, { id: string; data: Partial<Service> }>({
+      query: ({ id, data }) => ({
+        url: `/api/services/update/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: "Service", id: String(id) },
+        { type: "Service", id: "LIST" },
+      ],
+    }),
+    deleteService: builder.mutation<{ message: string }, string>({
+      query: (id) => ({
+        url: `/api/services/delete/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (_result, _error, id) => [
+        { type: "Service", id: String(id) },
+        { type: "Service", id: "LIST" },
+      ],
+    }),
   }),
 });
 
 export const {
   useGetAllServicesQuery,
   useGetServiceByIdQuery,
+  useCreateServiceMutation,
+  useUpdateServiceMutation,
+  useDeleteServiceMutation,
 } = serviceApi;
 
 export default serviceApi;

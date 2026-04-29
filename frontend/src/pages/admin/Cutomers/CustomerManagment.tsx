@@ -218,7 +218,7 @@ export default function CustomerManagement() {
   );
   const [customerToBan, setCustomerToBan] = useState<Customer | null>(null);
 
-  const { data, isLoading, isError } = useGetAllUsersQuery({});
+  const { data, isLoading, isError } = useGetAllUsersQuery({}, { pollingInterval: 5000 });
   const users = data?.data || [];
 
   const customers: (Customer & { isBanned?: boolean })[] = users.map(

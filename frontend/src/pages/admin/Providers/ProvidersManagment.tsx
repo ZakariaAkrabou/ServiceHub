@@ -22,7 +22,7 @@ export default function ProvidersManagement() {
   const { data, isLoading, isError, refetch } = useGetAllProvidersQuery({
     page: currentPage,
     limit: itemsPerPage,
-  });
+  }, { pollingInterval: 5000 });
   const [updateProviderStatus] = useUpdateProviderStatusMutation();
 
   const statusMap = {

@@ -42,7 +42,16 @@ export const providerApi = api.injectEndpoints({
         totalPages: response.totalPages,
         currentPage: response.currentPage,
       }),
-      providesTags: ["User"],
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ _id }: any) => ({
+                type: "User" as const,
+                id: String(_id),
+              })),
+              { type: "User", id: "LIST" },
+            ]
+          : [{ type: "User", id: "LIST" }],
     }),
     updateProviderStatus: builder.mutation<
       { message: string },
@@ -53,7 +62,11 @@ export const providerApi = api.injectEndpoints({
         method: "PATCH",
         body: { status },
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: (_result, _error, { userId }) => [
+        { type: "User", id: String(userId) },
+        { type: "User", id: "LIST" },
+        { type: "Service", id: "LIST" },
+      ],
     }),
   }),
 });

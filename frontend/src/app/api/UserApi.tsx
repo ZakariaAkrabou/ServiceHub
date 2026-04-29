@@ -8,20 +8,34 @@ export interface BanUserPayload {
 
 export const userApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getAllUsers: builder.query({
+    getAllUsers: builder.query<any, any>({
       query: (params) => ({
         url: "/api/admin/allusers",
         method: "GET",
         params,
       }),
-      providesTags: ["User"],
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ _id }: any) => ({
+                type: "User" as const,
+                id: String(_id),
+              })),
+              { type: "User", id: "LIST" },
+            ]
+          : [{ type: "User", id: "LIST" }],
     }),
     deleteUser: builder.mutation({
       query: (userId) => ({
         url: `/api/admin/users/${userId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: (_result, _error, userId) => [
+        { type: "User", id: String(userId) },
+        { type: "User", id: "LIST" },
+        { type: "Service", id: "LIST" },
+        { type: "Booking", id: "LIST" },
+      ],
     }),
     banUser: builder.mutation<any, BanUserPayload>({
       query: ({ userId, reason, duration }) => ({
@@ -29,14 +43,22 @@ export const userApi = api.injectEndpoints({
         method: "PUT",
         body: { reason, duration },
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: (_result, _error, { userId }) => [
+        { type: "User", id: String(userId) },
+        { type: "User", id: "LIST" },
+        { type: "Service", id: "LIST" },
+      ],
     }),
     unbanUser: builder.mutation<any, { userId: string }>({
       query: ({ userId }) => ({
         url: `/api/admin/users/unban/${userId}`,
         method: "PUT",
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: (_result, _error, { userId }) => [
+        { type: "User", id: String(userId) },
+        { type: "User", id: "LIST" },
+        { type: "Service", id: "LIST" },
+      ],
     }),
   }),
 });

@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Search, Eye, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { useDispatch} from "react-redux";
+import { setServices } from "../../../app/slices/ServiceSlice";
+import { Search, Eye, Star} from "lucide-react";
 import { statusStyle } from "./data/servicesMockData";
 import ServiceDetailModal from "./ServiceDetailModal";
-import { Button } from "../../../components/admin/ui/Button";
 import {
   useGetAllServicesQuery,
   type Service as ApiService,
 } from "../../../app/api/ServiceApi";
+import React from "react";
 
 export interface ServiceUI {
   id: string;
@@ -29,14 +31,19 @@ export default function ServicesManagement() {
   const [selectedService, setSelectedService] = useState<ServiceUI | null>(
     null,
   );
-
-  // Fetch from API
-  const { data, isLoading, isError } = useGetAllServicesQuery({
+  const { data, isLoading, isError} = useGetAllServicesQuery({
     page: currentPage,
     limit: itemsPerPage,
-  });
+  }, { pollingInterval: 5000 });
 
-  // Map API data to UI structure
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    if (data?.data) {
+      dispatch(setServices(data.data));
+    }
+  }, [data, dispatch]);
+
   const servicesList: ServiceUI[] = (data?.data || []).map(
     (service: ApiService) => {
       let priceUnit: "fixed" | "hr" = "fixed";
@@ -78,7 +85,6 @@ export default function ServicesManagement() {
 
   const totalItems = data?.totalServices || 0;
   const totalPages = data?.totalPages || 1;
-  const startIndex = (currentPage - 1) * itemsPerPage;
   const currentServices = filteredServices;
 
   const handleSearchChange = (val: string) => {
@@ -239,8 +245,9 @@ export default function ServicesManagement() {
                     Page Results
                   </span>
                   <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-[#081D3A]">
-                    {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, totalItems)}{" "}
-                    of {totalItems}
+                    {(currentPage - 1) * itemsPerPage + 1}-
+                    {Math.min(currentPage * itemsPerPage, totalItems)} of{" "}
+                    {totalItems}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -263,7 +270,9 @@ export default function ServicesManagement() {
                     ))}
                   </div>
                   <button
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    onClick={() =>
+                      setCurrentPage((p) => Math.min(totalPages, p + 1))
+                    }
                     disabled={currentPage === totalPages}
                     className="px-6 py-2.5 text-[10px] font-black text-slate-500 uppercase tracking-widest bg-white border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm cursor-pointer"
                   >

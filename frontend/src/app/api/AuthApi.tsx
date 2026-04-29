@@ -8,7 +8,7 @@ export const authApi = api.injectEndpoints({
         method: "POST",
         body: credentials,
       }),
-      invalidatesTags: ["Auth"],
+      invalidatesTags: ["Auth", { type: "User", id: "LIST" }],
     }),
     register: builder.mutation({
       query: (userData) => ({
@@ -16,7 +16,7 @@ export const authApi = api.injectEndpoints({
         method: "POST",
         body: userData,
       }),
-      invalidatesTags: ["Auth"],
+      invalidatesTags: ["Auth", { type: "User", id: "LIST" }],
     }),
     forgotPassword: builder.mutation({
       query: (email) => ({
@@ -44,7 +44,8 @@ export const authApi = api.injectEndpoints({
         url: "/api/user/profile",
         method: "GET",
       }),
-      providesTags: ["Auth"],
+      providesTags: (result) =>
+        result ? [{ type: "Auth", id: result._id }, "Auth"] : ["Auth"],
     }),
     refreshToken: builder.mutation({
       query: () => ({

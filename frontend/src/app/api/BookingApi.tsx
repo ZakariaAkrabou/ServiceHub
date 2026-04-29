@@ -48,14 +48,23 @@ export const bookingApi = api.injectEndpoints({
         method: "GET",
         params: params || undefined,
       }),
-      providesTags: ["Bookings"],
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ _id }) => ({
+                type: "Booking" as const,
+                id: String(_id),
+              })),
+              { type: "Booking", id: "LIST" },
+            ]
+          : [{ type: "Booking", id: "LIST" }],
     }),
     getBookingById: builder.query<BookingDetailResponse, string>({
       query: (id) => ({
         url: `/api/admin/bookings/${id}`,
         method: "GET",
       }),
-      providesTags: ["Bookings"],
+      providesTags: (result, error, id) => [{ type: "Booking", id: String(id) }],
     }),
     filterBookings: builder.query<
       BookingListResponse,
@@ -72,7 +81,30 @@ export const bookingApi = api.injectEndpoints({
         method: "GET",
         params,
       }),
-      providesTags: ["Bookings"],
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ _id }) => ({
+                type: "Booking" as const,
+                id: String(_id),
+              })),
+              { type: "Booking", id: "LIST" },
+            ]
+          : [{ type: "Booking", id: "LIST" }],
+    }),
+    updateBookingStatus: builder.mutation<
+      { message: string; data: Booking },
+      { id: string; status: string }
+    >({
+      query: ({ id, status }) => ({
+        url: `/api/services/bookings/status/${id}`,
+        method: "PATCH",
+        body: { status },
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Booking", id: String(id) },
+        { type: "Booking", id: "LIST" },
+      ],
     }),
   }),
 });
@@ -81,4 +113,5 @@ export const {
   useGetAllBookingsQuery,
   useGetBookingByIdQuery,
   useFilterBookingsQuery,
+  useUpdateBookingStatusMutation,
 } = bookingApi;

@@ -115,6 +115,7 @@ export default function BookingManagement() {
     },
     {
       skip: false,
+      pollingInterval: 5000,
     },
   );
 

@@ -32,6 +32,7 @@ export const updateProfile = async (req, res) => {
     const allowedFields = [
       "firstName",
       "lastName",
+      "email",
       "phone",
       "location",
       "serviceDescription",
@@ -66,7 +67,7 @@ export const updateProfile = async (req, res) => {
       { $set: updates },
       { returnDocument: "after", runValidators: true },
     ).select(
-      "-password -verificationToken -resetToken -resetTokenExpiration -role -email",
+      "-password -verificationToken -resetToken -resetTokenExpiration -role",
     );
 
     res.status(200).json({
@@ -75,6 +76,32 @@ export const updateProfile = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const changePassword = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect current password" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };

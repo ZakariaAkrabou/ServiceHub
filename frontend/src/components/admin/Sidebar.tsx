@@ -32,27 +32,14 @@ export default function Sidebar() {
   return (
     <aside className="group w-22.5 hover:w-64 h-full bg-white rounded-4xl shadow-sm flex flex-col py-4 shrink-0 z-10 box-border overflow-hidden transition-all duration-300">
       {/* Logo */}
-      <div className="flex items-center gap-3 mb-6 w-full px-6.25 group-hover:px-6 transition-all duration-300">
-        <div
-          className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm shrink-0"
-          style={{ backgroundColor: "#F6E304" }}
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#000000"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-          </svg>
-        </div>
-        <span className="font-bold text-xl text-gray-900 leading-none whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          Base
-        </span>
+      <div className="flex items-center mb-10 w-full px-4 transition-all duration-300 overflow-hidden h-24">
+        <Link to="/admin/dashboard" className="flex items-center justify-center w-full group-hover:justify-start transition-all duration-300">
+          <img 
+            src="/logo.png" 
+            alt="Services Hub" 
+            className="h-12 w-auto group-hover:h-20 transition-all duration-500 object-contain shrink-0" 
+          />
+        </Link>
       </div>
 
       {/* Nav items */}

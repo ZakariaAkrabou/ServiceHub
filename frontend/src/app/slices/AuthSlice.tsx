@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { authApi } from "../api/AuthApi";
+import { profileApi } from "../api/ProfileApi";
 import type { RootState } from "../store/store";
 
 import type { User } from "../../types/user";
@@ -140,6 +141,15 @@ const authSlice = createSlice({
           if (payload?.accessToken) {
             state.token = payload.accessToken;
             state.isAuthenticated = true;
+          }
+        },
+      )
+      // Profile Updates
+      .addMatcher(
+        profileApi.endpoints.updateProfile.matchFulfilled,
+        (state, { payload }) => {
+          if (payload?.user) {
+            state.user = { ...state.user, ...payload.user };
           }
         },
       );

@@ -11,7 +11,7 @@ import ProvidersManagement from "../pages/admin/Providers/ProvidersManagment";
 import CustomerManagement from "../pages/admin/Cutomers/CustomerManagment";
 import BookingManagement from "../pages/admin/Bookings/BookingManagment";
 import ServicesManagement from "../pages/admin/Services/ServicesManagment";
-import SetingsManagment from "../pages/admin/Setings/SetingsManagment";
+import SettingsManagement from "../pages/admin/Settings/SettingsManagement";
 
 import AdminLayouts from "../layouts/AdminLayouts";
 import RequireAuth from "./RequireAuth";
@@ -50,7 +50,7 @@ export default function AdminRoutes() {
           <Route path="/customers" element={<CustomerManagement />} />
           <Route path="/bookings" element={<BookingManagement />} />
           <Route path="/services" element={<ServicesManagement />} />
-          <Route path="/settings" element={<SetingsManagment />} />
+          <Route path="/settings" element={<SettingsManagement />} />
         </Route>
       </Route>
 

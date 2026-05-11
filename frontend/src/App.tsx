@@ -71,6 +71,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/admin/*" element={<AdminRoutes />} />
         <Route path="/*" element={<ClientRoutes />} />
       </Routes>
       <ToastContainer

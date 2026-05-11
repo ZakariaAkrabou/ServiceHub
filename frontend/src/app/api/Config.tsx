@@ -13,7 +13,7 @@ export const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Booking", "Auth", "User", "Service"],
+  tagTypes: ["Booking", "Auth", "User", "Service", "Notification"],
   endpoints: () => ({}),
 });
 

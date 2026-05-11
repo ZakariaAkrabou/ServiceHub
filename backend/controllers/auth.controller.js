@@ -4,6 +4,7 @@ import sendEmail from "../utils/sendEmail.js";
 import cloudinary from "../config/cloudinary.js";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
+import Notification from "../models/notification.model.js";
 
 export const registerUser = async (req, res) => {
   const {
@@ -60,6 +61,20 @@ export const registerUser = async (req, res) => {
     newUser.verificationToken = verificationToken;
 
     await newUser.save();
+
+    if (role === "service_provider") {
+      const notification = await Notification.create({
+        recipient_role: "admin",
+        type: "new_provider",
+        message: `New service provider registered: ${firstName} ${lastName}`,
+        user_id: null,
+      });
+
+      const io = req.app.get("io");
+      if (io) {
+        io.to("admin").emit("newNotification", notification);
+      }
+    }
 
     const verificationLink = `${process.env.BASE_URL}/api/auth/verify-email/${verificationToken}`;
 

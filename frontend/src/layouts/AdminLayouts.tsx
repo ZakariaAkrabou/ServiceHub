@@ -2,9 +2,62 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/admin/Sidebar";
 import Header from "../components/admin/Header";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../app/store/store";
+import { socket } from "../utils/socket";
+import { toast } from "react-toastify";
+import { NotificationApi } from "../app/api/NotificationApi";
+import { useDispatch } from "react-redux";
 
 export default function AdminLayouts() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (user && user.role === "admin") {
+      console.log("Setting up Admin socket...");
+      
+      const onConnect = () => {
+        console.log("Admin socket connected, joining 'admin' room...");
+        socket.emit("join", user._id, "admin");
+      };
+
+      const onDisconnect = (reason: string) => {
+        console.log("Admin socket disconnected:", reason);
+      };
+
+      const onNewNotification = (notification: any) => {
+        console.log("REAL-TIME NOTIFICATION:", notification);
+        toast.info(notification.message || "New activity detected", {
+          position: "top-right",
+          autoClose: 5000,
+        });
+   
+        console.log("Invalidating 'Notification' tags...");
+        dispatch(NotificationApi.util.invalidateTags(["Notification"]));
+      };
+
+      socket.on("connect", onConnect);
+      socket.on("disconnect", onDisconnect);
+      socket.on("newNotification", onNewNotification);
+      
+      if (!socket.connected) {
+        socket.connect();
+      } else {
+        onConnect();
+      }
+
+      return () => {
+        console.log("Cleaning up Admin socket...");
+        socket.off("connect", onConnect);
+        socket.off("disconnect", onDisconnect);
+        socket.off("newNotification", onNewNotification);
+    
+      };
+    }
+  }, [user, dispatch]);
 
   return (
     <div

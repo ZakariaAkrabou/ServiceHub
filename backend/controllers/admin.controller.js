@@ -464,3 +464,78 @@ export const getServiceById = async (req, res) => {
   }
 };
 
+export const getNotifications = async (req, res) => {
+  try {
+    const notifications = await Notification.find({ recipient_role: "admin" })
+      .populate({
+        path: "booking_id",
+        populate: [
+          { path: "customer_id", select: "firstName lastName" },
+          { path: "service_id", select: "name" }
+        ]
+      })
+      .populate({
+        path: "service_id",
+        populate: { path: "provider_id", select: "firstName lastName" }
+      })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: notifications,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const markNotificationAsRead = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const notification = await Notification.findByIdAndUpdate(
+      id,
+      { is_read: true },
+      { new: true }
+    );
+
+    if (!notification) {
+      return res.status(404).json({ success: false, message: "Notification not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: notification,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const markAllNotificationsAsRead = async (req, res) => {
+  try {
+    await Notification.updateMany(
+      { recipient_role: "admin", is_read: false },
+      { is_read: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "All notifications marked as read",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getUnreadNotificationCount = async (req, res) => {
+  try {
+    const count = await Notification.countDocuments({
+      recipient_role: "admin",
+      is_read: false,
+    });
+    res.status(200).json({ success: true, count });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

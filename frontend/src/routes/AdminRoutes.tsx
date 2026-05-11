@@ -12,6 +12,7 @@ import CustomerManagement from "../pages/admin/Cutomers/CustomerManagment";
 import BookingManagement from "../pages/admin/Bookings/BookingManagment";
 import ServicesManagement from "../pages/admin/Services/ServicesManagment";
 import SettingsManagement from "../pages/admin/Settings/SettingsManagement";
+import Notification from "../pages/admin/notification/notification";
 
 import AdminLayouts from "../layouts/AdminLayouts";
 import RequireAuth from "./RequireAuth";
@@ -51,6 +52,7 @@ export default function AdminRoutes() {
           <Route path="/bookings" element={<BookingManagement />} />
           <Route path="/services" element={<ServicesManagement />} />
           <Route path="/settings" element={<SettingsManagement />} />
+          <Route path="/notifications" element={<Notification />} />
         </Route>
       </Route>
 

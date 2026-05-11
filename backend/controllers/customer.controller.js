@@ -111,8 +111,6 @@ export const filterServices = async (req, res) => {
   }
 };
 
-
-
 export const createBooking = async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -166,6 +164,17 @@ export const createBooking = async (req, res) => {
       message: notification.message,
       type: notification.type,
     });
+
+    const adminNotification = await Notification.create({
+      recipient_role: "admin",
+      booking_id: booking._id,
+      type: "new_booking",
+      message: `New booking request for service: "${service.name}"`,
+    });
+
+    if (io) {
+      io.to("admin").emit("newNotification", adminNotification);
+    }
 
     res
       .status(201)
@@ -274,7 +283,6 @@ export const cancelBooking = async (req, res) => {
   
 };
 
- 
 export const leaveReview = async (req, res) => {
   try {
     const customerId = req.user.userId;

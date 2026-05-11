@@ -5,8 +5,9 @@ let io;
 export const initSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: "*",
+      origin: "http://localhost:5173",
       methods: ["GET", "POST"],
+      credentials: true,
     },
   });
 
@@ -14,9 +15,13 @@ export const initSocket = (server) => {
     console.log("New client connected:", socket.id);
 
    
-    socket.on("join", (userId) => {
+    socket.on("join", (userId, role) => {
       socket.join(userId);
-      console.log(`User ${userId} joined their room`);
+      if (role === "admin") {
+        socket.join("admin");
+        console.log(`Admin ${userId} joined admin room`);
+      }
+      console.log(`User ${userId} joined their room: ${userId}`);
     });
  
     socket.on("disconnect", () => {

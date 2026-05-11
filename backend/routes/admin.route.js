@@ -24,4 +24,9 @@ router.put("/users/unban/:userId", authenticated, isAdmin, adminController.unban
 router.get("/services", authenticated, isAdmin, adminController.getAllServices);
 router.get("/services/:id", authenticated, isAdmin, adminController.getServiceById);
 
+router.get("/notifications", authenticated, isAdmin, adminController.getNotifications);
+router.patch("/notifications/:id/read", authenticated, isAdmin, adminController.markNotificationAsRead);
+router.patch("/notifications/read-all", authenticated, isAdmin, adminController.markAllNotificationsAsRead);
+router.get("/notifications/unread-count", authenticated, isAdmin, adminController.getUnreadNotificationCount);
+
 export default router;

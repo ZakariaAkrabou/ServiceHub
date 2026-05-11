@@ -19,7 +19,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const [logout] = useLogoutMutation();
   const dispatch = useDispatch();
-  const { data: unreadCountResponse } = useGetUnreadNotificationCountQuery({}, {
+  const { data: unreadCountResponse } = useGetUnreadNotificationCountQuery(undefined, {
     pollingInterval: 15000, // Poll every 15 seconds as a fallback
     refetchOnMountOrArgChange: true,
   });

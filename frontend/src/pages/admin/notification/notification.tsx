@@ -1,3 +1,4 @@
+
 import {
   Bell,
   Check,
@@ -6,6 +7,7 @@ import {
   Briefcase,
   Calendar,
   AlertCircle,
+
   CheckCheck,
 } from "lucide-react";
 import {
@@ -16,7 +18,7 @@ import {
 import { format } from "date-fns";
 
 const Notification = () => {
-  const { data: notificationsResponse, isLoading,  } = useGetAdminNotificationsQuery({});
+  const { data: notificationsResponse, isLoading } = useGetAdminNotificationsQuery();
   const [markAsRead] = useMarkNotificationAsReadMutation();
   const [markAllAsRead] = useMarkAllNotificationsAsReadMutation();
 
@@ -47,7 +49,7 @@ const Notification = () => {
 
   const handleMarkAllAsRead = async () => {
     try {
-      await markAllAsRead({}).unwrap();
+      await markAllAsRead().unwrap();
     } catch (error) {
       console.error("Failed to mark all as read:", error);
     }

@@ -5,6 +5,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import AdminRoutes from "./routes/AdminRoutes";
+import ClientRoutes from "./routes/ClientRoutes";
+
 import { useAuthBootstrap } from "./app/slices/useAuthBootstrap";
 import { useState, useCallback } from "react";
 
@@ -69,7 +71,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/admin/*" element={<AdminRoutes />} />
+        <Route path="/*" element={<ClientRoutes />} />
       </Routes>
       <ToastContainer
         position="top-right"

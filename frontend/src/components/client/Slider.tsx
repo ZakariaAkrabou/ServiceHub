@@ -1,4 +1,4 @@
-const words = ["Vacuum", "Cleaning", "Sweeping", "Mopping", "Polishing"];
+const words = ["CLEANING", "MAINTENANCE", "PLUMBING", "ELECTRICITY", "IT SUPPORT"];
 
 export default function MarqueeSlider() {
   const items = [...words, ...words];

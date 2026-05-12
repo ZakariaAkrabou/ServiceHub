@@ -41,17 +41,17 @@ const HeroSection: React.FC = () => {
         const rect = section.getBoundingClientRect();
         const sectionH = section.offsetHeight;
 
-      
+
         const scrolled = -rect.top;
         const progress = Math.max(0, Math.min(1, scrolled / sectionH));
 
-      
+
         if (bgRef.current) {
           const bgY = scrolled * 0.4;
           bgRef.current.style.transform = `translateY(${bgY}px)`;
         }
 
-        
+
         if (headlineRef.current) {
           const y = -scrolled * 0.18;
           const opacity = Math.max(0, 1 - progress * 2.2);
@@ -59,7 +59,7 @@ const HeroSection: React.FC = () => {
           headlineRef.current.style.opacity = String(opacity);
         }
 
-  
+
         if (subRef.current) {
           const y = -scrolled * 0.1;
           const opacity = Math.max(0, 1 - progress * 3);
@@ -127,6 +127,19 @@ const HeroSection: React.FC = () => {
           flex-direction: column;
           min-height: 100vh;
         }
+          .word-by-word .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(28px);
+  animation: wordUp 0.55s cubic-bezier(.22,.68,0,1.2) forwards;
+}
+.word-by-word .word:nth-child(1) { animation-delay: 0.00s; }
+.word-by-word .word:nth-child(2) { animation-delay: 0.10s; }
+.word-by-word .word:nth-child(3) { animation-delay: 0.22s; }
+.word-by-word .word:nth-child(4) { animation-delay: 0.34s; }
+@keyframes wordUp {
+  to { opacity: 1; transform: translateY(0); }
+}
 
         /* ─── HERO BODY ─── */
         .hero-body {
@@ -187,7 +200,7 @@ const HeroSection: React.FC = () => {
 
         /* ─── CARD ─── */
         .hero-card {
-          border: 2px solid #e1d448;
+          border: 2px solid #ffffff;
           border-radius: 20px;
           overflow: hidden;
           width: 90%;
@@ -403,17 +416,19 @@ const HeroSection: React.FC = () => {
           <div className="hero-body">
             {/* Left */}
             <div className="hero-left">
-              <h1 className="hero-headline" ref={headlineRef}>
-                Local services,<br />
-                <em>effortlessly booked.</em>
-              </h1>
+              <h1 className="hero-headline word-by-word" ref={headlineRef}>
+  <span className="word">Local</span>{' '}
+  <span className="word">services,</span>
+  <br />
+  <span className="word italic">effortlessly</span>{' '}
+  <span className="word italic">booked.</span>
+</h1>
 
               <p className="hero-sub" ref={subRef}>
-                Connect with trusted freelancers for home repairs, beauty, tutoring, cleaning, and more — in minutes.
-              </p>
+                Professional home maintenance and technical repairs at your fingertips. Find trusted local experts for a better living space.          </p>
             </div>
 
-        
+
             <div className="hero-right">
               <div className="hero-card" ref={cardRef}>
                 <div className="hero-img-wrap">
@@ -424,7 +439,7 @@ const HeroSection: React.FC = () => {
                   />
                 </div>
 
-      
+
                 <div className="hero-dots">
                   {slides.map((_, i) => (
                     <div
@@ -441,14 +456,14 @@ const HeroSection: React.FC = () => {
                   ))}
                 </div>
 
-         
+
                 <div className="hero-card-overlay">
                   <div className="hero-tags">
-                    <span className="hero-tag">12% discount for first time users</span>
-                    <span className="hero-tag">24% discount for repeating clients</span>
+                    <span className="hero-tag">15% discount on your first booking.</span>
+                    <span className="hero-tag">Verified experts in your neighborhood.</span>
                   </div>
                   <button className="hero-cta-btn">
-                    Get a free quote
+                   Book an Expert
                     <span className="hero-cta-arrow">↗</span>
                   </button>
                 </div>
@@ -456,7 +471,7 @@ const HeroSection: React.FC = () => {
             </div>
           </div>
 
-         
+
         </div>
       </section>
     </>

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
+import logo from "../../assets/logoservicehub.png"; // Garde ton import
 
 const Header: React.FC = () => {
-    const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
-    return (
-        <>
-            <style>{`
+  return (
+    <>
+      <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
 
         .header-wrapper {
@@ -13,7 +14,12 @@ const Header: React.FC = () => {
           z-index: 100;
           font-family: 'DM Sans', sans-serif;
         }
-
+.logo-image {
+  height: 500px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
         .hero-nav {
           display: flex;
           align-items: center;
@@ -22,12 +28,11 @@ const Header: React.FC = () => {
           background: transparent;
         }
 
-        .hero-nav-logo {
-          font-family: 'DM Serif Display', serif;
-          font-size: 22px;
-          color: #f6e304;
-          letter-spacing: -0.5px;
-        }
+       .hero-nav-logo img {
+  height: 56px;  /* était 36px */
+  width: auto;
+  display: block;
+}
 
         .hero-nav-links {
           display: flex;
@@ -80,9 +85,8 @@ const Header: React.FC = () => {
           transition: transform 0.25s ease, opacity 0.2s ease;
         }
 
-        /* ── Mobile menu — hidden by default ── */
+        /* ── Mobile menu ── */
         .mobile-menu {
-          display: none;
           position: absolute;
           top: 100%;
           left: 0;
@@ -93,15 +97,19 @@ const Header: React.FC = () => {
           padding: 20px 24px 24px;
           box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
           border-top: 1px solid rgba(255,255,255,0.08);
-          animation: slideDown 0.22s ease forwards;
+
+          /* Animation via opacity + transform, pas display */
+          opacity: 0;
+          transform: translateY(-8px);
+          pointer-events: none;
+          transition: opacity 0.22s ease, transform 0.22s ease;
         }
 
-        @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-8px); }
-          to   { opacity: 1; transform: translateY(0); }
+        .mobile-menu.open {
+          opacity: 1;
+          transform: translateY(0);
+          pointer-events: auto;
         }
-
-        .mobile-menu.open { display: block; }
 
         .mobile-menu ul {
           list-style: none;
@@ -121,73 +129,91 @@ const Header: React.FC = () => {
           border-bottom: 1px solid rgba(255,255,255,0.07);
           transition: color 0.18s;
         }
-        .mobile-menu li:last-child a {
-          border-bottom: none;
-        }
+        .mobile-menu li:last-child a { border-bottom: none; }
         .mobile-menu li a:hover { color: #f6e304; }
 
         .mobile-cta {
           display: block;
           margin-top: 16px;
           background: #ffffff;
-          color: #1a1a1a !important;
+          color: #1a1a1a;
           border-radius: 100px;
           text-align: center;
-          padding: 12px 18px !important;
-          font-weight: 500 !important;
-          font-size: 14px !important;
-          border-bottom: none !important;
+          padding: 12px 18px;
+          font-weight: 500;
+          font-size: 14px;
+          border-bottom: none;
         }
-        .mobile-cta:hover { background: #f0ede8; color: #1a1a1a !important; }
+        .mobile-cta:hover {
+          background: #f0ede8;
+          color: #1a1a1a;
+        }
 
         /* ── Breakpoint ── */
         @media (max-width: 768px) {
-          .hero-nav {
-            padding: 14px 20px;
-          }
+          .hero-nav { padding: 14px 20px; }
           .hero-nav-links { display: none; }
           .hero-nav-cta   { display: none; }
           .menu-toggle    { display: block; }
         }
       `}</style>
 
-            <div className="header-wrapper">
-                <nav className="hero-nav">
-                    <div className="hero-nav-logo">SERVICES</div>
-
-                
-                    <ul className="hero-nav-links">
-                        <li><a href="#">About</a></li>
-                        <li><a href="#">Services</a></li>
-                        <li><a href="#">Pricing</a></li>
-                    </ul>
-
-                    <button
-                        className="menu-toggle"
-                        aria-label="Toggle menu"
-                        aria-expanded={open}
-                        onClick={() => setOpen(!open)}
-                    >
-                        <span className="bar" style={{ transform: open ? 'rotate(45deg) translate(0, 7px)' : 'none' }} />
-                        <span className="bar" style={{ opacity: open ? 0 : 1, transform: open ? 'scaleX(0)' : 'none' }} />
-                        <span className="bar" style={{ transform: open ? 'rotate(-45deg) translate(0, -7px)' : 'none' }} />
-                    </button>
-
-                  
-                    <button className="hero-nav-cta">Contact us</button>
-                </nav>
-
-                <div className={"mobile-menu" + (open ? " open" : "")} role="navigation" aria-label="Mobile menu">
-                    <ul>
-                        <li><a href="#" onClick={() => setOpen(false)}>About</a></li>
-                        <li><a href="#" onClick={() => setOpen(false)}>Services</a></li>
-                        <li><a href="#" onClick={() => setOpen(false)}>Pricing</a></li>
-                        <li><a href="#" onClick={() => setOpen(false)} className="mobile-cta">Contact us</a></li>
-                    </ul>
-                </div>
+      <div className="header-wrapper">
+        <nav className="hero-nav" aria-label="Navigation principale">
+          <div className="hero-nav-logo">
+            <div className="hero-nav-logo">
+              <img src={logo} alt="ServiceHub Logo" className="logo-image" />
             </div>
-        </>
-    );
+          </div>
+
+          <ul className="hero-nav-links">
+            <li><a href="#">About</a></li>
+            <li><a href="#">Services</a></li>
+            <li><a href="#">Pricing</a></li>
+          </ul>
+
+          <button
+            className="menu-toggle"
+            aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            onClick={() => setOpen(prev => !prev)}
+          >
+            <span className="bar" style={{
+              transform: open ? 'rotate(45deg) translate(0, 7px)' : undefined
+            }} />
+            <span className="bar" style={{
+              opacity: open ? 0 : 1,
+              transform: open ? 'scaleX(0)' : undefined
+            }} />
+            <span className="bar" style={{
+              transform: open ? 'rotate(-45deg) translate(0, -7px)' : undefined
+            }} />
+          </button>
+
+          <button className="hero-nav-cta">Contact us</button>
+        </nav>
+
+        <nav
+          id="mobile-nav"
+          className={`mobile-menu${open ? " open" : ""}`}
+          aria-label="Menu mobile"
+          aria-hidden={!open}
+        >
+          <ul>
+            <li><a href="#" onClick={() => setOpen(false)}>About</a></li>
+            <li><a href="#" onClick={() => setOpen(false)}>Services</a></li>
+            <li><a href="#" onClick={() => setOpen(false)}>Pricing</a></li>
+            <li>
+              <a href="#" onClick={() => setOpen(false)} className="mobile-cta">
+                Contact us
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </>
+  );
 };
 
 export default Header;

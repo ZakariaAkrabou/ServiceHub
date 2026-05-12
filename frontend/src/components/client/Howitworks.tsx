@@ -18,7 +18,7 @@ const steps = [
       </svg>
     ),
     title: "Choose Service",
-    description: "Browse our wide range of services and select what you need for your home.",
+    description: "Select the specific cleaning, gardening, or repair service you need from our expert list.",
   },
   {
     number: "02",
@@ -34,7 +34,7 @@ const steps = [
       </svg>
     ),
     title: "Book Instantly",
-    description: "Pick a convenient time and confirm your booking in just a few clicks.",
+    description: "Pick a time that works for you. Our verified pro arrives fully equipped to handle the task.",
   },
   {
     number: "03",
@@ -49,7 +49,7 @@ const steps = [
       </svg>
     ),
     title: "Get It Done",
-    description: "Our skilled professional arrives on time and completes the job efficiently.",
+    description: "Pick a time that works for you. Our verified pro arrives fully equipped to handle the task.",
   },
   {
     number: "04",
@@ -59,7 +59,7 @@ const steps = [
       </svg>
     ),
     title: "Rate & Review",
-    description: "Share your experience and help others find the best professionals in your area.",
+    description: "Share your experience. Your feedback helps maintain our high standards of local service.",
   },
 ];
 

@@ -1,5 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import serviceImg from "../../assets/service.jpg";
+import serviceImg1 from "../../assets/homeclean.jpg";
+import serviceImg2 from "../../assets/jrdinage.jpg";
+import serviceImg3 from "../../assets/service.jpg";
+
 
 const fontFamily =
   "'DM Sans', 'Times New Roman', sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial";
@@ -8,32 +11,32 @@ const services = [
   {
     num: "01",
     title: "Home Cleaning",
-    desc: "for homes that deserve better",
+    desc: "Professional Interior Care.",
     hrs: "2 HRS",
     hrsLabel: "average time for standard clean",
-    body: "Get a refreshed, healthy home without spending your weekend scrubbing.",
+    body: "From deep cleaning to regular maintenance, we keep your home spotless and healthy.",
     cta: "Explore home plan",
-    img: serviceImg,
+    img: serviceImg1,
   },
   {
     num: "02",
-    title: "Workspace Cleaning",
-    desc: "for growing teams & busy professionals",
+    title: "GARDENING & OUTDOOR",
+    desc: "Complete Greenery Management.",
     hrs: "3 HRS",
     hrsLabel: "average time for office clean",
-    body: "Keep your team focused in a spotless, productive environment.",
+    body: "Expert lawn mowing, hedge trimming, and seasonal maintenance for a perfect garden.",
     cta: "Explore workspace plan",
-    img: serviceImg,
+    img: serviceImg2,
   },
   {
     num: "03",
-    title: "Store Cleaning",
-    desc: "for retail spaces that make an impression",
+    title: "TECHNICAL REPAIRS",
+    desc: "Expert Solutions.",
     hrs: "4 HRS",
     hrsLabel: "average time for store clean",
-    body: "Make every customer walk into a clean, welcoming space.",
+    body: "Fast and reliable interventions for plumbing leaks, electrical faults, and IT troubleshooting.",
     cta: "Explore store plan",
-    img: serviceImg,
+    img: serviceImg3,
   },
 ];
 
@@ -401,8 +404,7 @@ const OurServices: React.FC = () => {
               Discover our services<br />and how we do it better.
             </h2>
             <p style={{ fontSize: 15, color: "#4a4a5a", lineHeight: 1.65, maxWidth: 760, margin: 0 }}>
-              We help people live and work in cleaner, healthier spaces with dependable,
-              professional cleaning always tailored to what you need.
+              We focus on essential home needs with a commitment to quality, reliability, and professional execution.
             </p>
           </div>
         </div>

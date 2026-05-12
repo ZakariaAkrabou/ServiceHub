@@ -185,7 +185,7 @@ export default function Footer() {
           border-radius: 50%;
           background-color: #f0d000;
           top: 10px;
-          left: 57%;
+          left: 85%;
           z-index: 2;
           will-change: transform, opacity;
         }
@@ -315,7 +315,7 @@ export default function Footer() {
               }}
             >
               Made by{" "}
-              <span style={{ color: "#f0d000" }}>RaDe Creatives</span>
+              <span style={{ color: "#f0d000" }}>SERVICE HUB</span>
             </p>
           </div>
 
@@ -333,7 +333,7 @@ export default function Footer() {
               Follow us
             </p>
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "14px", margin: "0 0 6px" }}>
-              mail@neative.com
+              servicehub@gmail.com
             </p>
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "14px", margin: "0 0 24px" }}>
               +91 98765 43210
@@ -374,7 +374,7 @@ export default function Footer() {
             className="footer-yellow-dot"
           />
           <div ref={brandRef} className="footer-brand-wrap">
-            <h2 className="footer-brand-text">LOCAL</h2>
+            <h2 className="footer-brand-text">SERVICE HUB</h2>
           </div>
         </div>
       </footer>

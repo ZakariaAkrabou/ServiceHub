@@ -40,18 +40,18 @@ const StoreIcon = () => (
 const cards = [
   {
     icon: <HomeIcon />,
-    title: "HOME",
-    desc: "Apartment, condos, and houses – busy people who want their home to feel fresh again.",
+    title: "Home Services",
+    desc: "Dedicated professionals for your home and garden, ensuring your living space is always at its best.",
   },
   {
     icon: <WorkspaceIcon />,
-    title: "WORKSPACE",
-    desc: "Maintain a clean, healthy workspace that supports productivity and professionalism.",
+    title: "Booking & Scheduling",
+    desc: "Browse real-time availability and secure your appointment in seconds. No more waiting on hold.",
   },
   {
     icon: <StoreIcon />,
-    title: "STORE",
-    desc: "Retail shops, studios, and showrooms – spotless spaces that make a great impression.",
+    title: "Ratings & Reviews",
+    desc: "Transparency you can trust. Read authentic feedback from your neighbors before you book.",
   },
 ];
 
@@ -69,13 +69,13 @@ const WhoWeHelp: React.FC = () => {
   useEffect(() => {
     const cardRefs = [card0Ref, card1Ref, card2Ref];
     const allEls: { el: HTMLElement | null; delay: number; dy: number }[] = [
-      { el: labelRef.current,    delay: 0,    dy: 20 },
-      { el: headlineRef.current, delay: 0.1,  dy: 36 },
-      { el: subRef.current,      delay: 0.2,  dy: 24 },
-      { el: ctaRef.current,      delay: 0.25, dy: 20 },
-      { el: card0Ref.current,    delay: 0.1,  dy: 48 },
-      { el: card1Ref.current,    delay: 0.22, dy: 48 },
-      { el: card2Ref.current,    delay: 0.34, dy: 48 },
+      { el: labelRef.current, delay: 0, dy: 20 },
+      { el: headlineRef.current, delay: 0.1, dy: 36 },
+      { el: subRef.current, delay: 0.2, dy: 24 },
+      { el: ctaRef.current, delay: 0.25, dy: 20 },
+      { el: card0Ref.current, delay: 0.1, dy: 48 },
+      { el: card1Ref.current, delay: 0.22, dy: 48 },
+      { el: card2Ref.current, delay: 0.34, dy: 48 },
     ];
 
     allEls.forEach(({ el, delay, dy }) => {
@@ -374,12 +374,10 @@ const WhoWeHelp: React.FC = () => {
         <div className="wwh-header-row">
           <div style={{ flex: 1, maxWidth: 520 }}>
             <h2 className="wwh-headline" ref={headlineRef}>
-              Spaces we<br />specialize in
+              Local Services,  <br />Booked Instantly
             </h2>
             <p className="wwh-sub" ref={subRef}>
-              We work with busy homeowners, growing businesses, and commercial
-              properties who need a space that's consistently clean and well cared for.
-            </p>
+              ServiceHub connects customers with trusted local freelancers and small businesses — from home repairs to beauty services, tutoring, and more. Every service, every space, covered.            </p>
           </div>
 
           <button className="wwh-cta" ref={ctaRef}>

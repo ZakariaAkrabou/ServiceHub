@@ -4,4 +4,5 @@ export interface User {
     lastName: string;
     email: string;
     role: "admin" | "customer" | "service_provider";
+    image?: string;
 }

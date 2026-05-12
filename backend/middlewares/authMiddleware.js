@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 export const authenticated = (req, res, next) => {
   try {
-    
+
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -11,7 +11,7 @@ export const authenticated = (req, res, next) => {
 
     const token = authHeader.split(" ")[1];
 
-  
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     req.user = decoded;

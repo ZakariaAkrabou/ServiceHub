@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../app/store/store";
+import type { RootState } from "../../app/store/store";
 import { logout } from "../../app/slices/AuthSlice";
 import { User, LogOut, ChevronDown, UserCircle, Settings } from "lucide-react";
+import logoServiceHub from "../../assets/logoservicehub.png";
+import { useLogoutMutation } from "../../app/api/AuthApi";
 
 const Header: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
+  const [logoutMutation] = useLogoutMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -33,9 +36,16 @@ const Header: React.FC = () => {
     };
   }, []);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await logoutMutation({}).unwrap();
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      dispatch(logout());
+      setShowDropdown(false);
+      navigate("/login");
+    }
   };
 
   return (
@@ -87,8 +97,20 @@ const Header: React.FC = () => {
           font-size: 22px;
         }
 
-        .logo-link:hover .logo-text {
+        .logo-link:hover .logo-text,
+        .logo-link:hover .logo-img {
           transform: scale(1.05);
+        }
+
+        .logo-img {
+          height: 40px;
+          width: auto;
+          transition: all 0.4s ease;
+          display: block;
+        }
+
+        .header-container.scrolled .logo-img {
+          height: 32px;
         }
 
         .nav-links {
@@ -375,7 +397,7 @@ const Header: React.FC = () => {
 
       <header className={`header-container ${scrolled ? 'scrolled' : ''}`}>
         <Link to="/" className="logo-link">
-          <span className="logo-text">SERVICES</span>
+          <img src={logoServiceHub} alt="ServiceHub Logo" className="logo-img" />
         </Link>
 
         <nav className="nav-links">

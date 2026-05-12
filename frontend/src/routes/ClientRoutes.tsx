@@ -1,7 +1,11 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "../pages/client/home/home";
-import Login from "../pages/client/auth/Login";
+import Login from "../pages/client/auth/login";
 import Register from "../pages/client/auth/register";
+import ForgetPassword from "../pages/client/auth/forgetPassword";
+import ResetPassword from "../pages/client/auth/resetPassword";
+import VerifyEmail from "../pages/client/auth/verifyEmail";
+import ProviderDashboard from "../pages/provider/dashboard";
 import NotFound from "../pages/client/errors/NotFound";
 
 export default function ClientRoutes() {
@@ -10,6 +14,10 @@ export default function ClientRoutes() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgetPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/verify-email/:token" element={<VerifyEmail />} />
+      <Route path="/provider/dashboard" element={<ProviderDashboard />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

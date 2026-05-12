@@ -1,17 +1,42 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../../app/store/store";
+import { logout } from "../../app/slices/AuthSlice";
+import { User, LogOut, ChevronDown, UserCircle, Settings } from "lucide-react";
 
 const Header: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.profile-dropdown-container')) {
+        setShowDropdown(false);
+      }
+    };
+    window.addEventListener("click", handleClickOutside);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("click", handleClickOutside);
+    };
   }, []);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login");
+  };
 
   return (
     <>
@@ -151,6 +176,113 @@ const Header: React.FC = () => {
           box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
         }
 
+        .profile-dropdown-container {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+
+        .profile-trigger {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+          padding: 6px;
+          border-radius: 100px;
+          transition: all 0.3s ease;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-trigger:hover {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .profile-image-circled {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid #F6E304;
+          background: #1a1a1a;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .dropdown-menu {
+          position: absolute;
+          top: calc(100% + 12px);
+          right: 0;
+          width: 240px;
+          background: #1a1a1a;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 16px;
+          padding: 12px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+          opacity: 0;
+          visibility: hidden;
+          transform: translateY(10px);
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .dropdown-menu.active {
+          opacity: 1;
+          visibility: visible;
+          transform: translateY(0);
+        }
+
+        .dropdown-header {
+          padding: 8px 12px 16px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          margin-bottom: 8px;
+        }
+
+        .user-name {
+          display: block;
+          color: #ffffff;
+          font-size: 15px;
+          font-weight: 600;
+        }
+
+        .user-role {
+          display: block;
+          color: rgba(255, 255, 255, 0.5);
+          font-size: 12px;
+          text-transform: capitalize;
+        }
+
+        .dropdown-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 10px 12px;
+          color: rgba(255, 255, 255, 0.8);
+          text-decoration: none;
+          font-size: 14px;
+          border-radius: 10px;
+          transition: all 0.2s ease;
+          cursor: pointer;
+          border: none;
+          width: 100%;
+          text-align: left;
+          background: transparent;
+        }
+
+        .dropdown-item:hover {
+          background: rgba(255, 255, 255, 0.05);
+          color: #F6E304;
+        }
+
+        .dropdown-item.logout {
+          color: #ff4d4d;
+        }
+
+        .dropdown-item.logout:hover {
+          background: rgba(255, 77, 77, 0.1);
+        }
+
         /* Mobile Menu Button */
         .mobile-btn {
           display: none;
@@ -253,8 +385,47 @@ const Header: React.FC = () => {
         </nav>
 
         <div className="auth-actions">
-          <Link to="/login" className="btn-login">Login</Link>
-          <a href="#contact" className="btn-cta">Contact us</a>
+          {isAuthenticated ? (
+            <div className="profile-dropdown-container">
+              <div className="profile-trigger" onClick={(e) => {
+                e.stopPropagation();
+                setShowDropdown(!showDropdown);
+              }}>
+                <div className="profile-image-circled">
+                  {user?.image ? (
+                    <img src={user.image} alt="Profile" className="w-full h-full rounded-full" />
+                  ) : (
+                    <User size={20} className="text-[#F6E304]" />
+                  )}
+                </div>
+                <ChevronDown size={16} className={`text-white transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
+              </div>
+
+              <div className={`dropdown-menu ${showDropdown ? 'active' : ''}`}>
+                <div className="dropdown-header">
+                  <span className="user-name">{user?.firstName} {user?.lastName}</span>
+                  <span className="user-role">{user?.role?.replace('_', ' ')}</span>
+                </div>
+                <Link to={user?.role === 'service_provider' ? '/provider/dashboard' : '/profile'} className="dropdown-item">
+                  <UserCircle size={18} />
+                  My Profile
+                </Link>
+                <Link to="/settings" className="dropdown-item">
+                  <Settings size={18} />
+                  Settings
+                </Link>
+                <button onClick={handleLogout} className="dropdown-item logout">
+                  <LogOut size={18} />
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <Link to="/login" className="btn-login">Login</Link>
+              <a href="#contact" className="btn-cta">Contact us</a>
+            </>
+          )}
         </div>
 
         <button 

@@ -76,7 +76,8 @@ export const registerUser = async (req, res) => {
       }
     }
 
-    const verificationLink = `${process.env.BASE_URL}/api/auth/verify-email/${verificationToken}`;
+    const frontendUrl = process.env.FRONTEND_URL?.replace(/\/+$/, "");
+    const verificationLink = `${frontendUrl}/verify-email/${verificationToken}`;
 
     const emailSubject = "Verify Your Email Address";
     const emailText = `Please click the following link to verify your email: ${verificationLink}`;
@@ -229,7 +230,7 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     const frontendUrl = process.env.FRONTEND_URL?.replace(/\/+$/, "");
-    const resetLink = `${frontendUrl}/admin/reset-password/${resetToken}`;
+    const resetLink = `${frontendUrl}/reset-password/${resetToken}`;
 
     const emailSubject = "Password Reset Request";
     const emailText = `You requested a password reset. Please click the following link to reset your password: ${resetLink}`;

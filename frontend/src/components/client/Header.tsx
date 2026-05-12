@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import logo from "../../assets/logoservicehub.png"; // Garde ton import
+import logo from "../../assets/logo2.png"; 
 
 const Header: React.FC = () => {
   const [open, setOpen] = useState(false);

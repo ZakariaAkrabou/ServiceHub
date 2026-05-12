@@ -136,7 +136,7 @@ export default function Footer() {
         .footer-submit-btn {
           background: transparent;
           border: none;
-          color: #f0d000;
+          color: #c9a84c;
           font-size: 18px;
           font-weight: 700;
           cursor: pointer;
@@ -153,7 +153,7 @@ export default function Footer() {
           display: inline-flex;
         }
         .footer-social-link:hover {
-          color: #f0d000;
+          color: #c9a84c;
           transform: translateY(-2px);
         }
 
@@ -168,7 +168,7 @@ export default function Footer() {
           font-weight: 900;
           margin: 0;
           line-height: 0.85;
-          background: linear-gradient(to bottom, #f0d000 30%, rgba(240,208,0,0.15) 100%);
+          background: linear-gradient(to bottom, #c9a84c 30%, rgba(240,208,0,0.15) 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -183,7 +183,7 @@ export default function Footer() {
           width: 60px;
           height: 60px;
           border-radius: 50%;
-          background-color: #f0d000;
+          background-color: #c9a84c;
           top: 10px;
           left: 85%;
           z-index: 2;
@@ -315,7 +315,7 @@ export default function Footer() {
               }}
             >
               Made by{" "}
-              <span style={{ color: "#f0d000" }}>SERVICE HUB</span>
+              <span style={{ color: "#c9a84c" }}>SERVICE HUB</span>
             </p>
           </div>
 

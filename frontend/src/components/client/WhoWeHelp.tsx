@@ -147,7 +147,7 @@ const WhoWeHelp: React.FC = () => {
         .wwh-label-line {
           width: 32px;
           height: 2px;
-          background: #f6e304;
+          background: #c9a84c;
           transition: width 0.6s 0.05s ease;
         }
         .wwh-label-text {
@@ -190,7 +190,7 @@ const WhoWeHelp: React.FC = () => {
           display: flex;
           align-items: center;
           gap: 0;
-          background: #f6e304;
+          background: #c9a84c;
           border: none;
           border-radius: 50px;
           padding: 14px 20px 14px 30px;
@@ -274,7 +274,7 @@ const WhoWeHelp: React.FC = () => {
           left: 0;
           width: 0;
           height: 2px;
-          background: #f6e304;
+          background: #c9a84c;
           transition: width 0.3s ease;
         }
         .wwh-card:hover .wwh-card-title::after {

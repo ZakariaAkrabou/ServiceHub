@@ -15,7 +15,9 @@ function App() {
   const handleBootstrapDone = useCallback(() => setBootstrapping(false), []);
   useAuthBootstrap(handleBootstrapDone);
 
-  if (bootstrapping) {
+  const isAdminPath = window.location.pathname.startsWith("/admin");
+
+  if (bootstrapping && isAdminPath) {
     return (
       <div className="flex flex-col justify-center items-center h-screen bg-gray-100 font-sans">
         <div className="relative flex items-center justify-center">

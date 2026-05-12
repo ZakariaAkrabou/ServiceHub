@@ -1,217 +1,279 @@
-import React, { useState } from "react";
-import logo from "../../assets/logo2.png"; 
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import logo from "../../assets/log3.png"; 
 
 const Header: React.FC = () => {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-        .header-wrapper {
-          position: relative;
-          z-index: 100;
-          font-family: 'DM Sans', sans-serif;
-        }
-.logo-image {
-  height: 500px;
-  width: auto;
-  display: block;
-  object-fit: contain;
-}
-        .hero-nav {
+        .header-container {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 1000;
+          padding: 28px 48px;
+          transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 18px 48px;
-          background: transparent;
+          font-family: 'DM Sans', sans-serif;
+          background: rgba(10, 10, 10, 0);
+          backdrop-filter: blur(0px);
+          -webkit-backdrop-filter: blur(0px);
+          border-bottom: 1px solid transparent;
         }
 
-       .hero-nav-logo img {
-  height: 56px;  /* était 36px */
-  width: auto;
-  display: block;
-}
+        .header-container.scrolled {
+          padding: 12px 48px;
+          background: rgba(10, 10, 10, 0.4);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
 
-        .hero-nav-links {
+        .logo-link {
+          text-decoration: none;
+          z-index: 1100;
+          display: inline-flex;
+          align-items: center;
+        }
+
+        .logo-img {
+          height: 50px;
+          width: auto;
+          transition: all 0.4s ease;
+          display: block;
+        }
+
+        .logo-link:hover .logo-img {
+          transform: scale(1.05);
+        }
+
+        .nav-links {
           display: flex;
-          gap: 28px;
+          align-items: center;
+          gap: 40px;
           list-style: none;
           margin: 0;
           padding: 0;
-          align-items: center;
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
         }
-        .hero-nav-links a {
+
+        .nav-links a {
+          color: rgba(255, 255, 255, 0.7);
           text-decoration: none;
-          color: #ffffff;
           font-size: 14px;
-          font-weight: 400;
-          letter-spacing: 0.01em;
-          transition: color 0.2s;
-        }
-        .hero-nav-links a:hover { color: #f6e304; }
-
-        .hero-nav-cta {
-          background: #ffffff;
-          color: #1a1a1a;
-          border: none;
-          padding: 10px 18px;
-          border-radius: 100px;
-          font-size: 13px;
-          font-family: 'DM Sans', sans-serif;
           font-weight: 500;
-          cursor: pointer;
-          transition: background 0.2s, transform 0.15s;
+          letter-spacing: 0.03em;
+          transition: all 0.3s ease;
+          position: relative;
+          padding: 8px 0;
         }
-        .hero-nav-cta:hover { background: #f0ede8; transform: scale(1.02); }
 
-        /* ── Hamburger ── */
-        .menu-toggle {
+        .nav-links a::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 0;
+          height: 2px;
+          background: #c9a84c;
+          transition: width 0.3s ease;
+          border-radius: 2px;
+        }
+
+        .nav-links a:hover {
+          color: #ffffff;
+        }
+
+        .nav-links a:hover::after {
+          width: 100%;
+        }
+
+        .auth-actions {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+        }
+
+        .btn-login {
+          color: #ffffff;
+          text-decoration: none;
+          font-size: 14px;
+          font-weight: 500;
+          padding: 10px 24px;
+          border-radius: 100px;
+          transition: all 0.3s ease;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-login:hover {
+          background: rgba(255, 255, 255, 0.12);
+          border-color: rgba(255, 255, 255, 0.4);
+          transform: translateY(-1px);
+        }
+
+        .btn-cta {
+          background: #ffffff;
+          color: #0a0a0a;
+          text-decoration: none;
+          font-size: 14px;
+          font-weight: 600;
+          padding: 12px 28px;
+          border-radius: 100px;
+          transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+          box-shadow: 0 4px 15px rgba(246, 227, 4, 0.25);
+        }
+
+        .btn-cta:hover {
+          background: #ffffff;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Mobile Menu Button */
+        .mobile-btn {
           display: none;
           background: transparent;
           border: none;
           cursor: pointer;
-          padding: 8px;
-          z-index: 110;
+          padding: 10px;
+          z-index: 1100;
+          flex-direction: column;
+          gap: 6px;
         }
-        .menu-toggle .bar {
+
+        .mobile-btn span {
           display: block;
-          width: 22px;
+          width: 26px;
           height: 2px;
-          margin: 5px 0;
           background: #ffffff;
+          transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
           border-radius: 2px;
-          transition: transform 0.25s ease, opacity 0.2s ease;
         }
 
-        /* ── Mobile menu ── */
-        .mobile-menu {
-          position: absolute;
-          top: 100%;
-          left: 0;
-          right: 0;
-          background: rgba(10, 10, 10, 0.92);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          padding: 20px 24px 24px;
-          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
-          border-top: 1px solid rgba(255,255,255,0.08);
+        .mobile-btn.active span:nth-child(1) {
+          transform: translateY(8px) rotate(45deg);
+        }
 
-          /* Animation via opacity + transform, pas display */
+        .mobile-btn.active span:nth-child(2) {
           opacity: 0;
-          transform: translateY(-8px);
-          pointer-events: none;
-          transition: opacity 0.22s ease, transform 0.22s ease;
+          transform: translateX(-10px);
         }
 
-        .mobile-menu.open {
-          opacity: 1;
-          transform: translateY(0);
-          pointer-events: auto;
+        .mobile-btn.active span:nth-child(3) {
+          transform: translateY(-8px) rotate(-45deg);
         }
 
-        .mobile-menu ul {
-          list-style: none;
-          padding: 0;
-          margin: 0;
+        /* Mobile Overlay */
+        .mobile-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100vh;
+          background: #0a0a0a;
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          align-items: center;
+          justify-content: center;
+          gap: 32px;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+          z-index: 1050;
         }
-        .mobile-menu li a {
-          display: block;
+
+        .mobile-overlay.active {
+          opacity: 1;
+          visibility: visible;
+        }
+
+        .mobile-overlay a {
           color: #ffffff;
+          font-family: 'DM Serif Display', serif;
+          font-size: 32px;
           text-decoration: none;
-          font-size: 16px;
-          font-weight: 400;
-          padding: 10px 4px;
-          border-bottom: 1px solid rgba(255,255,255,0.07);
-          transition: color 0.18s;
-        }
-        .mobile-menu li:last-child a { border-bottom: none; }
-        .mobile-menu li a:hover { color: #f6e304; }
-
-        .mobile-cta {
-          display: block;
-          margin-top: 16px;
-          background: #ffffff;
-          color: #1a1a1a;
-          border-radius: 100px;
-          text-align: center;
-          padding: 12px 18px;
-          font-weight: 500;
-          font-size: 14px;
-          border-bottom: none;
-        }
-        .mobile-cta:hover {
-          background: #f0ede8;
-          color: #1a1a1a;
+          transition: color 0.3s ease;
         }
 
-        /* ── Breakpoint ── */
-        @media (max-width: 768px) {
-          .hero-nav { padding: 14px 20px; }
-          .hero-nav-links { display: none; }
-          .hero-nav-cta   { display: none; }
-          .menu-toggle    { display: block; }
+        .mobile-overlay a:hover {
+          color: #c9a84c;
+        }
+
+        .mobile-overlay .mobile-auth {
+          margin-top: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          width: 80%;
+          align-items: center;
+        }
+
+        @media (max-width: 1100px) {
+          .nav-links { gap: 25px; }
+        }
+
+        @media (max-width: 900px) {
+          .header-container { padding: 20px 24px; }
+          .nav-links, .auth-actions { display: none; }
+          .mobile-btn { display: flex; }
         }
       `}</style>
 
-      <div className="header-wrapper">
-        <nav className="hero-nav" aria-label="Navigation principale">
-          <div className="hero-nav-logo">
-            <div className="hero-nav-logo">
-              <img src={logo} alt="ServiceHub Logo" className="logo-image" />
-            </div>
-          </div>
+      <header className={`header-container ${scrolled ? 'scrolled' : ''}`}>
+        <Link to="/" className="logo-link">
+          <img src={logo} alt="Service Hub" className="logo-img" />
+        </Link>
 
-          <ul className="hero-nav-links">
-            <li><a href="#">About</a></li>
-            <li><a href="#">Services</a></li>
-            <li><a href="#">Pricing</a></li>
-          </ul>
-
-          <button
-            className="menu-toggle"
-            aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
-            aria-expanded={open}
-            aria-controls="mobile-nav"
-            onClick={() => setOpen(prev => !prev)}
-          >
-            <span className="bar" style={{
-              transform: open ? 'rotate(45deg) translate(0, 7px)' : undefined
-            }} />
-            <span className="bar" style={{
-              opacity: open ? 0 : 1,
-              transform: open ? 'scaleX(0)' : undefined
-            }} />
-            <span className="bar" style={{
-              transform: open ? 'rotate(-45deg) translate(0, -7px)' : undefined
-            }} />
-          </button>
-
-          <button className="hero-nav-cta">Contact us</button>
+        <nav className="nav-links">
+          <Link to="/about">About</Link>
+          <a href="#services">Services</a>
+          <a href="#pricing">Pricing</a>
         </nav>
 
-        <nav
-          id="mobile-nav"
-          className={`mobile-menu${open ? " open" : ""}`}
-          aria-label="Menu mobile"
-          aria-hidden={!open}
+        <div className="auth-actions">
+          <Link to="/login" className="btn-login">Login</Link>
+          <a href="#contact" className="btn-cta">Contact us</a>
+        </div>
+
+        <button 
+          className={`mobile-btn ${open ? 'active' : ''}`} 
+          onClick={() => setOpen(!open)}
+          aria-label="Toggle Menu"
         >
-          <ul>
-            <li><a href="#" onClick={() => setOpen(false)}>About</a></li>
-            <li><a href="#" onClick={() => setOpen(false)}>Services</a></li>
-            <li><a href="#" onClick={() => setOpen(false)}>Pricing</a></li>
-            <li>
-              <a href="#" onClick={() => setOpen(false)} className="mobile-cta">
-                Contact us
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <div className={`mobile-overlay ${open ? 'active' : ''}`}>
+          <Link to="/about" onClick={() => setOpen(false)}>About</Link>
+          <a href="#services" onClick={() => setOpen(false)}>Services</a>
+          <a href="#pricing" onClick={() => setOpen(false)}>Pricing</a>
+          <div className="mobile-auth">
+            <Link to="/login" className="btn-login" style={{ width: '100%', textAlign: 'center' }} onClick={() => setOpen(false)}>Login</Link>
+            <a href="#contact" className="btn-cta" style={{ width: '100%', textAlign: 'center' }} onClick={() => setOpen(false)}>Contact us</a>
+          </div>
+        </div>
+      </header>
     </>
   );
 };

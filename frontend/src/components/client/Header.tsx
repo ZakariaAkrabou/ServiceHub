@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../app/store/store";
 import { logout } from "../../app/slices/AuthSlice";
 import { User, LogOut, ChevronDown, UserCircle, Settings } from "lucide-react";
-import logoServiceHub from "../../assets/logoservicehub.png";
+import logoServiceHub from "../../assets/log3.png";
 import { useLogoutMutation } from "../../app/api/AuthApi";
 
 const Header: React.FC = () => {
@@ -87,7 +87,7 @@ const Header: React.FC = () => {
         }
 
         .logo-img {
-          height: 50px;
+          height: 100px;
           width: auto;
           transition: all 0.4s ease;
           display: block;
@@ -126,7 +126,7 @@ const Header: React.FC = () => {
         }
 
         .nav-links a {
-          color: rgba(255, 255, 255, 0.7);
+          color: #ffffff;
           text-decoration: none;
           font-size: 14px;
           font-weight: 500;

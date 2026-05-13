@@ -154,12 +154,14 @@ const HeroSection: React.FC = () => {
         .h-headline {
           font-family: 'Times New Roman', serif;
           font-weight: 300;
-          font-size: clamp(58px, 6.5vw, 94px);
+          font-size: clamp(50px, 6.5vw, 94px);
           line-height: 1.0;
           letter-spacing: -1px;
           color: #f5f0e8;
           margin-bottom: 32px;
+          maegin-top: 20px;
           animation: fadeUp 0.8s 0.2s ease both;
+          white-space: nowrap; 
         }
         .h-headline em {
           font-style: italic;
@@ -494,20 +496,39 @@ const HeroSection: React.FC = () => {
             gap: 32px;
             align-items: center;
           }
-          .h-left { max-width: 100%; align-items: flex-start; }
-          .h-right { align-items: center; }
+          .h-left { 
+            max-width: 100%; 
+            align-items: center; 
+            justify-content: center; 
+          }
+          .h-right { 
+            align-items: center; 
+            justify-content: center; 
+          }
           .h-card { height: 360px; max-width: 500px; width: 100%; }
           .h-ticker { display: none; }
-          .h-headline { font-size: clamp(44px, 9vw, 68px); }
+          .h-headline { 
+            font-size: clamp(44px, 9vw, 68px); 
+            text-align: center; 
+          }
+          .h-sub { text-align: center; }
+          .h-service-row { justify-content: center; }
+          .h-actions { justify-content: center; }
         }
 
         @media (max-width: 520px) {
-          .h-body { padding: 0 16px 32px; gap: 24px; }
+          .h-body { padding: 0 16px 48px; gap: 24px; }
           .h-headline { font-size: clamp(38px, 11vw, 56px); }
           .h-card { height: 280px; }
-          .h-actions { flex-direction: column; align-items: flex-start; }
+          .h-actions { 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 16px; 
+          }
           .h-btn-primary { width: 100%; justify-content: space-between; }
           .h-stat-num { font-size: 22px; }
+          .h-stat-row { flex-wrap: wrap; justify-content: center; gap: 16px; }
+          .h-card-cta { justify-content: center; }
         }
       `}</style>
 
@@ -535,11 +556,10 @@ const HeroSection: React.FC = () => {
             {/* LEFT */}
             <div className="h-left">
 
-              <h1 className="h-headline">
-                Local experts,<br />
-                <em>booked</em> in<br />
-                seconds.
-              </h1>
+             <h1 className="h-headline">
+  Local experts,<br />
+  <em>booked</em> in seconds.
+</h1>
 
               <div className="h-service-row">
                 <span className="h-service-label">Looking for</span>

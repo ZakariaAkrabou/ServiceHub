@@ -76,7 +76,8 @@ export const registerUser = async (req, res) => {
       }
     }
 
-    const verificationLink = `${process.env.BASE_URL}/api/auth/verify-email/${verificationToken}`;
+    const frontendUrl = process.env.FRONTEND_URL?.replace(/\/+$/, "");
+    const verificationLink = `${frontendUrl}/verify-email/${verificationToken}`;
 
     const emailSubject = "Verify Your Email Address";
     const emailText = `Please click the following link to verify your email: ${verificationLink}`;
@@ -204,7 +205,18 @@ export const loginUser = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.status(200).json({ message: "Login successful", accessToken });
+    return res.status(200).json({ 
+      message: "Login successful", 
+      token: accessToken,
+      user: {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        image: user.image
+      }
+    });
   } catch (error) {
     console.error("Login Error:", error);
     return res.status(500).json({
@@ -229,7 +241,7 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     const frontendUrl = process.env.FRONTEND_URL?.replace(/\/+$/, "");
-    const resetLink = `${frontendUrl}/admin/reset-password/${resetToken}`;
+    const resetLink = `${frontendUrl}/reset-password/${resetToken}`;
 
     const emailSubject = "Password Reset Request";
     const emailText = `You requested a password reset. Please click the following link to reset your password: ${resetLink}`;

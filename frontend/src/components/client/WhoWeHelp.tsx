@@ -200,7 +200,7 @@ const WhoWeHelp: React.FC = () => {
           transition: background 0.2s, transform 0.2s;
         }
         .wwh-cta:hover {
-          background: #ffe600;
+          background: #e0bc66;
           transform: scale(1.02);
         }
         .wwh-cta-label {

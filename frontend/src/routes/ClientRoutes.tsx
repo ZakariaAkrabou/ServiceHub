@@ -1,9 +1,13 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "../pages/client/home/home";
-import About from "../pages/client/about/about";
 import Login from "../pages/client/auth/login";
 import Register from "../pages/client/auth/register";
+import ForgetPassword from "../pages/client/auth/forgetPassword";
+import ResetPassword from "../pages/client/auth/resetPassword";
+import VerifyEmail from "../pages/client/auth/verifyEmail";
+import ProviderDashboard from "../pages/provider/dashboard";
 import NotFound from "../pages/client/errors/NotFound";
+import About from "../pages/client/about/about";
 
 export default function ClientRoutes() {
   return (
@@ -12,6 +16,10 @@ export default function ClientRoutes() {
       <Route path="/about" element={<About />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgetPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/verify-email/:token" element={<VerifyEmail />} />
+      <Route path="/provider/dashboard" element={<ProviderDashboard />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

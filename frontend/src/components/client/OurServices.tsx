@@ -292,7 +292,7 @@ const OurServices: React.FC = () => {
           transition: box-shadow 0.3s ease, background 0.2s ease;
         }
         .os-bottom-btn:hover {
-          background: #ffe600;
+          background: #e0bc66;
           box-shadow: 0 0 0 6px rgba(201,168,0,0.18), 0 8px 32px rgba(201,168,0,0.22);
         }
         .os-bottom-arrow {

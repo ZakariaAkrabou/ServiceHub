@@ -53,6 +53,12 @@ export const authApi = api.injectEndpoints({
         method: "POST",
       }),
     }),
+    verifyEmail: builder.mutation({
+      query: (token) => ({
+        url: `/api/auth/verify-email/${token}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -64,4 +70,5 @@ export const {
   useLogoutMutation,
   useProfileQuery,
   useRefreshTokenMutation,
+  useVerifyEmailMutation,
 } = authApi;

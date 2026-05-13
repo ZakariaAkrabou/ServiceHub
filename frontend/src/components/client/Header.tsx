@@ -364,7 +364,7 @@ const Header: React.FC = () => {
         }
 
         .mobile-overlay a {
-          color: #ffffff;
+          color: #c9a84c;
           font-family: 'DM Serif Display', serif;
           font-size: 32px;
           text-decoration: none;

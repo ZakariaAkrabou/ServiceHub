@@ -71,8 +71,7 @@ const HeroSection: React.FC = () => {
 
         .h-root {
           font-family: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-          height: 100vh;
-          min-height: 700px;
+          min-height: 100vh;
           position: relative;
           overflow: hidden;
           background: #0c0c0c;
@@ -108,9 +107,15 @@ const HeroSection: React.FC = () => {
         .h-wrap {
           position: relative;
           z-index: 2;
-          height: 100%;
+          min-height: 100vh;
           display: flex;
           flex-direction: column;
+        }
+
+        /* Spacer visible uniquement quand le Header est en position absolute/fixed
+           (sort du flux normal) — pousse le contenu vers le bas sur mobile */
+        .h-header-spacer {
+          display: none;
         }
 
         .h-body {
@@ -159,9 +164,8 @@ const HeroSection: React.FC = () => {
           letter-spacing: -1px;
           color: #f5f0e8;
           margin-bottom: 32px;
-          maegin-top: 20px;
           animation: fadeUp 0.8s 0.2s ease both;
-          white-space: nowrap; 
+          white-space: nowrap;
         }
         .h-headline em {
           font-style: italic;
@@ -489,46 +493,130 @@ const HeroSection: React.FC = () => {
         }
 
         /* ── RESPONSIVE ── */
+
+        /* Tablet landscape — réduire la colonne droite */
+        @media (max-width: 1100px) {
+          .h-body {
+            grid-template-columns: 1fr 380px;
+            padding: 0 40px 48px 48px;
+          }
+          .h-headline {
+            white-space: normal;
+          }
+        }
+
+        /* Tablet portrait — passer en colonne */
         @media (max-width: 960px) {
+          .h-root {
+            min-height: 100svh;
+          }
+          .h-wrap {
+            min-height: 100svh;
+          }
+          /* Affiche le spacer pour compenser le Header sorti du flux */
+          .h-header-spacer {
+            display: block;
+            height: 72px; /* hauteur typique d'un header mobile */
+            flex-shrink: 0;
+          }
           .h-body {
             grid-template-columns: 1fr;
-            padding: 0 24px 40px;
-            gap: 32px;
+            grid-template-rows: auto auto;
+            padding: 40px 32px 56px;
+            gap: 40px;
+            align-items: start;
+            justify-items: center;
+          }
+          .h-left {
+            max-width: 100%;
             align-items: center;
+            justify-content: flex-start;
+            text-align: center;
+            order: 1;
           }
-          .h-left { 
-            max-width: 100%; 
-            align-items: center; 
-            justify-content: center; 
+          .h-right {
+            align-items: center;
+            justify-content: flex-start;
+            width: 100%;
+            max-width: 520px;
+            order: 2;
           }
-          .h-right { 
-            align-items: center; 
-            justify-content: center; 
-          }
-          .h-card { height: 360px; max-width: 500px; width: 100%; }
+          .h-card { height: 380px; width: 100%; }
           .h-ticker { display: none; }
-          .h-headline { 
-            font-size: clamp(44px, 9vw, 68px); 
-            text-align: center; 
+          .h-headline {
+            font-size: clamp(40px, 8vw, 66px);
+            white-space: normal;
+            text-align: center;
           }
-          .h-sub { text-align: center; }
+          .h-sub { text-align: center; margin-left: auto; margin-right: auto; }
           .h-service-row { justify-content: center; }
           .h-actions { justify-content: center; }
         }
 
-        @media (max-width: 520px) {
-          .h-body { padding: 0 16px 48px; gap: 24px; }
-          .h-headline { font-size: clamp(38px, 11vw, 56px); }
-          .h-card { height: 280px; }
-          .h-actions { 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 16px; 
+        /* Mobile — affichage vertical */
+        @media (max-width: 600px) {
+          .h-body {
+            /* padding-top genereux pour que le Header ne chevauche pas le contenu */
+            padding: 28px 20px 48px;
+            gap: 28px;
           }
-          .h-btn-primary { width: 100%; justify-content: space-between; }
-          .h-stat-num { font-size: 22px; }
-          .h-stat-row { flex-wrap: wrap; justify-content: center; gap: 16px; }
-          .h-card-cta { justify-content: center; }
+          .h-headline {
+            font-size: clamp(32px, 9.5vw, 48px);
+            margin-bottom: 20px;
+          }
+          .h-service-row { margin-bottom: 20px; }
+          .h-sub {
+            font-size: 14px;
+            line-height: 1.65;
+            margin-bottom: 28px;
+          }
+          /* Carte : hauteur suffisante pour afficher stats + CTA */
+          .h-card {
+            height: 340px;
+            border-radius: 18px;
+          }
+          /* Stats : eviter la troncature */
+          .h-stat-row {
+            flex-wrap: nowrap;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 14px;
+          }
+          .h-stat { flex: 1; align-items: center; }
+          .h-stat-num { font-size: 20px; }
+          .h-stat-label {
+            font-size: 9px;
+            letter-spacing: 0.06em;
+            text-align: center;
+            white-space: nowrap;
+          }
+          .h-stat-divider { display: none; }
+          .h-card-cta {
+            padding: 12px 14px;
+          }
+          .h-card-cta-title { font-size: 13px; }
+          .h-card-cta-sub { font-size: 11px; }
+        }
+
+        /* Mobile étroit */
+        @media (max-width: 420px) {
+          .h-body { padding: 24px 16px 40px; }
+          .h-headline { font-size: clamp(28px, 10.5vw, 40px); }
+          .h-actions {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 14px;
+            width: 100%;
+          }
+          .h-btn-primary {
+            width: 100%;
+            justify-content: space-between;
+            padding: 0 8px 0 24px;
+          }
+          .h-btn-ghost { text-align: center; }
+          .h-service-word { min-width: 120px; font-size: 19px; }
+          .h-badge { font-size: 10px; padding: 5px 10px; }
+          .h-stat-label { font-size: 8px; }
         }
       `}</style>
 
@@ -551,15 +639,15 @@ const HeroSection: React.FC = () => {
 
         <div className="h-wrap">
           <Header />
+          <div className="h-header-spacer" />
 
           <div className="h-body">
             {/* LEFT */}
             <div className="h-left">
-
-             <h1 className="h-headline">
-  Local experts,<br />
-  <em>booked</em> in seconds.
-</h1>
+              <h1 className="h-headline">
+                Local experts,<br />
+                <em>booked</em> in seconds.
+              </h1>
 
               <div className="h-service-row">
                 <span className="h-service-label">Looking for</span>

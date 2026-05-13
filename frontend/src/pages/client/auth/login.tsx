@@ -11,11 +11,13 @@ const Login: React.FC = () => {
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [login, { isLoading }] = useLoginMutation();
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
         try {
             const result = await login({ email, password }).unwrap();
             dispatch(setCredentials({ user: result.user, token: result.token }));
@@ -27,7 +29,7 @@ const Login: React.FC = () => {
                 navigate("/");
             }
         } catch (err: any) {
-            toast.error(err?.data?.message || "Login failed");
+            setError(err?.data?.message || "Login failed");
         }
     };
 
@@ -49,6 +51,13 @@ const Login: React.FC = () => {
                 <div className="w-full max-w-95 animate-fade-in-right">
                     <h1 className="font-serif text-[38px] text-[#1A1A1A] mb-2 tracking-[-0.5px]">Welcome back</h1>
                     <p className="text-[#6c757d] text-[15px] mb-8 font-light">Enter your credentials to access your account.</p>
+
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 animate-shake">
+                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                            <p className="text-sm text-red-600 font-medium">{error}</p>
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit}>
                         <div className="mb-5">

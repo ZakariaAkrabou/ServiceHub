@@ -82,13 +82,13 @@ const Header: React.FC = () => {
         .logo-link {
           text-decoration: none;
           z-index: 1100;
+          display: inline-flex;
+          align-items: center;
         }
 
-        .logo-text {
-          font-family: 'DM Serif Display', serif;
-          font-size: 28px;
-          color: #F6E304;
-          letter-spacing: -0.8px;
+        .logo-img {
+          height: 50px;
+          width: auto;
           transition: all 0.4s ease;
           display: block;
         }
@@ -143,7 +143,7 @@ const Header: React.FC = () => {
           left: 0;
           width: 0;
           height: 2px;
-          background: #F6E304;
+          background: #c9a84c;
           transition: width 0.3s ease;
           border-radius: 2px;
         }
@@ -181,7 +181,7 @@ const Header: React.FC = () => {
         }
 
         .btn-cta {
-          background: #F6E304;
+          background: #ffffff;
           color: #0a0a0a;
           text-decoration: none;
           font-size: 14px;
@@ -372,7 +372,7 @@ const Header: React.FC = () => {
         }
 
         .mobile-overlay a:hover {
-          color: #F6E304;
+          color: #c9a84c;
         }
 
         .mobile-overlay .mobile-auth {
@@ -401,7 +401,7 @@ const Header: React.FC = () => {
         </Link>
 
         <nav className="nav-links">
-          <a href="#about">About</a>
+          <Link to="/about">About</Link>
           <a href="#services">Services</a>
           <a href="#pricing">Pricing</a>
         </nav>
@@ -461,7 +461,7 @@ const Header: React.FC = () => {
         </button>
 
         <div className={`mobile-overlay ${open ? 'active' : ''}`}>
-          <a href="#about" onClick={() => setOpen(false)}>About</a>
+          <Link to="/about" onClick={() => setOpen(false)}>About</Link>
           <a href="#services" onClick={() => setOpen(false)}>Services</a>
           <a href="#pricing" onClick={() => setOpen(false)}>Pricing</a>
           <div className="mobile-auth">

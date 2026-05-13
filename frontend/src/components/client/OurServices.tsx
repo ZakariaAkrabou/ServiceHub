@@ -55,7 +55,7 @@ const ArrowIcon = () => (
 );
 
 const ArrowIconLight = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f6e304" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="7" y1="17" x2="17" y2="7" />
     <polyline points="7 7 17 7 17 17" />
   </svg>
@@ -259,7 +259,7 @@ const OurServices: React.FC = () => {
         .os-cta-pill {
           padding: 16px 28px;
           background: #1a1a2e;
-          color: #f6e304;
+          color: #c9a84c;
           border: none;
           border-radius: 100px;
           font-size: 14px;
@@ -280,7 +280,7 @@ const OurServices: React.FC = () => {
           align-items: center;
           gap: 0;
           padding: 10px 10px 10px 28px;
-          background: #f6e304;
+          background: #c9a84c;
           border: none;
           border-radius: 100px;
           cursor: pointer;
@@ -387,7 +387,7 @@ const OurServices: React.FC = () => {
       <section className="os-section" ref={sectionRef}>
         {/* Label */}
         <div className="os-label" ref={labelRef}>
-          <div style={{ width: 32, height: 2, background: "#f6e304" }} />
+          <div style={{ width: 32, height: 2, background: "#c9a84c" }} />
           <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.12em", color: "#1a1a2e", textTransform: "uppercase" as const }}>
             Our Services
           </span>

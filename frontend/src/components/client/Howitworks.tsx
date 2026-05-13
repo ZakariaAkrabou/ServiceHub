@@ -69,7 +69,7 @@ const ArrowIconLight = () => (
     height="18"
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#f6e304"
+    stroke="#c9a84c"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -105,7 +105,7 @@ export default function HowItWorks() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
-          <div style={{ width: 32, height: 2, background: "#f6e304" }} />
+          <div style={{ width: 32, height: 2, background: "#c9a84c" }} />
           <span
             style={{
               fontSize: 11,
@@ -278,7 +278,7 @@ export default function HowItWorks() {
             alignItems: "center",
             gap: 0,
             padding: "10px 10px 10px 28px",
-            background: "#f6e304",
+            background: "#c9a84c",
             border: "none",
             borderRadius: 100,
             cursor: "pointer",

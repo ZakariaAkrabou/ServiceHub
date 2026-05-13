@@ -11,12 +11,14 @@ const ResetPassword: React.FC = () => {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [resetPassword, { isLoading }] = useResetPasswordMutation();
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
         if (newPassword !== confirmPassword) {
-            toast.error("Passwords do not match");
+            setError("Passwords do not match");
             return;
         }
         try {
@@ -24,7 +26,7 @@ const ResetPassword: React.FC = () => {
             toast.success("Password updated successfully!");
             navigate("/login");
         } catch (err: any) {
-            toast.error(err?.data?.message || "Failed to reset password");
+            setError(err?.data?.message || "Failed to reset password");
         }
     };
 
@@ -46,6 +48,13 @@ const ResetPassword: React.FC = () => {
                 <div className="w-full max-w-[400px] animate-fade-in-right">
                     <h1 className="font-serif text-[42px] text-[#1A1A1A] mb-3 tracking-[-0.5px]">Reset Password</h1>
                     <p className="text-[#6c757d] text-[15px] mb-10 font-light">Enter your new password below to regain access.</p>
+
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 animate-shake">
+                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                            <p className="text-sm text-red-600 font-medium">{error}</p>
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit}>
                         <div className="mb-6">

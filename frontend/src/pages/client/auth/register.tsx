@@ -20,6 +20,7 @@ const Register: React.FC = () => {
     });
 
     const [register, { isLoading }] = useRegisterMutation();
+    const [error, setError] = useState<string | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -27,6 +28,7 @@ const Register: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
         try {
             const submissionData = {
                 ...formData,
@@ -36,7 +38,7 @@ const Register: React.FC = () => {
             setShowSuccess(true);
             toast.success("Account created! Please check your email.");
         } catch (err: any) {
-            toast.error(err?.data?.message || "Registration failed");
+            setError(err?.data?.message || "Registration failed");
         }
     };
 
@@ -91,6 +93,13 @@ const Register: React.FC = () => {
                                     Service Provider
                                 </div>
                             </div>
+
+                            {error && (
+                                <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 animate-shake">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                                    <p className="text-[13px] text-red-600 font-medium">{error}</p>
+                                </div>
+                            )}
 
                             <form onSubmit={handleSubmit}>
                                 <div className="grid grid-cols-2 gap-[10px_16px]">

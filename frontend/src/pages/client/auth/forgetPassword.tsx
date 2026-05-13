@@ -6,14 +6,16 @@ import { toast } from "react-toastify";
 const ForgetPassword: React.FC = () => {
     const [email, setEmail] = useState("");
     const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
+    const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
         try {
             await forgotPassword(email).unwrap();
             toast.success("Reset link sent to your email!");
         } catch (err: any) {
-            toast.error(err?.data?.message || "Failed to send reset link");
+            setError(err?.data?.message || "Failed to send reset link");
         }
     };
 
@@ -35,6 +37,13 @@ const ForgetPassword: React.FC = () => {
                 <div className="w-full max-w-[400px] animate-fade-in-right">
                     <h1 className="font-serif text-[42px] text-[#1A1A1A] mb-3 tracking-[-0.5px]">Forgot password?</h1>
                     <p className="text-[#6c757d] text-[15px] mb-10 font-light">Enter your email and we'll send you a recovery link.</p>
+
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 animate-shake">
+                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                            <p className="text-sm text-red-600 font-medium">{error}</p>
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit}>
                         <div className="mb-6">

@@ -132,7 +132,7 @@ const AboutHero: React.FC = () => {
           gap: 8px;
           border: 1px solid rgba(246,227,4,0.35);
           background: rgba(246,227,4,0.06);
-          color: #c9a84c;
+          color: #c49e53;
           font-size: 11px;
           font-weight: 500;
           letter-spacing: 0.2em;
@@ -164,7 +164,7 @@ const AboutHero: React.FC = () => {
           animation: fadeUp 0.7s 0.1s ease both;
         }
         .ahr__title-accent {
-          -webkit-text-stroke: 2px #c9a84c;
+          -webkit-text-stroke: 2px #c49e53;
           color: transparent;
           display: block;
         }
@@ -299,7 +299,7 @@ const AboutHero: React.FC = () => {
           flex-direction: column;
           align-items: center;
           gap: 8px;
-          color: rgba(255,255,255,0.25);
+          color: #c49e53;
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
@@ -309,7 +309,7 @@ const AboutHero: React.FC = () => {
         .ahr__scroll-bar {
           width: 1px;
           height: 40px;
-          background: linear-gradient(to bottom, rgba(255,255,255,0.25), transparent);
+          background: linear-gradient(to bottom, #c49e53, transparent);
           animation: scrollBar 2s ease-in-out infinite;
         }
         @keyframes scrollBar {
@@ -358,34 +358,9 @@ const AboutHero: React.FC = () => {
           go-to platform for a seamless, friction-free customer experience.
         </p>
 
-        {/* Stats */}
-        <div className="ahr__stats">
-          <div className="ahr__stat">
-            <span className="ahr__stat-num">50K+</span>
-            <span className="ahr__stat-label">Active Clients</span>
-          </div>
-          <div className="ahr__stat-sep" />
-          <div className="ahr__stat">
-            <span className="ahr__stat-num">1200</span>
-            <span className="ahr__stat-label">Providers</span>
-          </div>
-          <div className="ahr__stat-sep" />
-          <div className="ahr__stat">
-            <span className="ahr__stat-num">98%</span>
-            <span className="ahr__stat-label">Satisfaction</span>
-          </div>
-        </div>
+        
 
-        {/* Actions */}
-        <div className="ahr__actions">
-          <Link to="/" className="ahr__btn ahr__btn--primary">
-            Back to Home
-            <span className="ahr__btn-arrow">→</span>
-          </Link>
-          <Link to="/login" className="ahr__btn ahr__btn--ghost">
-            Sign In
-          </Link>
-        </div>
+     
       </div>
 
       {/* Scroll hint */}

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../app/store/store";
 import { logout } from "../../app/slices/AuthSlice";
-import { User, LogOut, ChevronDown, UserCircle, Settings } from "lucide-react";
+import { User, LogOut, ChevronDown, UserCircle, Settings, LayoutDashboard } from "lucide-react";
 import logoServiceHub from "../../assets/log3.png";
 import { useLogoutMutation } from "../../app/api/AuthApi";
 
@@ -428,10 +428,16 @@ const Header: React.FC = () => {
                   <span className="user-name">{user?.firstName} {user?.lastName}</span>
                   <span className="user-role">{user?.role?.replace('_', ' ')}</span>
                 </div>
-                <Link to={user?.role === 'service_provider' ? '/provider/dashboard' : '/profile'} className="dropdown-item">
+                <Link to="/profile" className="dropdown-item">
                   <UserCircle size={18} />
                   My Profile
                 </Link>
+                {user?.role === 'service_provider' && (
+                  <Link to="/provider/dashboard" className="dropdown-item">
+                    <LayoutDashboard size={18} />
+                    Provider Dashboard
+                  </Link>
+                )}
                 <Link to="/settings" className="dropdown-item">
                   <Settings size={18} />
                   Settings

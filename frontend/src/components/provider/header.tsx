@@ -1,26 +1,50 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+
+import {
+  Bell,
+  ChevronDown,
+  LogOut,
+  User,
+  UserCircle,
+} from "lucide-react";
+
 import type { RootState } from "../../app/store/store";
 import { logout } from "../../app/slices/AuthSlice";
 import { useLogoutMutation } from "../../app/api/AuthApi";
-import { ChevronDown, LogOut, User, UserCircle } from "lucide-react";
 
-/** Profile menu only — sits in the top bar next to the divider (see ProviderLayouts). */
+import { latestNotificationPreviews } from "./providerNotificationMock";
+
 const ProviderProfileBar: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [notifyOpen, setNotifyOpen] = useState(false);
+
   const { user } = useSelector((state: RootState) => state.auth);
+
   const [logoutMutation] = useLogoutMutation();
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
       const t = e.target as HTMLElement;
-      if (!t.closest(".pv-p-user")) setShowDropdown(false);
+
+      if (!t.closest(".pv-p-user")) {
+        setShowDropdown(false);
+      }
+
+      if (!t.closest(".pv-p-notify-wrap")) {
+        setNotifyOpen(false);
+      }
     };
+
     window.addEventListener("click", onDocClick);
-    return () => window.removeEventListener("click", onDocClick);
+
+    return () => {
+      window.removeEventListener("click", onDocClick);
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -36,177 +60,276 @@ const ProviderProfileBar: React.FC = () => {
   };
 
   return (
-    <>
-      <style>{`
-        .pv-p-user {
-          position: relative;
-          flex-shrink: 0;
-        }
-        .pv-p-trigger {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          height: 40px;
-          padding: 0 10px 0 4px;
-          margin: 0;
-          border: 1px solid #e3e0d8;
-          border-radius: 8px;
-          background: #faf9f7;
-          color: #1a1a2e;
-          cursor: pointer;
-          font-family: inherit;
-          font-size: 14px;
-          font-weight: 500;
-          box-sizing: border-box;
-        }
-        .pv-p-trigger:hover {
-          border-color: #c9a84c;
-          background: #fff;
-        }
-        .pv-p-avatar {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          overflow: hidden;
-          flex-shrink: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: #f0efec;
-        }
-        .pv-p-avatar img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        .pv-p-name {
-          max-width: 140px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        @media (max-width: 520px) {
-          .pv-p-name { display: none; }
-        }
-        .pv-p-chev {
-          opacity: 0.55;
-          flex-shrink: 0;
-          transition: transform 0.2s ease;
-        }
-        .pv-p-trigger[aria-expanded="true"] .pv-p-chev {
-          transform: rotate(180deg);
-        }
-        .pv-p-dd {
-          position: absolute;
-          top: calc(100% + 6px);
-          right: 0;
-          min-width: 220px;
-          padding: 8px;
-          background: #fff;
-          border: 1px solid #e3e0d8;
-          border-radius: 12px;
-          box-shadow: 0 16px 40px rgba(26, 26, 46, 0.12);
-          opacity: 0;
-          visibility: hidden;
-          transform: translateY(-4px);
-          transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-        }
-        .pv-p-dd.pv-p-dd-open {
-          opacity: 1;
-          visibility: visible;
-          transform: translateY(0);
-        }
-        .pv-p-dd-top {
-          padding: 10px 12px 12px;
-          border-bottom: 1px solid #eceae5;
-          margin-bottom: 4px;
-        }
-        .pv-p-dd-name {
-          display: block;
-          font-size: 14px;
-          font-weight: 600;
-          color: #1a1a2e;
-        }
-        .pv-p-dd-role {
-          display: block;
-          font-size: 12px;
-          color: #5c5c6a;
-          text-transform: capitalize;
-          margin-top: 2px;
-        }
-        .pv-p-dd-btn {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          width: 100%;
-          padding: 10px 12px;
-          border: none;
-          border-radius: 8px;
-          background: transparent;
-          color: #1a1a2e;
-          font-size: 14px;
-          font-family: inherit;
-          text-align: left;
-          cursor: pointer;
-          text-decoration: none;
-          box-sizing: border-box;
-        }
-        .pv-p-dd-btn:hover {
-          background: #faf9f7;
-        }
-        .pv-p-dd-out {
-          color: #a33a3a;
-        }
-        .pv-p-dd-out:hover {
-          background: #fdf5f5;
-          color: #8b2020;
-        }
-      `}</style>
-
-      <div className="pv-p-user">
+    <div className="flex items-center gap-2.5 shrink-0">
+    
+      <div className="pv-p-notify-wrap relative shrink-0">
         <button
           type="button"
-          className="pv-p-trigger"
+          aria-expanded={notifyOpen}
+          aria-haspopup="true"
+          aria-label="Notifications"
+          title="Notifications"
+          onClick={(e) => {
+            e.stopPropagation();
+            setNotifyOpen((v) => !v);
+            setShowDropdown(false);
+          }}
+          className="
+            inline-flex h-10 w-10 shrink-0
+            items-center justify-center
+            rounded-lg
+            border border-[#e9e3d3]
+            bg-[#f8f6f1]
+            p-0
+            text-[#1a1a1a]
+            transition-all duration-150
+
+            hover:border-[#c9a84c]
+            hover:bg-white
+            hover:text-[#1a1a2e]
+          "
+        >
+          <Bell size={20} strokeWidth={1.85} />
+        </button>
+
+      
+        <div
+          role="menu"
+          className={`
+            absolute right-0 top-[calc(100%+6px)]
+            z-200
+            w-[min(320px,calc(100vw-24px))]
+            max-w-[calc(100vw-32px)]
+            overflow-hidden
+            rounded-xl
+            border border-[#e9e3d3]
+            bg-white
+            shadow-[0_16px_40px_rgba(26,26,26,0.12)]
+
+            ${notifyOpen ? "block" : "hidden"}
+          `}
+        >
+        
+          <div className="border-b border-[#eceae5] px-3.5 pb-2.5 pt-3 text-[13px] font-semibold text-[#1a1a1a]">
+            Latest
+          </div>
+
+   
+          <div className="max-h-[45vh] overflow-y-auto">
+            {latestNotificationPreviews.map((n) => (
+              <button
+                key={n.id}
+                type="button"
+                onClick={() => {
+                  setNotifyOpen(false);
+                  navigate("/provider/notifications");
+                }}
+                className="
+                  block w-full
+                  border-b border-[#f4f1eb]
+                  bg-white
+                  px-3.5 py-2.5
+                  text-left
+                  transition-colors duration-150
+
+                  last:border-b-0
+                  hover:bg-[#f8f6f1]
+                "
+              >
+               
+                <div className="flex items-center gap-2 text-[13px] font-semibold text-[#1a1a1a]">
+                  <span
+                    aria-hidden
+                    className={`
+                      h-1.5 w-1.5 shrink-0 rounded-full
+                      ${n.read ? "bg-[#d4d0c8]" : "bg-[#c9a84c]"}
+                    `}
+                  />
+
+                  {n.title}
+                </div>
+
+              
+                <div className="mt-1 text-xs leading-[1.4] text-[#5f5f5f]">
+                  {n.body}
+                </div>
+
+               
+                <div className="mt-1.5 text-[11px] text-[#9a9a9a]">
+                  {n.time}
+                </div>
+              </button>
+            ))}
+          </div>
+
+        
+          <div className="border-t border-[#eceae5]">
+            <Link
+              to="/provider/notifications"
+              onClick={() => setNotifyOpen(false)}
+              className="
+                block w-full
+                bg-[#faf9f7]
+                px-3.5 py-3
+                text-center
+                text-[13px] font-semibold
+                text-[#1a1a2e]
+                transition-all duration-150
+
+                hover:bg-[#f0ebe0]
+                hover:text-[#c9a84c]
+              "
+            >
+              See all
+            </Link>
+          </div>
+        </div>
+      </div>
+
+    
+      <div className="pv-p-user relative shrink-0">
+        <button
+          type="button"
           aria-expanded={showDropdown}
           onClick={(e) => {
             e.stopPropagation();
             setShowDropdown((v) => !v);
+            setNotifyOpen(false);
           }}
+          className="
+            inline-flex h-10 items-center justify-center gap-2
+            rounded-lg
+            border border-[#e9e3d3]
+            bg-[#f8f6f1]
+            pl-1 pr-2.5
+            text-sm font-medium text-[#1a1a1a]
+            transition-all duration-150
+
+            hover:border-[#c9a84c]
+            hover:bg-white
+          "
         >
-          <span className="pv-p-avatar">
+        
+          <span
+            className="
+              flex h-8 w-8 shrink-0 items-center justify-center
+              overflow-hidden rounded-full
+              bg-[#f0ede6]
+            "
+          >
             {user?.image ? (
-              <img src={user.image} alt="" />
+              <img
+                src={user.image}
+                alt=""
+                className="h-full w-full object-cover"
+              />
             ) : (
-              <User size={17} strokeWidth={1.75} color="#c9a84c" />
+              <User
+                size={17}
+                strokeWidth={1.75}
+                color="#c9a84c"
+              />
             )}
           </span>
-          <span className="pv-p-name">{user?.firstName ?? "Account"}</span>
-          <ChevronDown size={16} className="pv-p-chev" aria-hidden />
+
+   
+          <span
+            className="
+              max-w-35
+              overflow-hidden text-ellipsis whitespace-nowrap
+
+              max-[700px]:max-w-20
+              max-[700px]:text-[13px]
+
+              max-[520px]:hidden
+            "
+          >
+            {user?.firstName ?? "Account"}
+          </span>
+
+       
+          <ChevronDown
+            size={16}
+            aria-hidden
+            className={`
+              shrink-0 opacity-55 transition-transform duration-200
+              ${showDropdown ? "rotate-180" : ""}
+            `}
+          />
         </button>
 
-        <div className={`pv-p-dd ${showDropdown ? "pv-p-dd-open" : ""}`}>
-          <div className="pv-p-dd-top">
-            <span className="pv-p-dd-name">
+    
+        <div
+          className={`
+            absolute right-0 top-[calc(100%+6px)]
+            z-200
+            min-w-55
+            rounded-xl
+            border border-[#e9e3d3]
+            bg-white
+            p-2
+            shadow-[0_16px_40px_rgba(26,26,26,0.1)]
+            transition-all duration-200
+
+            ${
+              showDropdown
+                ? "visible translate-y-0 opacity-100"
+                : "invisible -translate-y-1 opacity-0"
+            }
+          `}
+        >
+       
+          <div className="mb-1 border-b border-[#eceae5] px-3 pb-3 pt-2.5">
+            <span className="block text-sm font-semibold text-[#1a1a1a]">
               {user?.firstName} {user?.lastName}
             </span>
-            <span className="pv-p-dd-role">{(user?.role ?? "").replace(/_/g, " ")}</span>
+
+            <span className="mt-0.5 block text-xs capitalize text-[#5f5f5f]">
+              {(user?.role ?? "").replace(/_/g, " ")}
+            </span>
           </div>
-          <Link to="/provider/dashboard" className="pv-p-dd-btn" onClick={() => setShowDropdown(false)}>
+
+     
+          <Link
+            to="/provider/settings"
+            onClick={() => setShowDropdown(false)}
+            className="
+              flex w-full items-center gap-2.5
+              rounded-lg
+              px-3 py-2.5
+              text-left text-sm
+              text-[#1a1a1a]
+              transition-colors duration-150
+
+              hover:bg-[#f8f6f1]
+            "
+          >
             <UserCircle size={18} strokeWidth={1.75} />
-            Dashboard
+            Account Settings
           </Link>
-          <Link to="/" className="pv-p-dd-btn" onClick={() => setShowDropdown(false)}>
-            <UserCircle size={18} strokeWidth={1.75} />
-            Home
-          </Link>
-          <button type="button" className="pv-p-dd-btn pv-p-dd-out" onClick={handleLogout}>
+
+          {/* LOGOUT */}
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="
+              flex w-full items-center gap-2.5
+              rounded-lg
+              px-3 py-2.5
+              text-left text-sm
+              text-[#a33a3a]
+              transition-all duration-150
+
+              hover:bg-[#fdf5f5]
+              hover:text-[#8b2020]
+            "
+          >
             <LogOut size={18} strokeWidth={1.75} />
             Sign out
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

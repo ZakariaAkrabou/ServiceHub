@@ -1,194 +1,159 @@
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
+import { Menu } from "lucide-react";
+
 import ProviderProfileBar from "./header";
 import ProviderSidebar from "./sidebar";
+
 import logoServiceHub from "../../assets/log3.png";
-import { Menu } from "lucide-react";
 
 const SIDEBAR_WIDTH = 252;
 
-const ProviderLayouts: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ProviderLayouts: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const closeSidebar = useCallback(() => setSidebarOpen(false), []);
+
+  const closeSidebar = useCallback(() => {
+    setSidebarOpen(false);
+  }, []);
 
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display:ital@0;1&display=swap');
+    <div className="min-h-screen flex flex-col bg-[#f8f6f1] text-[#1a1a2e] font-sans">
+      {/* TOPBAR */}
+      <header className="sticky top-0 z-130 flex min-h-14 items-center bg-white">
+        {/* LEFT BRAND */}
+        <div
+          className="
+            flex min-h-14 shrink-0 items-center
+            border-r border-[#e9e3d3]
+            bg-[#f8f6f1]
+            px-4.5
+            lg:w-63
+          "
+        >
+          {/* MOBILE MENU */}
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open navigation"
+            className="
+              hidden
+              h-10 w-10
+              items-center justify-center
+              rounded-lg
+              border border-[#e9e3d3]
+              bg-white
+              text-[#1a1a2e]
+              transition-colors
+              hover:border-[#c9a84c]
 
-        .pl-root {
-          --ink: #1a1a2e;
-          --line: #e3e0d8;
-          --paper: #faf9f7;
-          --card: #ffffff;
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          background: var(--paper);
-          color: var(--ink);
-          font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
+              max-lg:inline-flex
+            "
+          >
+            <Menu size={20} strokeWidth={2} />
+          </button>
 
-        .pl-top {
-          display: flex;
-          align-items: stretch;
-          flex-shrink: 0;
-          min-height: 56px;
-          background: #fff;
-          position: sticky;
-          top: 0;
-          z-index: 130;
-        }
+          {/* LOGO */}
+          <Link
+            to="/"
+            className="
+              inline-flex h-10 items-center
 
-        .pl-top-brand {
-          width: ${SIDEBAR_WIDTH}px;
-          flex-shrink: 0;
-          box-sizing: border-box;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 0 16px 0 18px;
-          background: var(--paper);
-          border-right: 1px solid var(--line);
-        }
-
-        .pl-top-menu {
-          display: none;
-          width: 40px;
-          height: 40px;
-          padding: 0;
-          border: 1px solid var(--line);
-          border-radius: 8px;
-          background: #fff;
-          color: var(--ink);
-          cursor: pointer;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-        .pl-top-menu:hover {
-          border-color: #c9a84c;
-        }
-        @media (max-width: 1024px) {
-          .pl-top-menu { display: inline-flex; }
-        }
-
-        .pl-top-logo {
-          display: inline-flex;
-          align-items: center;
-          height: 40px;
-          text-decoration: none;
-          flex-shrink: 0;
-        }
-        .pl-top-logo img {
-          height: 40px;
-          width: auto;
-          display: block;
-          object-fit: contain;
-          object-position: left center;
-        }
-
-        .pl-top-rest {
-          flex: 1;
-          display: flex;
-          align-items: center;
-          justify-content: flex-end;
-          padding: 0 20px;
-          min-width: 0;
-          background: #fff;
-        }
-
-        .pl-body {
-          display: flex;
-          flex: 1;
-          min-height: 0;
-        }
-
-        .pl-sidebar-wrap {
-          width: ${SIDEBAR_WIDTH}px;
-          flex-shrink: 0;
-          background: var(--paper);
-          border-right: 1px solid var(--line);
-        }
-
-        .pl-main {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          min-width: 0;
-          min-height: 0;
-          background: var(--card);
-        }
-
-        .pl-content {
-          flex: 1;
-          padding: 28px 36px 48px;
-        }
-
-        @media (max-width: 1024px) {
-          .pl-sidebar-wrap {
-            position: fixed;
-            top: 56px;
-            bottom: 0;
-            left: 0;
-            width: min(${SIDEBAR_WIDTH}px, 90vw);
-            z-index: 200;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-            pointer-events: none;
-            box-shadow: 8px 0 32px rgba(26, 26, 46, 0.08);
-          }
-          .pl-sidebar-wrap.pl-sidebar-open {
-            transform: translateX(0);
-            pointer-events: auto;
-          }
-          .pl-content {
-            padding: 22px 20px 40px;
-          }
-        }
-      `}</style>
-
-      <div className="pl-root">
-        <div className="pl-top">
-          <div className="pl-top-brand">
-            <button
-              type="button"
-              className="pl-top-menu"
-              onClick={() => setSidebarOpen(true)}
-              aria-label="Open navigation"
-            >
-              <Menu size={20} strokeWidth={2} />
-            </button>
-            <Link to="/" className="pl-top-logo">
-              <img src={logoServiceHub} alt="" />
-            </Link>
-          </div>
-          <div className="pl-top-rest">
-            <ProviderProfileBar />
-          </div>
+              max-lg:hidden
+            "
+          >
+            <img
+              src={logoServiceHub}
+              alt="ServiceHub"
+              className="h-10 w-auto object-contain object-left"
+            />
+          </Link>
         </div>
 
-        <div className="pl-body">
-          {sidebarOpen && (
-            <button
-              type="button"
-              className="fixed inset-0 z-190 lg:hidden border-0 cursor-pointer p-0 m-0"
-              style={{ background: "rgba(26, 26, 46, 0.22)", top: "56px" }}
-              aria-label="Close menu"
-              onClick={closeSidebar}
-            />
-          )}
+        {/* RIGHT */}
+        <div
+          className="
+            flex flex-1 items-center justify-end
+            bg-white
+            px-5
 
-          <div className={`pl-sidebar-wrap ${sidebarOpen ? "pl-sidebar-open" : ""}`}>
-            <ProviderSidebar width={SIDEBAR_WIDTH} onNavigate={closeSidebar} />
-          </div>
+            max-lg:min-w-0
+            max-lg:px-3
+          "
+        >
+          <ProviderProfileBar />
+        </div>
+      </header>
 
-          <div className="pl-main">
-            <main className="pl-content">{children}</main>
-          </div>
+      {/* BODY */}
+      <div className="flex flex-1 min-h-0">
+        {/* MOBILE OVERLAY */}
+        {sidebarOpen && (
+          <button
+            type="button"
+            aria-label="Close menu"
+            onClick={closeSidebar}
+            className="
+              fixed inset-0 z-190
+              border-0 p-0 m-0
+              cursor-pointer
+              bg-[rgba(26,26,46,0.22)]
+
+              lg:hidden
+            "
+            style={{ top: "56px" }}
+          />
+        )}
+
+        <aside
+          className={`
+            bg-[#f8f6f1]
+            border-r border-[#e9e3d3]
+            shrink-0
+
+            lg:relative
+            lg:translate-x-0
+            lg:w-63
+
+            max-lg:fixed
+            max-lg:left-0
+            max-lg:top-14
+            max-lg:bottom-0
+            max-lg:z-200
+            max-lg:w-[min(252px,90vw)]
+            max-lg:shadow-[8px_0_32px_rgba(26,26,46,0.08)]
+            max-lg:transition-transform
+            max-lg:duration-300
+            ${sidebarOpen ? "pv-s-open max-lg:translate-x-0" : "max-lg:-translate-x-full"}
+          `}
+        >
+          <ProviderSidebar
+            width={SIDEBAR_WIDTH}
+            onNavigate={closeSidebar}
+            sidebarOpen={sidebarOpen}
+          />
+        </aside>
+
+        {/* MAIN */}
+        <div className="flex flex-1 min-w-0 flex-col bg-white">
+          <main
+            className="
+              flex-1
+              px-9
+              pt-7
+              pb-12
+
+              max-lg:px-5
+              max-lg:pt-5.5
+              max-lg:pb-10
+            "
+          >
+            {children}
+          </main>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

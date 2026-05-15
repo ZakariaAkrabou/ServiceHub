@@ -9,6 +9,7 @@ import ProviderDashboard from "../pages/provider/dashboard";
 import ProviderBookings from "../pages/provider/bookings";
 import ProviderServices from "../pages/provider/services";
 import ProviderSettings from "../pages/provider/settings";
+import ProviderNotifications from "../pages/provider/notifications";
 import NotFound from "../pages/client/errors/NotFound";
 import About from "../pages/client/about/about";
 
@@ -26,6 +27,7 @@ export default function ClientRoutes() {
       <Route path="/provider/bookings" element={<ProviderBookings />} />
       <Route path="/provider/services" element={<ProviderServices />} />
       <Route path="/provider/settings" element={<ProviderSettings />} />
+      <Route path="/provider/notifications" element={<ProviderNotifications />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

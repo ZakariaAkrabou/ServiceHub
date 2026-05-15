@@ -1,31 +1,61 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+
+import {
+  LayoutDashboard,
+  CalendarDays,
+  Briefcase,
+  Settings,
+  LogOut,
+} from "lucide-react";
+
 import { useLogoutMutation } from "../../app/api/AuthApi";
 import { logout } from "../../app/slices/AuthSlice";
-import { LayoutDashboard, CalendarDays, Briefcase, Settings, LogOut } from "lucide-react";
 
 type Item = {
   to: string;
   label: string;
-  icon: React.ComponentType<{ size?: number; strokeWidth?: number }>;
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
   end?: boolean;
 };
 
 const items: Item[] = [
-  { to: "/provider/dashboard", label: "Overview", icon: LayoutDashboard, end: true },
-  { to: "/provider/bookings", label: "Bookings", icon: CalendarDays },
-  { to: "/provider/services", label: "Services", icon: Briefcase },
-  { to: "/provider/settings", label: "Settings", icon: Settings },
+  {
+    to: "/provider/dashboard",
+    label: "Overview",
+    icon: LayoutDashboard,
+    end: true,
+  },
+  {
+    to: "/provider/bookings",
+    label: "Bookings",
+    icon: CalendarDays,
+  },
+  {
+    to: "/provider/services",
+    label: "Services",
+    icon: Briefcase,
+  },
+  {
+    to: "/provider/settings",
+    label: "Settings",
+    icon: Settings,
+  },
 ];
 
 type ProviderSidebarProps = {
   width: number;
   onNavigate?: () => void;
+  sidebarOpen?: boolean;
 };
 
-const ProviderSidebar: React.FC<ProviderSidebarProps> = ({ width, onNavigate }) => {
+const ProviderSidebar: React.FC<ProviderSidebarProps> = ({
+  width,
+  onNavigate,
+}) => {
   const [logoutMutation] = useLogoutMutation();
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -42,116 +72,108 @@ const ProviderSidebar: React.FC<ProviderSidebarProps> = ({ width, onNavigate }) 
   };
 
   return (
-    <>
-      <style>{`
-        .pv-s {
-          width: ${width}px;
-          min-height: calc(100vh - 56px);
-          box-sizing: border-box;
-          display: flex;
-          flex-direction: column;
-          padding: 16px 0 24px;
-          background: #faf9f7;
-          border-right: none;
-          position: sticky;
-          top: 56px;
-          align-self: flex-start;
-          z-index: 210;
-        }
-        @media (max-width: 1024px) {
-          .pv-s {
-            position: relative;
-            top: 0;
-            min-height: 100%;
-          }
-        }
-        .pv-s-nav {
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-          flex: 1;
-          padding: 0 12px 0;
-        }
-        .pv-s-link {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 11px 14px;
-          margin: 0 4px;
-          border-radius: 8px;
-          text-decoration: none;
-          color: #5c5c6a;
-          font-size: 14px;
-          font-weight: 500;
-          border: 1px solid transparent;
-          transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-        }
-        .pv-s-link:hover {
-          color: #1a1a2e;
-          background: rgba(255, 255, 255, 0.7);
-          border-color: #e8e5df;
-        }
-        .pv-s-link.pv-s-on {
-          color: #1a1a2e;
-          background: #ffffff;
-          border-color: #e3e0d8;
-          box-shadow:
-            inset 3px 0 0 0 #c9a84c,
-            0 1px 0 rgba(26, 26, 46, 0.04);
-        }
-        .pv-s-foot {
-          margin-top: auto;
-          padding: 20px 20px 0;
-        }
-        .pv-s-logout {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 10px;
-          width: 100%;
-          padding: 12px 14px;
-          border-radius: 8px;
-          font-size: 13px;
-          font-weight: 500;
-          font-family: inherit;
-          color: #5c5c6a;
-          border: 1px solid #e3e0d8;
-          background: #fff;
-          cursor: pointer;
-          box-sizing: border-box;
-          transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
-        }
-        .pv-s-logout:hover {
-          color: #8b2020;
-          border-color: #d4a5a5;
-          background: #fdf5f5;
-        }
-      `}</style>
+    <aside
+      style={{ width }}
+      className="
+        sticky top-14
+        flex min-h-[calc(100vh-56px)] flex-col
+        self-start
+        bg-[#f8f6f1]
+        border-r border-[#eceae5]
+        py-6
 
-      <aside className="pv-s">
-        <nav className="pv-s-nav" aria-label="Provider">
-          {items.map(({ to, label, icon: Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              onClick={onNavigate}
-              className={({ isActive }) => `pv-s-link ${isActive ? "pv-s-on" : ""}`}
-            >
-              <Icon size={19} strokeWidth={1.75} />
-              {label}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="pv-s-foot">
-          <button type="button" className="pv-s-logout" onClick={handleLogout}>
-            Log out
-            <LogOut size={17} strokeWidth={2} />
-          </button>
+        max-lg:min-h-full
+        max-lg:w-full
+        max-lg:py-4
+        max-lg:border-r-0
+      "
+    >
+   
+      <nav
+        aria-label="Provider"
+        className="flex flex-1 flex-col gap-2 px-4"
+      >
+        <div className="mb-2 px-3 text-xs font-bold uppercase tracking-wider text-[#9a9a9a]">
+          Menu
         </div>
-      </aside>
-    </>
+        
+        {items.map(({ to, label, icon: Icon, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            onClick={onNavigate}
+            className={({ isActive }) =>
+              `
+                group relative flex items-center gap-3.5
+                rounded-xl
+                px-4 py-3
+                text-[15px] font-semibold
+                transition-all duration-200 ease-out
+
+                ${
+                  isActive
+                    ? `
+                      bg-white
+                      text-[#1a1a2e]
+                      shadow-sm ring-1 ring-[#e9e3d3]
+                    `
+                    : `
+                      text-[#5f5f5f]
+                      hover:bg-white/60
+                      hover:text-[#1a1a2e]
+                    `
+                }
+              `
+            }
+          >
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-[#c9a84c]" />
+                )}
+                <Icon 
+                  size={20} 
+                  strokeWidth={isActive ? 2.5 : 2} 
+                  className={`
+                    transition-transform duration-200 group-hover:scale-110 
+                    ${isActive ? "text-[#c9a84c]" : "text-[#9a9a9a] group-hover:text-[#c9a84c]"}
+                  `} 
+                />
+                <span className={isActive ? "font-bold" : ""}>{label}</span>
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* FOOTER */}
+      <div className="mt-auto px-4 pt-6 max-md:pt-4">
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="
+            group flex w-full items-center justify-between gap-3
+            rounded-xl
+            bg-white
+            px-4 py-3.5
+            text-sm font-semibold
+            text-[#1a1a2e]
+            shadow-sm ring-1 ring-[#e9e3d3]
+            transition-all duration-200 ease-out
+
+            hover:bg-[#fdf5f5]
+            hover:text-[#a33a3a]
+            hover:ring-red-100
+          "
+        >
+          <span>Sign Out</span>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#faf9f7] transition-colors group-hover:bg-red-50">
+            <LogOut size={16} strokeWidth={2.5} className="text-[#5f5f5f] transition-colors group-hover:text-[#a33a3a]" />
+          </div>
+        </button>
+      </div>
+    </aside>
   );
 };
 

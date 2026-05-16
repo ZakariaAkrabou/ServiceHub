@@ -4,7 +4,7 @@ import EditServiceModal, { type ServiceData } from "./modals/services/editServic
 import DeleteConfirmationModal from "./modals/DeleteConfirmationModal";
 import ViewServiceModal from "./modals/services/viewService";
 import ProviderLayouts from "../../components/provider/ProviderLayouts";
-import { Plus, Edit, Trash2, EyeOff, Eye, Eye as EyeView } from "lucide-react";
+import { Plus, Edit, Trash2, EyeOff, Eye, ToggleRight, ToggleLeft } from "lucide-react";
 import { 
   useGetProviderServicesQuery, 
   useCreateServiceMutation, 
@@ -78,9 +78,12 @@ const ProviderServices: React.FC = () => {
 
   const handleToggle = async (service: any) => {
     try {
+      const formData = new FormData();
+      formData.append("hidden", String(!service.hidden));
+      
       await updateService({
         id: service._id,
-        data: { hidden: !service.hidden }
+        data: formData
       }).unwrap();
     } catch (err) {
       console.error("Failed to update the service status:", err);
@@ -293,7 +296,7 @@ const ProviderServices: React.FC = () => {
                         className="inline-flex items-center justify-center rounded-full p-2 hover:bg-[#faf9f7] text-[#1a1a2e]"
                         style={{ marginRight: 4 }}
                       >
-                        <EyeView size={17} />
+                        <Eye size={17} />
                       </button>
                       <button
                         title="Edit"
@@ -308,10 +311,10 @@ const ProviderServices: React.FC = () => {
                           isActive ? "Mark as unavailable" : "Mark as available"
                         }
                         onClick={() => handleToggle(s)}
-                        className="inline-flex items-center justify-center rounded-full p-2 hover:bg-[#faf9f7] text-[#1a1a2e]"
+                        className={`inline-flex items-center justify-center rounded-full p-2 hover:bg-[#faf9f7] ${isActive ? "text-emerald-600" : "text-[#9a9a9a]"}`}
                         style={{ marginRight: 4 }}
                       >
-                        {isActive ? <EyeOff size={17} /> : <Eye size={17} />}
+                        {isActive ? <ToggleRight size={20} /> : <ToggleLeft size={20} />}
                       </button>
                       <button
                         title="Delete"

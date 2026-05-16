@@ -44,6 +44,22 @@ export const serviceApi = api.injectEndpoints({
             ]
           : [{ type: "Service", id: "LIST" }],
     }),
+    getProviderServices: builder.query<{ success: boolean; data: Service[] }, void>({
+      query: () => ({
+        url: "/api/services/my-services",
+        method: "GET",
+      }),
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ _id }: any) => ({
+                type: "Service" as const,
+                id: String(_id),
+              })),
+              { type: "Service", id: "LIST" },
+            ]
+          : [{ type: "Service", id: "LIST" }],
+    }),
     getServiceById: builder.query<Service, string>({
       query: (id) => ({
         url: `/api/admin/services/${id}`,
@@ -52,7 +68,7 @@ export const serviceApi = api.injectEndpoints({
       transformResponse: (response: any) => response.data,
       providesTags: (_result, _error, id) => [{ type: "Service", id: String(id) }],
     }),
-    createService: builder.mutation<Service, Partial<Service>>({
+    createService: builder.mutation<Service, FormData>({
       query: (newService) => ({
         url: "/api/services/create",
         method: "POST",
@@ -60,7 +76,7 @@ export const serviceApi = api.injectEndpoints({
       }),
       invalidatesTags: [{ type: "Service", id: "LIST" }],
     }),
-    updateService: builder.mutation<Service, { id: string; data: Partial<Service> }>({
+    updateService: builder.mutation<Service, { id: string; data: FormData | Partial<Service> }>({
       query: ({ id, data }) => ({
         url: `/api/services/update/${id}`,
         method: "PUT",
@@ -86,6 +102,7 @@ export const serviceApi = api.injectEndpoints({
 
 export const {
   useGetAllServicesQuery,
+  useGetProviderServicesQuery,
   useGetServiceByIdQuery,
   useCreateServiceMutation,
   useUpdateServiceMutation,

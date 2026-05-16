@@ -9,7 +9,7 @@ export const getAllServices = async (req, res) => {
     const limit = Math.max(1, parseInt(req.query.limit) || 10, 50);
     const skip = (page - 1) * limit;
 
-    const query = {};
+    const query = { hidden: { $ne: true } };
 
     const [services, total] = await Promise.all([
       Service.find(query)
@@ -44,6 +44,7 @@ export const searchServices = async (req, res) => {
         .json({ success: false, message: "Keyword is required." });
     }
     const services = await Service.find({
+      hidden: { $ne: true },
       $or: [
         { name: { $regex: keyword, $options: "i" } },
         { description: { $regex: keyword, $options: "i" } },
@@ -70,7 +71,7 @@ export const filterServices = async (req, res) => {
     const { category, minPrice, maxPrice, rating, availability, location } =
       req.query;
 
-    let filter = {};
+    let filter = { hidden: { $ne: true } };
 
     if (category) {
       filter.category = category;

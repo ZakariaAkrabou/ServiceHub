@@ -32,7 +32,6 @@ export const allUsers = async (req, res) => {
       else if (user.role === "service_provider") providerIds.push(user._id);
     }
 
-   
     const providerObjectIds = providerIds.map(
       (id) => new mongoose.Types.ObjectId(id.toString()),
     );
@@ -64,17 +63,14 @@ export const allUsers = async (req, res) => {
         : [],
     ]);
 
-   
     const customerCountMap = Object.fromEntries(
       customerBookingCounts.map(({ _id, count }) => [_id.toString(), count]),
     );
 
-    
     const providerStatsMap = Object.fromEntries(
       providerStats.map((stat) => [stat._id.toString(), stat]),
     );
 
-   
     const providerServices = providerObjectIds.length
       ? await Service.find(
           { provider_id: { $in: providerObjectIds } },
@@ -116,7 +112,8 @@ export const allUsers = async (req, res) => {
         const stats = providerStatsMap[id];
         if (stats) {
           serviceCount = stats.serviceCount;
-          rating = stats.ratingCount > 0 ? stats.totalRating / stats.ratingCount : 0;
+          rating =
+            stats.ratingCount > 0 ? stats.totalRating / stats.ratingCount : 0;
         }
       }
 
@@ -236,7 +233,9 @@ export const getBookingById = async (req, res) => {
     if (req.user.role !== "admin") {
       return res.status(403).json({ message: "Forbidden" });
     }
-    return res.status(200).json({ message: "Booking retrieved successfully", data: booking });
+    return res
+      .status(200)
+      .json({ message: "Booking retrieved successfully", data: booking });
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }
@@ -357,7 +356,6 @@ export const unbanUser = async (req, res) => {
 
     await user.save();
 
-    
     if (user.role === "service_provider") {
       await Service.updateMany(
         { provider_id: user._id },
@@ -389,7 +387,6 @@ export const deleteUser = async (req, res) => {
       await Review.deleteMany({ service_id: { $in: serviceIds } });
       await Service.deleteMany({ provider_id: user._id });
     } else if (user.role === "customer") {
-
       await Booking.deleteMany({ customer_id: user._id });
 
       await Review.deleteMany({ customer_id: user._id });
@@ -399,7 +396,9 @@ export const deleteUser = async (req, res) => {
 
     await User.findByIdAndDelete(userId);
 
-    return res.status(200).json({ message: "User and all associated data deleted successfully" });
+    return res
+      .status(200)
+      .json({ message: "User and all associated data deleted successfully" });
   } catch (error) {
     console.error("Error in deleteUser:", error);
     return res.status(500).json({ message: "Server error" });
@@ -471,12 +470,12 @@ export const getNotifications = async (req, res) => {
         path: "booking_id",
         populate: [
           { path: "customer_id", select: "firstName lastName" },
-          { path: "service_id", select: "name" }
-        ]
+          { path: "service_id", select: "name" },
+        ],
       })
       .populate({
         path: "service_id",
-        populate: { path: "provider_id", select: "firstName lastName" }
+        populate: { path: "provider_id", select: "firstName lastName" },
       })
       .sort({ createdAt: -1 });
 
@@ -495,11 +494,13 @@ export const markNotificationAsRead = async (req, res) => {
     const notification = await Notification.findByIdAndUpdate(
       id,
       { is_read: true },
-      { new: true }
+      { returnDocument: "after" },
     );
 
     if (!notification) {
-      return res.status(404).json({ success: false, message: "Notification not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Notification not found" });
     }
 
     res.status(200).json({
@@ -515,7 +516,7 @@ export const markAllNotificationsAsRead = async (req, res) => {
   try {
     await Notification.updateMany(
       { recipient_role: "admin", is_read: false },
-      { is_read: true }
+      { is_read: true },
     );
 
     res.status(200).json({
@@ -538,4 +539,3 @@ export const getUnreadNotificationCount = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-

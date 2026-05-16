@@ -3,6 +3,7 @@ import { api } from "./Config";
 export interface Booking {
   _id: string;
   status: string;
+  booking_time?: string;
   customer_id: {
     _id: string;
     firstName: string;
@@ -12,12 +13,14 @@ export interface Booking {
   };
   service_id: {
     _id: string;
-    provider_id: {
+    name?: string;
+    price?: number;
+    category?: string;
+    provider_id?: {
       _id: string;
       firstName: string;
       lastName: string;
       email: string;
-      phone?: string;
     };
   };
   createdAt: string;
@@ -64,7 +67,7 @@ export const bookingApi = api.injectEndpoints({
         url: `/api/admin/bookings/${id}`,
         method: "GET",
       }),
-      providesTags: (result, error, id) => [{ type: "Booking", id: String(id) }],
+      providesTags: (_result, _error, id) => [{ type: "Booking", id: String(id) }],
     }),
     filterBookings: builder.query<
       BookingListResponse,
@@ -101,10 +104,29 @@ export const bookingApi = api.injectEndpoints({
         method: "PATCH",
         body: { status },
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: "Booking", id: String(id) },
         { type: "Booking", id: "LIST" },
       ],
+    }),
+    getProviderBookings: builder.query<
+      { success: boolean; count: number; data: Booking[] },
+      void
+    >({
+      query: () => ({
+        url: "/api/services/my-bookings",
+        method: "GET",
+      }),
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ _id }) => ({
+                type: "Booking" as const,
+                id: String(_id),
+              })),
+              { type: "Booking", id: "LIST" },
+            ]
+          : [{ type: "Booking", id: "LIST" }],
     }),
   }),
 });
@@ -114,4 +136,5 @@ export const {
   useGetBookingByIdQuery,
   useFilterBookingsQuery,
   useUpdateBookingStatusMutation,
+  useGetProviderBookingsQuery,
 } = bookingApi;

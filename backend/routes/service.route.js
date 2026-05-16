@@ -12,8 +12,12 @@ router.get('/service/:id', authenticated, serviceController.getServiceById);
 router.put('/update/:id', authenticated, isProvider, uploadMiddleware, serviceController.updateService);
 router.delete('/delete/:id', authenticated, isProvider, serviceController.deleteService);
 
-
 router.get('/my-bookings', authenticated, isProvider, serviceController.getProviderBookings);
-router.patch('/bookings/status/:id', authenticated, isProvider ,serviceController.updateBookingStatus);
+router.patch('/bookings/status/:id', authenticated, isProvider, serviceController.updateBookingStatus);
 
-export default router;
+// Provider notification routes
+router.get('/notifications', authenticated, isProvider, serviceController.getProviderNotifications);
+router.patch('/notifications/:id/read', authenticated, isProvider, serviceController.markProviderNotificationRead);
+router.patch('/notifications/read-all', authenticated, isProvider, serviceController.markAllProviderNotificationsRead);
+
+export default router;

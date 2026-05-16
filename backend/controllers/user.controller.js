@@ -46,21 +46,24 @@ export const updateProfile = async (req, res) => {
       }
     });
 
-    if ("role" in req.body) delete req.body.role;
-    if ("status" in req.body) delete req.body.status;
-
-    if (req.body.password) {
-      const hashedPassword = await bcrypt.hash(req.body.password, 10);
-      updates.password = hashedPassword;
-    }
-
-    if (req.body.image) {
+    if (req.file && req.file.cloudinaryUrl) {
+      updates.image = req.file.cloudinaryUrl;
+    } else if (req.body.image && typeof req.body.image === 'string' && req.body.image.startsWith('data:')) {
       const uploadResponse = await cloudinary.uploader.upload(req.body.image, {
         folder: "service_hub_profiles",
         resource_type: "image",
       });
       updates.image = uploadResponse.secure_url;
     }
+
+    if (req.body.password) {
+      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      updates.password = hashedPassword;
+    }
+
+    // Role and status should not be updated via this endpoint
+    delete updates.role;
+    delete updates.status;
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,

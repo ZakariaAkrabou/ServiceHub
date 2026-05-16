@@ -15,7 +15,7 @@ export const profileApi = api.injectEndpoints({
         method: "PUT",
         body: userData,
       }),
-      invalidatesTags: ["Auth", { type: "User", id: "LIST" }],
+      invalidatesTags: ["Auth"],
     }),
     changePassword: builder.mutation({
       query: (passwords) => ({

@@ -21,6 +21,10 @@ export const initSocket = (server) => {
         socket.join("admin");
         console.log(`Admin ${userId} joined admin room`);
       }
+      if (role === "service_provider" || role === "provider") {
+        socket.join(`provider_${userId}`);
+        console.log(`Provider ${userId} joined provider room`);
+      }
       console.log(`User ${userId} joined their room: ${userId}`);
     });
  

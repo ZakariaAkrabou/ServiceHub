@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../app/store/store";
@@ -10,36 +10,29 @@ import {
   Users,
   TrendingUp,
   ArrowRight,
-  MoreHorizontal
+  MoreHorizontal,
+  Loader2,
 } from "lucide-react";
-import {
-  providerSummary,
-  recentBookings,
-  recentClients,
-  servicesTable,
-  type BookingRow,
-} from "./data/providerOverviewMock";
+import { useGetProviderBookingsQuery } from "../../app/api/BookingApi";
+import { useGetProviderServicesQuery } from "../../app/api/ServiceApi";
+import { selectAuthToken } from "../../app/slices/AuthSlice";
 
-function statusBadge(status: BookingRow["status"]) {
-  const styles: Record<BookingRow["status"], string> = {
-    pending: "bg-amber-50 text-amber-700 ring-amber-200/50",
+function statusBadge(status: string) {
+  const styles: Record<string, string> = {
+    pending:   "bg-amber-50 text-amber-700 ring-amber-200/50",
     confirmed: "bg-blue-50 text-blue-700 ring-blue-200/50",
     completed: "bg-emerald-50 text-emerald-700 ring-emerald-200/50",
-    rejected: "",
-    cancelled: ""
+    cancelled: "bg-neutral-50 text-neutral-600 ring-neutral-200/50",
   };
-  
-  const dotStyles: Record<BookingRow["status"], string> = {
-    pending: "bg-amber-500",
+  const dotStyles: Record<string, string> = {
+    pending:   "bg-amber-500",
     confirmed: "bg-blue-500",
     completed: "bg-emerald-500",
-    rejected: "",
-    cancelled: ""
+    cancelled: "bg-neutral-400",
   };
-
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${styles[status]}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${dotStyles[status]}`} aria-hidden />
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${styles[status] ?? "bg-neutral-50 text-neutral-600 ring-neutral-200/50"}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${dotStyles[status] ?? "bg-neutral-400"}`} aria-hidden />
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
   );
@@ -47,7 +40,29 @@ function statusBadge(status: BookingRow["status"]) {
 
 const ProviderDashboard: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
+  const token = useSelector(selectAuthToken);
   const first = user?.firstName ?? "there";
+
+  const { data: bookingsRes, isLoading: bookingsLoading } = useGetProviderBookingsQuery(undefined, { skip: !token });
+  const { data: servicesRes } = useGetProviderServicesQuery(undefined, { skip: !token });
+
+  const bookings = bookingsRes?.data ?? [];
+  const services = servicesRes?.data ?? [];
+
+  const recentBookings = useMemo(() => [...bookings].slice(0, 5), [bookings]);
+
+  const stats = useMemo(() => ({
+    servicesListed: services.length,
+    activeServices: services.filter((s: any) => !s.hidden).length,
+    bookingsThisMonth: bookings.filter((b: any) => {
+      const d = new Date(b.createdAt);
+      const now = new Date();
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }).length,
+    bookingsPending: bookings.filter((b: any) => b.status === "pending").length,
+    uniqueClients: new Set(bookings.map((b: any) => b.customer_id?._id ?? b.customer_id)).size,
+    completedJobs: bookings.filter((b: any) => b.status === "completed").length,
+  }), [bookings, services]);
 
   return (
     <ProviderLayouts>
@@ -85,9 +100,9 @@ const ProviderDashboard: React.FC = () => {
               <div className="mt-3">
                 <p className="text-xs font-medium text-[#5f5f5f]">Services listed</p>
                 <div className="mt-0.5 flex items-baseline gap-2">
-                  <h3 className="font-serif text-2xl font-semibold text-[#1a1a1a]">{providerSummary.servicesListed}</h3>
+                  <h3 className="font-serif text-2xl font-semibold text-[#1a1a1a]">{stats.servicesListed}</h3>
                 </div>
-                <p className="mt-0.5 text-xs text-[#5f5f5f]"><span className="font-medium text-[#1a1a1a]">{providerSummary.activeServices}</span> active on profile</p>
+                <p className="mt-0.5 text-xs text-[#5f5f5f]"><span className="font-medium text-[#1a1a1a]">{stats.activeServices}</span> active on profile</p>
               </div>
             </div>
           </div>
@@ -104,11 +119,11 @@ const ProviderDashboard: React.FC = () => {
               <div className="mt-3">
                 <p className="text-xs font-medium text-[#5f5f5f]">Bookings this month</p>
                 <div className="mt-0.5 flex items-baseline gap-2">
-                  <h3 className="font-serif text-2xl font-semibold text-[#1a1a1a]">{providerSummary.bookingsThisMonth}</h3>
+                  <h3 className="font-serif text-2xl font-semibold text-[#1a1a1a]">{stats.bookingsThisMonth}</h3>
                 </div>
                 <p className="mt-0.5 flex items-center gap-1 text-xs text-[#c9a84c] font-medium">
                   <TrendingUp className="h-3 w-3" />
-                  {providerSummary.bookingsPending} pending confirmation
+                  {stats.bookingsPending} pending confirmation
                 </p>
               </div>
             </div>
@@ -124,11 +139,11 @@ const ProviderDashboard: React.FC = () => {
                 </div>
               </div>
               <div className="mt-3">
-                <p className="text-xs font-medium text-[#5f5f5f]">Total Clients (YTD)</p>
+                <p className="text-xs font-medium text-[#5f5f5f]">Unique Clients</p>
                 <div className="mt-0.5 flex items-baseline gap-2">
-                  <h3 className="font-serif text-2xl font-semibold text-[#1a1a1a]">{providerSummary.uniqueClientsYtd}</h3>
+                  <h3 className="font-serif text-2xl font-semibold text-[#1a1a1a]">{stats.uniqueClients}</h3>
                 </div>
-                <p className="mt-0.5 text-xs text-[#5f5f5f]"><span className="font-medium text-[#1a1a1a]">{providerSummary.completedJobs}</span> jobs completed</p>
+                <p className="mt-0.5 text-xs text-[#5f5f5f]"><span className="font-medium text-[#1a1a1a]">{stats.completedJobs}</span> jobs completed</p>
               </div>
             </div>
           </div>
@@ -146,12 +161,12 @@ const ProviderDashboard: React.FC = () => {
                 </span>
               </div>
               <div className="mt-3">
-                <p className="text-xs font-medium text-[#5f5f5f]">Average Rating</p>
+                <p className="text-xs font-medium text-[#5f5f5f]">Pending Bookings</p>
                 <div className="mt-0.5 flex items-baseline gap-1">
-                  <h3 className="font-serif text-2xl font-semibold text-[#1a1a1a]">{providerSummary.avgRating}</h3>
-                  <span className="text-xs font-medium text-[#9a9a9a]">/5.0</span>
+                  <h3 className="font-serif text-2xl font-semibold text-[#1a1a1a]">{stats.bookingsPending}</h3>
+                  <span className="text-xs font-medium text-[#9a9a9a]">awaiting</span>
                 </div>
-                <p className="mt-0.5 text-xs text-[#5f5f5f]">Revenue: <span className="font-semibold text-[#1a1a1a]">${providerSummary.revenueThisMonth.toLocaleString()}</span></p>
+                <p className="mt-0.5 text-xs text-[#5f5f5f]">Total: <span className="font-semibold text-[#1a1a1a]">{bookings.length}</span> bookings</p>
               </div>
             </div>
           </div>
@@ -185,25 +200,36 @@ const ProviderDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#f4f1eb]">
-                  {recentBookings.map((row) => (
-                    <tr key={row.id} className="group transition-colors hover:bg-[#faf9f7]">
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-[#1a1a1a]">{row.client}</div>
-                        <div className="text-[11px] text-[#9a9a9a] mt-0.5 font-mono">{row.id}</div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="inline-flex items-center rounded-md bg-[#f4f1eb] px-2 py-0.5 text-[11px] font-medium text-[#5f5f5f] max-w-25 truncate sm:max-w-37.5 group-hover:bg-white group-hover:ring-1 group-hover:ring-[#e9e3d3]">
-                          {row.service}
-                        </span>
-                      </td>
-                      <td className="hidden sm:table-cell px-4 py-3 text-xs text-[#5f5f5f]">
-                        {row.date}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        {statusBadge(row.status)}
-                      </td>
-                    </tr>
-                  ))}
+                  {bookingsLoading ? (
+                    <tr><td colSpan={4} className="px-4 py-6 text-center">
+                      <Loader2 className="h-5 w-5 animate-spin text-[#c9a84c] mx-auto" />
+                    </td></tr>
+                  ) : recentBookings.length === 0 ? (
+                    <tr><td colSpan={4} className="px-4 py-6 text-center text-sm text-[#9a9a9a]">No bookings yet.</td></tr>
+                  ) : recentBookings.map((b: any) => {
+                    const customer = b.customer_id as any;
+                    const service  = b.service_id  as any;
+                    const clientName = `${customer?.firstName ?? ""} ${customer?.lastName ?? ""}`.trim() || "—";
+                    const serviceName = service?.name ?? "—";
+                    const dateStr = b.booking_time
+                      ? new Date(b.booking_time).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                      : "—";
+                    return (
+                      <tr key={b._id} className="group transition-colors hover:bg-[#faf9f7]">
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-[#1a1a1a]">{clientName}</div>
+                          <div className="text-[11px] text-[#9a9a9a] mt-0.5 font-mono truncate max-w-28">{b._id}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="inline-flex items-center rounded-md bg-[#f4f1eb] px-2 py-0.5 text-[11px] font-medium text-[#5f5f5f] max-w-25 truncate sm:max-w-37.5 group-hover:bg-white group-hover:ring-1 group-hover:ring-[#e9e3d3]">
+                            {serviceName}
+                          </span>
+                        </td>
+                        <td className="hidden sm:table-cell px-4 py-3 text-xs text-[#5f5f5f]">{dateStr}</td>
+                        <td className="px-4 py-3 text-right">{statusBadge(b.status)}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -234,20 +260,20 @@ const ProviderDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#f4f1eb]">
-                  {servicesTable.map((s) => (
-                    <tr key={s.id} className="group transition-colors hover:bg-[#faf9f7]">
+                  {services.slice(0, 5).map((s: any) => (
+                    <tr key={s._id} className="group transition-colors hover:bg-[#faf9f7]">
                       <td className="px-4 py-3">
                         <div className="font-medium text-[#1a1a1a] max-w-30 truncate sm:max-w-45">{s.name}</div>
                         <div className="text-[11px] text-[#9a9a9a] mt-0.5">{s.category}</div>
                       </td>
                       <td className="hidden sm:table-cell px-4 py-3 font-medium text-[#1a1a1a] text-xs">
-                        {s.price}
+                        ${Number(s.price).toFixed(2)}
                       </td>
                       <td className="px-4 py-3 text-xs text-[#5f5f5f]">
-                        {s.bookings}
+                        {s.bookings ?? 0}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        {s.active ? (
+                        {!s.hidden ? (
                           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200/50">
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden />
                             Active
@@ -289,30 +315,43 @@ const ProviderDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#f4f1eb]">
-                {recentClients.map((c) => (
-                  <tr key={c.id} className="group transition-colors hover:bg-[#faf9f7]">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#f4f1eb] text-xs font-bold text-[#1a1a1a]">
-                          {c.name.charAt(0)}
+                {bookings
+                  .reduce((acc: any[], b: any) => {
+                    const customer = b.customer_id as any;
+                    const id = customer?._id ?? b.customer_id;
+                    if (!acc.find((x) => x.id === id)) {
+                      acc.push({
+                        id,
+                        name: `${customer?.firstName ?? ""} ${customer?.lastName ?? ""}`.trim() || "Unknown",
+                        lastVisit: b.booking_time
+                          ? new Date(b.booking_time).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                          : "—",
+                        totalBookings: bookings.filter((x: any) => (x.customer_id?._id ?? x.customer_id) === id).length,
+                      });
+                    }
+                    return acc;
+                  }, [])
+                  .slice(0, 5)
+                  .map((c) => (
+                    <tr key={c.id} className="group transition-colors hover:bg-[#faf9f7]">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#f4f1eb] text-xs font-bold text-[#1a1a1a]">
+                            {c.name.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="font-medium text-[#1a1a1a]">{c.name}</span>
                         </div>
-                        <span className="font-medium text-[#1a1a1a]">{c.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-xs text-[#5f5f5f]">
-                      {c.bookings}
-                    </td>
-                    <td className="hidden sm:table-cell px-4 py-3 text-xs text-[#5f5f5f]">
-                      {c.lastVisit}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <span className="inline-flex items-center justify-end gap-1 font-medium text-[#1a1a1a]">
-                        {c.rating}
-                        <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-500" aria-hidden />
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-[#5f5f5f]">{c.totalBookings} booking{c.totalBookings !== 1 ? "s" : ""}</td>
+                      <td className="hidden sm:table-cell px-4 py-3 text-xs text-[#5f5f5f]">{c.lastVisit}</td>
+                      <td className="px-4 py-3 text-right">
+                        <span className="inline-flex items-center justify-end gap-1 font-medium text-[#1a1a1a]">
+                          —
+                          <Star className="h-3.5 w-3.5 text-[#d4d0c8]" aria-hidden />
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

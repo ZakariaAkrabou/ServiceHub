@@ -27,16 +27,17 @@ const items: Item[] = [
     icon: LayoutDashboard,
     end: true,
   },
+   {
+    to: "/provider/services",
+    label: "Services",
+    icon: Briefcase,
+  },
   {
     to: "/provider/bookings",
     label: "Bookings",
     icon: CalendarDays,
   },
-  {
-    to: "/provider/services",
-    label: "Services",
-    icon: Briefcase,
-  },
+ 
   {
     to: "/provider/settings",
     label: "Settings",

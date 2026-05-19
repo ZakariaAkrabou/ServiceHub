@@ -17,7 +17,7 @@ const AboutMission: React.FC = () => {
 
       <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-2">
         {/* LEFT CONTENT */}
-        <div className="space-y-5">
+        <div className="space-y-9 ">
           <div className="flex items-center gap-3 ml-0">
             <span className="h-[2px] w-10 bg-[#c9a84c]" />
             <span

@@ -4,7 +4,7 @@ import EditServiceModal, { type ServiceData } from "./modals/services/editServic
 import DeleteConfirmationModal from "./modals/DeleteConfirmationModal";
 import ViewServiceModal from "./modals/services/viewService";
 import ProviderLayouts from "../../components/provider/ProviderLayouts";
-import { Plus, Edit, Trash2, EyeOff, Eye, ToggleRight, ToggleLeft } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, ToggleRight, ToggleLeft } from "lucide-react";
 import { 
   useGetProviderServicesQuery, 
   useCreateServiceMutation, 
@@ -30,7 +30,7 @@ const ProviderServices: React.FC = () => {
   const [serviceToView, setServiceToView] = useState<any | null>(null);
 
   const token = useSelector(selectAuthToken);
-  const { data: response, isLoading } = useGetProviderServicesQuery(undefined, {
+  const { data: response} = useGetProviderServicesQuery(undefined, {
     skip: !token,
   });
   const services = response?.data || [];

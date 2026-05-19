@@ -9,6 +9,7 @@ import { useLogoutMutation } from "../../app/api/AuthApi";
 import {
   useGetProviderNotificationsQuery,
   useMarkAllProviderNotificationsReadMutation,
+  useMarkProviderNotificationReadMutation,
 } from "../../app/api/NotificationApi";
 import { bookingApi } from "../../app/api/BookingApi";
 import { getSocket } from "../../hooks/useSocket";
@@ -16,7 +17,6 @@ import { getSocket } from "../../hooks/useSocket";
 const ProviderProfileBar: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [notifyOpen, setNotifyOpen] = useState(false);
-  const [liveNotifs, setLiveNotifs] = useState<any[]>([]);
 
   const { user } = useSelector((state: RootState) => state.auth);
   const token = useSelector(selectAuthToken);
@@ -25,19 +25,13 @@ const ProviderProfileBar: React.FC = () => {
 
   const [logoutMutation] = useLogoutMutation();
   const [markAllRead] = useMarkAllProviderNotificationsReadMutation();
+  const [markRead] = useMarkProviderNotificationReadMutation();
 
   const { data: notifResponse, refetch: refetchNotifications } = useGetProviderNotificationsQuery(
     undefined, { skip: !token }
   );
 
-  const apiNotifications = notifResponse?.data ?? [];
-
-  // Combine API notifications with live socket ones (deduped)
-  const allNotifications = React.useMemo(() => {
-    const existing = new Set(apiNotifications.map((n: any) => n._id));
-    const extras = liveNotifs.filter((n) => !existing.has(n._id));
-    return [...extras, ...apiNotifications];
-  }, [apiNotifications, liveNotifs]);
+  const allNotifications = notifResponse?.data ?? [];
 
   const unreadCount = allNotifications.filter((n: any) => !n.is_read).length;
 
@@ -52,17 +46,6 @@ const ProviderProfileBar: React.FC = () => {
     socket.emit("join", user._id, user.role);
 
     const handleNewBooking = (data: any) => {
-      // Push live notification bubble
-      setLiveNotifs((prev) => [
-        {
-          _id: `live-${Date.now()}`,
-          type: "new_booking",
-          message: data.message ?? "You have a new booking request!",
-          is_read: false,
-          createdAt: new Date().toISOString(),
-        },
-        ...prev,
-      ]);
       // Invalidate RTK Query cache so bookings list auto-refreshes
       dispatch(bookingApi.util.invalidateTags([{ type: "Booking", id: "LIST" }]));
       // Re-fetch server notifications
@@ -70,16 +53,6 @@ const ProviderProfileBar: React.FC = () => {
     };
 
     const handleBookingUpdate = (data: any) => {
-      setLiveNotifs((prev) => [
-        {
-          _id: `live-${Date.now()}`,
-          type: "booking_updated",
-          message: data.message ?? "A booking was updated.",
-          is_read: false,
-          createdAt: new Date().toISOString(),
-        },
-        ...prev,
-      ]);
       dispatch(bookingApi.util.invalidateTags([{ type: "Booking", id: "LIST" }]));
       refetchNotifications();
     };
@@ -126,7 +99,6 @@ const ProviderProfileBar: React.FC = () => {
   const handleMarkAllRead = async () => {
     try {
       await markAllRead().unwrap();
-      setLiveNotifs((prev) => prev.map((n) => ({ ...n, is_read: true })));
     } catch (err) {
       console.error("Failed to mark all read:", err);
     }
@@ -208,8 +180,15 @@ const ProviderProfileBar: React.FC = () => {
                 <button
                   key={n._id}
                   type="button"
-                  onClick={() => {
+                  onClick={async () => {
                     setNotifyOpen(false);
+                    if (!n.is_read) {
+                      try {
+                        await markRead(n._id).unwrap();
+                      } catch (err) {
+                        console.error("Failed to mark notification as read:", err);
+                      }
+                    }
                     navigate("/provider/bookings");
                   }}
                   className={`block w-full border-b border-[#f4f1eb] px-3.5 py-3 text-left transition-colors duration-150 last:border-b-0 hover:bg-[#f8f6f1] ${!n.is_read ? "bg-[#fffcf5]" : "bg-white"}`}

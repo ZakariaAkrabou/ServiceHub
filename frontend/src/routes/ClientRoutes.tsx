@@ -12,13 +12,15 @@ import ProviderSettings from "../pages/provider/settings";
 import ProviderNotifications from "../pages/provider/notifications";
 import NotFound from "../pages/client/errors/NotFound";
 import About from "../pages/client/about/about";
-import ClientServices from "../pages/client/services/services";
+import Services from "../pages/client/services/Services";
+import ClientServices from "../pages/client/services/Services";
 
 export default function ClientRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
+      <Route path="/services" element={<Services />} />
       <Route path="/services" element={<ClientServices />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -29,7 +31,10 @@ export default function ClientRoutes() {
       <Route path="/provider/bookings" element={<ProviderBookings />} />
       <Route path="/provider/services" element={<ProviderServices />} />
       <Route path="/provider/settings" element={<ProviderSettings />} />
-      <Route path="/provider/notifications" element={<ProviderNotifications />} />
+      <Route
+        path="/provider/notifications"
+        element={<ProviderNotifications />}
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

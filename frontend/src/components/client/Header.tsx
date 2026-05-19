@@ -103,7 +103,7 @@ const Header: React.FC = () => {
         }
 
         .logo-img {
-          height: 40px;
+          height: 50px;
           width: auto;
           transition: all 0.4s ease;
           display: block;

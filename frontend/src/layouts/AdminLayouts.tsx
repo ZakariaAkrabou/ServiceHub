@@ -18,7 +18,7 @@ export default function AdminLayouts() {
   useEffect(() => {
     if (user && user.role === "admin") {
       console.log("Setting up Admin socket...");
-      
+
       const onConnect = () => {
         console.log("Admin socket connected, joining 'admin' room...");
         socket.emit("join", user._id, "admin");
@@ -34,7 +34,7 @@ export default function AdminLayouts() {
           position: "top-right",
           autoClose: 5000,
         });
-   
+
         console.log("Invalidating 'Notification' tags...");
         dispatch(NotificationApi.util.invalidateTags(["Notification"]));
       };
@@ -42,7 +42,7 @@ export default function AdminLayouts() {
       socket.on("connect", onConnect);
       socket.on("disconnect", onDisconnect);
       socket.on("newNotification", onNewNotification);
-      
+
       if (!socket.connected) {
         socket.connect();
       } else {
@@ -54,7 +54,7 @@ export default function AdminLayouts() {
         socket.off("connect", onConnect);
         socket.off("disconnect", onDisconnect);
         socket.off("newNotification", onNewNotification);
-    
+
       };
     }
   }, [user, dispatch]);
@@ -69,7 +69,7 @@ export default function AdminLayouts() {
     >
       {/* Mobile overlay */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-gray-900/40 z-30 transition-opacity xl:hidden"
           onClick={() => setIsSidebarOpen(false)}
           aria-hidden="true"
@@ -77,10 +77,9 @@ export default function AdminLayouts() {
       )}
 
       {/* Sidebar container */}
-      <div 
-        className={`fixed inset-y-4 left-4 z-40 transform transition-transform duration-300 ease-in-out xl:relative xl:inset-y-0 xl:left-0 xl:z-0 xl:translate-x-0 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-[150%]"
-        }`}
+      <div
+        className={`fixed inset-y-4 left-4 z-40 transform transition-transform duration-300 ease-in-out xl:relative xl:inset-y-0 xl:left-0 xl:z-0 xl:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-[150%]"
+          }`}
       >
         <Sidebar />
       </div>

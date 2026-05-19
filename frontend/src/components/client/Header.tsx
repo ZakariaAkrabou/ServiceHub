@@ -103,7 +103,7 @@ const Header: React.FC = () => {
         }
 
         .logo-img {
-          height: 40px;
+          height: 50px;
           width: auto;
           transition: all 0.4s ease;
           display: block;
@@ -402,7 +402,7 @@ const Header: React.FC = () => {
 
         <nav className="nav-links">
           <Link to="/about">About</Link>
-          <a href="#services">Services</a>
+          <Link to="/services">Services</Link>
           <a href="#pricing">Pricing</a>
         </nav>
 
@@ -462,7 +462,7 @@ const Header: React.FC = () => {
 
         <div className={`mobile-overlay ${open ? 'active' : ''}`}>
           <Link to="/about" onClick={() => setOpen(false)}>About</Link>
-          <a href="#services" onClick={() => setOpen(false)}>Services</a>
+          <Link to="/services" onClick={() => setOpen(false)}>Services</Link>
           <a href="#pricing" onClick={() => setOpen(false)}>Pricing</a>
           <div className="mobile-auth">
             <Link to="/login" className="btn-login" style={{ width: '100%', textAlign: 'center' }} onClick={() => setOpen(false)}>Login</Link>

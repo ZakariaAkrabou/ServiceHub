@@ -8,12 +8,14 @@ import VerifyEmail from "../pages/client/auth/verifyEmail";
 import ProviderDashboard from "../pages/provider/dashboard";
 import NotFound from "../pages/client/errors/NotFound";
 import About from "../pages/client/about/about";
+import Services from "../pages/client/services/Services";
 
 export default function ClientRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
+      <Route path="/services" element={<Services />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgetPassword />} />

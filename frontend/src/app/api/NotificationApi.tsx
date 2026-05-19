@@ -24,6 +24,26 @@ export const NotificationApi = api.injectEndpoints({
       query: () => "/api/admin/notifications/unread-count",
       providesTags: ["Notification"],
     }),
+
+    // Provider notifications
+    getProviderNotifications: builder.query<{ success: boolean; data: any[] }, void>({
+      query: () => "/api/services/notifications",
+      providesTags: ["Notification"],
+    }),
+    markProviderNotificationRead: builder.mutation<any, string>({
+      query: (id) => ({
+        url: `/api/services/notifications/${id}/read`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Notification"],
+    }),
+    markAllProviderNotificationsRead: builder.mutation<any, void>({
+      query: () => ({
+        url: "/api/services/notifications/read-all",
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Notification"],
+    }),
   }),
   overrideExisting: true,
 });
@@ -33,4 +53,7 @@ export const {
   useMarkNotificationAsReadMutation,
   useMarkAllNotificationsAsReadMutation,
   useGetUnreadNotificationCountQuery,
+  useGetProviderNotificationsQuery,
+  useMarkProviderNotificationReadMutation,
+  useMarkAllProviderNotificationsReadMutation,
 } = NotificationApi;

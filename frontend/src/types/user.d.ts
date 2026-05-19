@@ -5,4 +5,8 @@ export interface User {
     email: string;
     role: "admin" | "customer" | "service_provider";
     image?: string;
+    phone?: string;
+    location?: string;
+    serviceDescription?: string;
+    serviceCategory?: string;
 }

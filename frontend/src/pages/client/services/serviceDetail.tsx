@@ -29,12 +29,12 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, onClose }) => {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-xs font-['Times_New_Roman',sans-serif,'Geist','Inter']"
+      className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-xs font-['Times_New_Roman',sans-serif,'Geist','Inter'] overflow-hidden"
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden border border-black/10 flex flex-col max-h-[85vh] animate-[pageFadeUp_0.4s_cubic-bezier(0.16,1,0.3,1)]"
+        className="relative w-full max-w-lg mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden border border-black/10 flex flex-col max-h-[70vh] animate-[pageFadeUp_0.4s_cubic-bezier(0.16,1,0.3,1)]"
       >
         {/* Style tag for custom pageFadeUp inside modal if needed */}
         <style>{`
@@ -77,7 +77,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, onClose }) => {
         </div>
 
         {/* Scroll details */}
-        <div className="p-5 md:p-6 overflow-y-auto space-y-5 flex-1 text-xs leading-relaxed text-black/70">
+        <div className="p-3 md:p-4 overflow-y-auto space-y-3 flex-1 text-xs leading-relaxed text-black/70">
           <div>
             <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#1A1A2E] mb-1.5">Overview</h3>
             <p>{service.longDescription}</p>
@@ -119,7 +119,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, onClose }) => {
         </div>
 
         {/* Modal actions */}
-        <div className="p-5 border-t border-black/4 bg-[#F5F0E8]/10 flex items-center justify-between shrink-0">
+        <div className="p-3 md:p-4 border-t border-black/4 bg-[#F5F0E8]/10 flex items-center justify-between shrink-0">
           <div>
             <span className="block text-[8px] text-black/40 font-bold uppercase tracking-widest">Base Cost</span>
             <span className="text-xl font-bold text-[#1A1A2E] font-serif">${service.price}</span>

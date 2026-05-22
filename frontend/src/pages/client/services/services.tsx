@@ -1,8 +1,8 @@
 
 import React, { useState, useMemo, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../../../components/client/Header";
 import Footer from "../../../components/client/Footer";
-import ServiceDetail from "./serviceDetail";
 import {
   Search,
   Star,
@@ -16,7 +16,7 @@ import {
   Flame,
 } from "lucide-react";
 
-interface ServiceItem {
+export interface ServiceItem {
   id: string;
   name: string;
   category: string;
@@ -34,7 +34,7 @@ interface ServiceItem {
   badges: string[];
 }
 
-const mockupServices: ServiceItem[] = [
+export const mockupServices: ServiceItem[] = [
   {
     id: "s1",
     name: "Standard Home Cleaning & Deep Sanitization",
@@ -195,6 +195,266 @@ const mockupServices: ServiceItem[] = [
     providerTier: "Level 2 Seller",
     badges: ["Truck Included", "Damage Protected"],
   },
+  {
+    id: "s9",
+    name: "Deep Kitchen & Bathroom Sanitization Service",
+    category: "Cleaning",
+    subCategory: "Deep Clean",
+    price: 180,
+    duration: "4 Hours",
+    rating: 4.9,
+    reviews: 112,
+    description:
+      "Intensive sanitization for stubborn grease, grime, limescale, and deep dirt in your kitchen and bathrooms.",
+    longDescription:
+      "Our deep sanitization package targets areas that accumulate the most buildup. We scrub and degrease ovens, range hoods, inside microwaves, and wipe down cupboards. In bathrooms, we remove tough soap scum, limescale, sanitize toilets, showers, and deep-clean tile grout. We leave your high-use areas completely pristine and bacteria-free.",
+    image:
+      "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=800&q=80",
+    provider: "Sanitize Pro",
+    providerAvatar: "SP",
+    providerTier: "Top Rated",
+    badges: ["Sanitized Clean", "Verified Expert"],
+  },
+  {
+    id: "s10",
+    name: "Professional Carpet Steam Cleaning & Stain Removal",
+    category: "Cleaning",
+    subCategory: "Carpet Clean",
+    price: 130,
+    duration: "3 Hours",
+    rating: 4.8,
+    reviews: 79,
+    description:
+      "Heavy-duty steam extraction cleaning for carpets and rugs. Targets deep stains, pet odors, and allergens.",
+    longDescription:
+      "Revitalize your carpets with our professional steam extraction cleaning. We pre-treat high-traffic areas and tough stains, then use high-powered industrial steam equipment to lift embedded dirt, bacteria, pet dander, and odors. Safe for kids and pets, drying within hours.",
+    image:
+      "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=800&q=80",
+    provider: "CarpetFresh",
+    providerAvatar: "CF",
+    providerTier: "Level 1 Seller",
+    badges: ["Stain Free Guarantee", "Eco-friendly"],
+  },
+  {
+    id: "s11",
+    name: "Complete Interior & Exterior Window Washing",
+    category: "Cleaning",
+    subCategory: "Window Wash",
+    price: 95,
+    duration: "2.5 Hours",
+    rating: 4.7,
+    reviews: 58,
+    description:
+      "Streak-free washing for interior and exterior glass windows, including screens and window sill detailing.",
+    longDescription:
+      "Bring maximum natural light back into your home. Our window cleaners wash all interior and exterior glass panels with specialized streak-free formulas. The service includes dusting window screens, cleaning frames, and wiping down sills to ensure a perfect finish.",
+    image:
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80",
+    provider: "ClearView Glass",
+    providerAvatar: "CG",
+    providerTier: "Level 2 Seller",
+    badges: ["Streak-free", "Insured"],
+  },
+  {
+    id: "s12",
+    name: "Hedge Sculpting, Shrub Trimming & Garden Cleanup",
+    category: "Gardening",
+    subCategory: "Hedge Trimming",
+    price: 110,
+    duration: "2.5 Hours",
+    rating: 4.6,
+    reviews: 64,
+    description:
+      "Precision trimming of hedges, bushes, and decorative shrubs, complete with green waste disposal.",
+    longDescription:
+      "Keep your garden looking structured and clean. Our landscaping experts shape and trim overgrown hedges, prune shrubs to promote healthy growth, and clean up all resulting leaf and branch debris, leaving your yard immaculately styled.",
+    image:
+      "https://images.unsplash.com/photo-1592417817098-8f3d6eb19675?auto=format&fit=crop&w=800&q=80",
+    provider: "GreenThumb Pros",
+    providerAvatar: "GT",
+    providerTier: "Level 2 Seller",
+    badges: ["Tools Included", "Debris Disposed"],
+  },
+  {
+    id: "s13",
+    name: "Garden Bed Weeding, Soil Aeration & Mulching",
+    category: "Gardening",
+    subCategory: "Garden Weeding",
+    price: 85,
+    duration: "2 Hours",
+    rating: 4.8,
+    reviews: 41,
+    description:
+      "Removal of weeds from roots, loosening soil, and applying mulch to keep your garden beds fresh.",
+    longDescription:
+      "Clear out weeds before they take over. We hand-pull invasive weeds from the root, aerate and prepare the soil, and spread high-quality organic mulch to suppress future weed growth and retain soil moisture for your plants.",
+    image:
+      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=800&q=80",
+    provider: "EcoGarden Helpers",
+    providerAvatar: "EH",
+    providerTier: "Verified Expert",
+    badges: ["Eco-friendly", "Licensed Pro"],
+  },
+  {
+    id: "s14",
+    name: "Professional Branch Pruning & Safety Tree Trimming",
+    category: "Gardening",
+    subCategory: "Tree Pruning",
+    price: 175,
+    duration: "3 Hours",
+    rating: 4.9,
+    reviews: 82,
+    description:
+      "Safe trimming of low-hanging tree branches, deadwood removal, and shaping for safety and aesthetics.",
+    longDescription:
+      "Ensure safety and tree health with professional pruning. We cut back hazardous or dead branches overhanging roofs, paths, and power lines, and thin out crowns to allow wind and sunlight through, using certified arborist equipment.",
+    image:
+      "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80",
+    provider: "TimberCraft Arbo",
+    providerAvatar: "TA",
+    providerTier: "Top Rated",
+    badges: ["Licensed Pro", "Safety Certified"],
+  },
+  {
+    id: "s15",
+    name: "Kitchen & Bathroom Faucet and Light Fixture Installation",
+    category: "Repairs",
+    subCategory: "Fixture Installation",
+    price: 115,
+    duration: "2 Hours",
+    rating: 4.7,
+    reviews: 53,
+    description:
+      "Professional mounting and plumbing/electrical hookup of kitchen faucets, sink basins, and vanity lighting.",
+    longDescription:
+      "Upgrade your fixtures stress-free. Our technicians securely install and test modern kitchen or bathroom faucets, replace old light fixtures, install vanity bars, and ensure proper sealing and connection without leaks or short-circuits.",
+    image:
+      "https://images.unsplash.com/photo-1585144860106-998ca0f2922a?auto=format&fit=crop&w=800&q=80",
+    provider: "Apex Plumbing",
+    providerAvatar: "AP",
+    providerTier: "Verified Expert",
+    badges: ["1-Year Warranty", "Tools Included"],
+  },
+  {
+    id: "s16",
+    name: "High-Speed Router Setup & Whole-Home Mesh Wi-Fi Config",
+    category: "Technical",
+    subCategory: "Router Setup",
+    price: 95,
+    duration: "1.5 Hours",
+    rating: 4.8,
+    reviews: 37,
+    description:
+      "Configure your home router, optimize Wi-Fi channels, set up mesh nodes, and secure your network connection.",
+    longDescription:
+      "Eliminate internet dead zones. Our technician will optimize your internet service provider's router, set up multi-node mesh Wi-Fi systems for maximum coverage, configure a secure password, and assist in connecting all your smart devices.",
+    image:
+      "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80",
+    provider: "ByteSize Setup",
+    providerAvatar: "BS",
+    providerTier: "Top Rated",
+    badges: ["Certified Tech", "Same-Day Fix"],
+  },
+  {
+    id: "s17",
+    name: "Smart Security Camera Installation & App Integration",
+    category: "Technical",
+    subCategory: "Camera Install",
+    price: 160,
+    duration: "2.5 Hours",
+    rating: 4.9,
+    reviews: 69,
+    description:
+      "Mounting and configuration of outdoor/indoor smart security cameras (Ring, Nest, Arlo) with mobile integration.",
+    longDescription:
+      "Keep an eye on your home from anywhere. We mount smart cameras on exterior walls, set up solar panels or wiring, connect them to your home network, and configure motion alerts and activity zones on your mobile applications.",
+    image:
+      "https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&w=800&q=80",
+    provider: "SecureTech Pros",
+    providerAvatar: "ST",
+    providerTier: "Verified Expert",
+    badges: ["Insured", "Smart Certified"],
+  },
+  {
+    id: "s18",
+    name: "Desktop & Laptop Hardware/Software Performance Diagnostic",
+    category: "Technical",
+    subCategory: "Device Diagnostic",
+    price: 75,
+    duration: "1 Hour",
+    rating: 4.5,
+    reviews: 28,
+    description:
+      "Troubleshoot slow computers, install operating system updates, remove malware, and resolve system crashes.",
+    longDescription:
+      "Get your computer running like new. We run full diagnostic checks, clean out clutter files, upgrade RAM or SSDs if requested, remove viruses, and resolve driver conflicts that cause slow performance or blue screen crashes.",
+    image:
+      "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80",
+    provider: "ByteSize Setup",
+    providerAvatar: "BS",
+    providerTier: "Top Rated",
+    badges: ["Certified Tech", "Quick Diagnosis"],
+  },
+  {
+    id: "s19",
+    name: "Premium Furniture Painting, Refinishing & Varnishing",
+    category: "Design",
+    subCategory: "Furniture Paint",
+    price: 210,
+    duration: "5 Hours",
+    rating: 4.8,
+    reviews: 35,
+    description:
+      "Refinish old wooden tables, chairs, or cabinets with high-quality staining, varnishing, or custom paint colors.",
+    longDescription:
+      "Breathe new life into your furniture. Our restoration experts sand down old finishes, patch minor cracks or dents, and apply premium stains, sealants, or decorative paint colors to give your wooden furniture a high-end, durable look.",
+    image:
+      "https://images.unsplash.com/photo-1505693395321-883724634266?auto=format&fit=crop&w=800&q=80",
+    provider: "GoldAccent Decor",
+    providerAvatar: "GA",
+    providerTier: "Verified Expert",
+    badges: ["Premium Paint", "Insured"],
+  },
+  {
+    id: "s20",
+    name: "Precision Wallpaper Installation & Old Paper Strip-down",
+    category: "Design",
+    subCategory: "Wallpaper Install",
+    price: 290,
+    duration: "6 Hours",
+    rating: 4.7,
+    reviews: 49,
+    description:
+      "Professional stripping of old wallpaper, wall priming, and matching patterned wallpaper hangings.",
+    longDescription:
+      "Get seamless wallpaper application. We strip existing wall coverings, sand and prime walls, measure precisely to ensure pattern matches, and hang wallpaper using commercial-grade adhesive for a long-lasting, bubble-free finish.",
+    image:
+      "https://images.unsplash.com/photo-1615529182904-14819c35db37?auto=format&fit=crop&w=800&q=80",
+    provider: "GoldAccent Decor",
+    providerAvatar: "GA",
+    providerTier: "Verified Expert",
+    badges: ["Insured", "Verified Expert"],
+  },
+  {
+    id: "s21",
+    name: "Interior Paint Color & Space Styling Consultation",
+    category: "Design",
+    subCategory: "Consultation",
+    price: 120,
+    duration: "1.5 Hours",
+    rating: 4.9,
+    reviews: 56,
+    description:
+      "On-site consultation to choose wall colors, accent layouts, furniture spacing, and decor elements.",
+    longDescription:
+      "Collaborate with a professional decorator to design your dream room. We assess room lighting, suggest cohesive color palettes, draw furniture layouts, and recommend accessories to optimize both the function and aesthetic of your space.",
+    image:
+      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80",
+    provider: "Interior Design Studio",
+    providerAvatar: "ID",
+    providerTier: "Top Rated",
+    badges: ["Certified Designer", "Top Rated"],
+  }
 ];
 
 const mainCategories = [
@@ -284,12 +544,12 @@ const ServiceMemeCard: React.FC<{
 };
 
 const ClientServices: React.FC = () => {
+  const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [activeSubFilter, setActiveSubFilter] = useState("All");
-  const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
   const itemsPerPage = 6;
@@ -604,7 +864,7 @@ const ClientServices: React.FC = () => {
                 <ServiceMemeCard
                   key={service.id}
                   service={service}
-                  onClick={() => setSelectedService(service)}
+                  onClick={() => navigate(`/services/${service.id}`)}
                   style={{ animationDelay: `${50 + index * 40}ms` }}
                 />
               ))}
@@ -671,10 +931,6 @@ const ClientServices: React.FC = () => {
           </>
         )}
       </section>
-
-      {/* Modal */}
-      <ServiceDetail service={selectedService} onClose={() => setSelectedService(null)} />
-
       <div className="services-page-nav-footer">
         <Footer />
       </div>

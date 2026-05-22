@@ -63,7 +63,6 @@ const ArrowIconLight = () => (
 
 const OurServices: React.FC = () => {
   const [hovered, setHovered] = useState<number | null>(null);
-  const [btnHovered, setBtnHovered] = useState(false);
 
   const sectionRef = useRef<HTMLElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
@@ -455,11 +454,7 @@ const OurServices: React.FC = () => {
 
 
         <div ref={btnRef} style={{ marginTop: 56, display: "flex", alignItems: "center" }}>
-          <button
-            className="os-bottom-btn"
-            onMouseEnter={() => setBtnHovered(true)}
-            onMouseLeave={() => setBtnHovered(false)}
-          >
+          <button className="os-bottom-btn">
             <span style={{ marginRight: 20 }}>See all services</span>
             <span className="os-bottom-arrow">
               <ArrowIconLight />

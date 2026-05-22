@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 const fontFamily =
   "'DM Sans', 'Times New Roman', sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial";
 
-const navLinks = ["About", "Services", "Pricing", "404"];
+const navLinks = ["About", "Services", "Home", "404"];
 
 export default function Footer() {
   const [email, setEmail] = useState("");

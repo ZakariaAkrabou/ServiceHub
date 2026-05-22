@@ -1,29 +1,32 @@
-import express from 'express';
-import { authenticated } from '../middlewares/authMiddleware.js';  
-import { isCustomer } from '../middlewares/roleMiddleware.js';
-import * as customerController from '../controllers/customer.controller.js';
+import express from "express";
+import { authenticated } from "../middlewares/authMiddleware.js";
+import { isCustomer } from "../middlewares/roleMiddleware.js";
+import * as customerController from "../controllers/customer.controller.js";
 
 const router = express.Router();
 
+router.get("/services", customerController.getAllServices);
+router.get("/services/:id", customerController.getServiceById);
 
-router.get('/services', customerController.getAllServices);
+router.get("/search-services", customerController.searchServices);
 
-router.get('/search-services', customerController.searchServices);
+router.get("/filter-services", customerController.filterServices);
 
-router.get('/filter-services', customerController.filterServices);
+router.post(
+  "/create-bookings",
+  authenticated,
+  customerController.createBooking,
+);
 
-router.post('/create-bookings', authenticated, customerController.createBooking);
-
-
-router.get('/all-bookings', authenticated, customerController.getBookings);
-router.patch('/cancel-bookings/:id', authenticated, customerController.cancelBooking);
-
+router.get("/all-bookings", authenticated, customerController.getBookings);
+router.patch(
+  "/cancel-bookings/:id",
+  authenticated,
+  customerController.cancelBooking,
+);
 
 router.post("/review", authenticated, customerController.leaveReview);
 
-
 router.get("/reviews/:serviceId", customerController.getServiceReviews);
-
-
 
 export default router;

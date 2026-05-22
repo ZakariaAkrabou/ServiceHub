@@ -1,5 +1,4 @@
 import missionImage from "../../../../assets/mission.jpg";
-import teamImage from "../../../../assets/stock.jpg";
 import { ArrowRight } from "lucide-react";
 
 const AboutMission: React.FC = () => {

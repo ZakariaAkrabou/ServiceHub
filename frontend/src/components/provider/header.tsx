@@ -45,14 +45,14 @@ const ProviderProfileBar: React.FC = () => {
     if (!socket.connected) socket.connect();
     socket.emit("join", user._id, user.role);
 
-    const handleNewBooking = (data: any) => {
+    const handleNewBooking = () => {
       // Invalidate RTK Query cache so bookings list auto-refreshes
       dispatch(bookingApi.util.invalidateTags([{ type: "Booking", id: "LIST" }]));
       // Re-fetch server notifications
       refetchNotifications();
     };
 
-    const handleBookingUpdate = (data: any) => {
+    const handleBookingUpdate = () => {
       dispatch(bookingApi.util.invalidateTags([{ type: "Booking", id: "LIST" }]));
       refetchNotifications();
     };

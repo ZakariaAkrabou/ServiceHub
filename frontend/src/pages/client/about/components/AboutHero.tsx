@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
 
 const AboutHero: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);

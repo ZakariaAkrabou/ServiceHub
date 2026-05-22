@@ -44,50 +44,63 @@ const Register: React.FC = () => {
 
     return (
         <div className="h-screen overflow-hidden grid lg:grid-cols-2 grid-cols-1 font-sans bg-white">
+            <style>{`
+                @keyframes pageFadeUp {
+                    from { opacity: 0; transform: translateY(14px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            `}</style>
+
             <section className="relative bg-[url('https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center hidden lg:flex flex-col justify-center p-16 text-white">
-                <div className="absolute inset-0 bg-linear-to-r from-brand-blue/70 to-brand-blue/40" />
-                <div className="relative z-10 animate-fade-in-up">
-                    <h2 className="font-serif text-[clamp(32px,3.5vw,50px)] leading-[1.1] mb-4 tracking-[-1px]">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628]/95 via-[#0a1628]/75 to-transparent" />
+                <div className="relative z-10 animate-[pageFadeUp_0.6s_ease-out]">
+                    <span className="text-[#C9A84C] font-bold tracking-widest uppercase text-sm mb-4 block">Join Our Network</span>
+                    <h2 className="font-serif text-[clamp(32px,3.5vw,50px)] font-black leading-[1.1] mb-6 tracking-tight text-white">
                         Expert help,<br />at your service.
                     </h2>
-                    <p className="text-base opacity-90 font-light max-w-110 leading-relaxed">
+                    <p className="text-lg opacity-90 font-medium max-w-[480px] leading-relaxed text-white/80">
                         Join ServiceHub today and connect with thousands of customers or skilled professionals in your area.
                     </p>
+                    <div className="mt-8 h-[3px] w-16 bg-[#C9A84C] rounded-full" />
                 </div>
             </section>
 
-            <section className="flex flex-col p-[16px_40px] bg-[#fdfdfd] justify-center">
-                <div className="w-full max-w-120 m-auto animate-fade-in-right text-center">
+            <section className="flex flex-col p-[16px_32px] sm:p-[16px_40px] bg-[#F5F0E8]/20 justify-center overflow-y-auto">
+                <div className="w-full max-w-[460px] m-auto animate-[pageFadeUp_0.8s_ease-out]">
+                    <div className="mb-6 lg:hidden flex justify-center mt-4">
+                        <span className="text-3xl font-black text-[#1A1A2E] font-serif">Service<span className="text-[#C9A84C]">Hub</span></span>
+                    </div>
+
                     {showSuccess ? (
-                        <div className="py-10">
+                        <div className="py-10 text-center">
                             <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8">
                                 <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L22 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                             </div>
-                            <h1 className="font-serif text-[36px] text-[#1A1A1A] mb-4 tracking-[-1px]">Check your email</h1>
-                            <p className="text-[#6c757d] text-[16px] mb-10 leading-relaxed font-light">
-                                We've sent a verification link to <span className="font-semibold text-brand-blue">{formData.email}</span>. 
+                            <h1 className="font-serif text-[38px] font-black text-[#1A1A2E] mb-4 tracking-tight">Check your email</h1>
+                            <p className="text-black/50 text-[16px] mb-10 leading-relaxed font-medium">
+                                We've sent a verification link to <span className="font-bold text-[#1A1A2E]">{formData.email}</span>. 
                                 Please click the link to confirm your account and start using ServiceHub.
                             </p>
-                            <Link to="/login" className="inline-block w-full p-4 bg-brand-blue text-white rounded-xl text-base font-bold shadow-[0_6px_20px_rgba(8,29,58,0.15)] hover:bg-[#1a2a4a] hover:-translate-y-px transition-all">
+                            <Link to="/login" className="inline-block w-full p-4 bg-[#1A1A2E] text-white rounded-xl text-sm uppercase tracking-widest font-bold shadow-[0_8px_20px_rgba(26,26,46,0.15)] hover:bg-[#C9A84C] hover:text-[#1A1A2E] hover:-translate-y-1 transition-all duration-300">
                                 Back to Sign In
                             </Link>
                         </div>
                     ) : (
                         <>
-                            <h1 className="font-serif text-[32px] text-[#1A1A1A] mb-0 tracking-[-0.5px]">Create Account</h1>
-                            <p className="text-[#6c757d] text-sm mb-3 font-light">Join our community and get things done.</p>
+                            <h1 className="font-serif text-[36px] font-black text-[#1A1A2E] mb-2 tracking-tight">Create Account</h1>
+                            <p className="text-black/50 text-[15px] mb-5 font-medium">Join our community and get things done.</p>
 
-                            <div className="grid grid-cols-2 gap-2 mb-3 bg-[#f1f3f5] p-1 rounded-[10px]">
+                            <div className="grid grid-cols-2 gap-2 mb-4 bg-black/5 p-1.5 rounded-xl">
                                 <div 
-                                    className={`p-2 text-center rounded-[7px] cursor-pointer text-[12px] font-semibold transition-all duration-300 ${role === "customer" ? "bg-white text-brand-blue shadow-[0_3px_6px_rgba(0,0,0,0.05)]" : "text-[#6c757d]"}`}
+                                    className={`p-2.5 text-center rounded-lg cursor-pointer text-[12px] font-bold uppercase tracking-wider transition-all duration-300 ${role === "customer" ? "bg-white text-[#1A1A2E] shadow-sm" : "text-black/40 hover:text-black/60"}`}
                                     onClick={() => setRole("customer")}
                                 >
                                     Customer
                                 </div>
                                 <div 
-                                    className={`p-2 text-center rounded-[7px] cursor-pointer text-[12px] font-semibold transition-all duration-300 ${role === "provider" ? "bg-white text-brand-blue shadow-[0_3px_6px_rgba(0,0,0,0.05)]" : "text-[#6c757d]"}`}
+                                    className={`p-2.5 text-center rounded-lg cursor-pointer text-[12px] font-bold uppercase tracking-wider transition-all duration-300 ${role === "provider" ? "bg-[#1A1A2E] text-[#C9A84C] shadow-sm" : "text-black/40 hover:text-black/60"}`}
                                     onClick={() => setRole("provider")}
                                 >
                                     Service Provider
@@ -95,20 +108,20 @@ const Register: React.FC = () => {
                             </div>
 
                             {error && (
-                                <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 animate-shake">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                                    <p className="text-[13px] text-red-600 font-medium">{error}</p>
+                                <div className="mb-4 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+                                    <p className="text-sm text-red-600 font-bold">{error}</p>
                                 </div>
                             )}
 
                             <form onSubmit={handleSubmit}>
-                                <div className="grid grid-cols-2 gap-[10px_16px]">
+                                <div className="grid grid-cols-2 gap-[12px_16px]">
                                     <div className="mb-0">
-                                        <label className="block text-[10px] font-semibold text-[#333] mb-1 uppercase tracking-wider">First Name</label>
+                                        <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">First Name</label>
                                         <input 
                                             type="text" 
                                             name="firstName"
-                                            className="w-full p-[8px_12px] border border-[#e9ecef] rounded-lg text-sm transition-all outline-none bg-white focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/5" 
+                                            className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20" 
                                             placeholder="John"
                                             value={formData.firstName}
                                             onChange={handleChange}
@@ -116,11 +129,11 @@ const Register: React.FC = () => {
                                         />
                                     </div>
                                     <div className="mb-0">
-                                        <label className="block text-[10px] font-semibold text-[#333] mb-1 uppercase tracking-wider">Last Name</label>
+                                        <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">Last Name</label>
                                         <input 
                                             type="text" 
                                             name="lastName"
-                                            className="w-full p-[8px_12px] border border-[#e9ecef] rounded-lg text-sm transition-all outline-none bg-white focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/5" 
+                                            className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20" 
                                             placeholder="Doe"
                                             value={formData.lastName}
                                             onChange={handleChange}
@@ -129,11 +142,11 @@ const Register: React.FC = () => {
                                     </div>
 
                                     <div className="mb-0">
-                                        <label className="block text-[10px] font-semibold text-[#333] mb-1 uppercase tracking-wider">Email Address</label>
+                                        <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">Email Address</label>
                                         <input 
                                             type="email" 
                                             name="email"
-                                            className="w-full p-[8px_12px] border border-[#e9ecef] rounded-lg text-sm transition-all outline-none bg-white focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/5" 
+                                            className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20" 
                                             placeholder="john@example.com"
                                             value={formData.email}
                                             onChange={handleChange}
@@ -142,11 +155,11 @@ const Register: React.FC = () => {
                                     </div>
 
                                     <div className="mb-0">
-                                        <label className="block text-[10px] font-semibold text-[#333] mb-1 uppercase tracking-wider">Phone</label>
+                                        <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">Phone</label>
                                         <input 
                                             type="tel" 
                                             name="phone"
-                                            className="w-full p-[8px_12px] border border-[#e9ecef] rounded-lg text-sm transition-all outline-none bg-white focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/5" 
+                                            className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20" 
                                             placeholder="+212 600..."
                                             value={formData.phone}
                                             onChange={handleChange}
@@ -155,12 +168,12 @@ const Register: React.FC = () => {
                                     </div>
 
                                     <div className="col-span-2 mb-0">
-                                        <label className="block text-[10px] font-semibold text-[#333] mb-1 uppercase tracking-wider">Password</label>
+                                        <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">Password</label>
                                         <div className="relative">
                                             <input 
                                                 type={showPassword ? "text" : "password"} 
                                                 name="password"
-                                                className="w-full p-[8px_12px] pr-10 border border-[#e9ecef] rounded-lg text-sm transition-all outline-none bg-white focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/5" 
+                                                className="w-full p-[12px_16px] pr-10 border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20" 
                                                 placeholder="••••••••"
                                                 value={formData.password}
                                                 onChange={handleChange}
@@ -169,9 +182,9 @@ const Register: React.FC = () => {
                                             <button 
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#adb5bd] hover:text-brand-blue transition-colors"
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-black/30 hover:text-[#C9A84C] transition-colors cursor-pointer"
                                             >
-                                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                             </button>
                                         </div>
                                     </div>
@@ -179,10 +192,10 @@ const Register: React.FC = () => {
                                     {role === "provider" && (
                                         <>
                                             <div className="mb-0">
-                                                <label className="block text-[10px] font-semibold text-[#333] mb-1 uppercase tracking-wider">Category</label>
+                                                <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">Category</label>
                                                 <select 
                                                     name="serviceCategory"
-                                                    className="w-full p-[8px_12px] border border-[#e9ecef] rounded-lg text-sm transition-all outline-none bg-white focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/5" 
+                                                    className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E]" 
                                                     value={formData.serviceCategory}
                                                     onChange={handleChange}
                                                     required
@@ -196,11 +209,11 @@ const Register: React.FC = () => {
                                             </div>
 
                                             <div className="mb-0">
-                                                <label className="block text-[10px] font-semibold text-[#333] mb-1 uppercase tracking-wider">Location</label>
+                                                <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">Location</label>
                                                 <input 
                                                     type="text" 
                                                     name="location"
-                                                    className="w-full p-[8px_12px] border border-[#e9ecef] rounded-lg text-sm transition-all outline-none bg-white focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/5" 
+                                                    className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20" 
                                                     placeholder="Rabat"
                                                     value={formData.location}
                                                     onChange={handleChange}
@@ -209,10 +222,10 @@ const Register: React.FC = () => {
                                             </div>
 
                                             <div className="col-span-2 mb-0">
-                                                <label className="block text-[10px] font-semibold text-[#333] mb-1 uppercase tracking-wider">Description</label>
+                                                <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">Description</label>
                                                 <textarea 
                                                     name="serviceDescription"
-                                                    className="w-full p-[8px_12px] border border-[#e9ecef] rounded-lg text-sm transition-all outline-none bg-white focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/5 min-h-12.5 resize-y" 
+                                                    className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20 min-h-14 resize-y" 
                                                     placeholder="Briefly describe your services..."
                                                     value={formData.serviceDescription}
                                                     onChange={handleChange}
@@ -223,13 +236,13 @@ const Register: React.FC = () => {
                                     )}
                                 </div>
 
-                                <button type="submit" className="w-full p-3.5 bg-brand-blue text-white rounded-lg text-sm font-bold shadow-[0_6px_20px_rgba(8,29,58,0.15)] hover:bg-[#1a2a4a] hover:-translate-y-px transition-all mt-4 mb-2 disabled:opacity-60 disabled:cursor-not-allowed" disabled={isLoading}>
+                                <button type="submit" className="w-full p-4 bg-[#1A1A2E] text-white rounded-xl text-sm uppercase tracking-widest font-bold shadow-[0_8px_20px_rgba(26,26,46,0.15)] hover:bg-[#C9A84C] hover:text-[#1A1A2E] hover:-translate-y-1 transition-all duration-300 mt-6 mb-4 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer" disabled={isLoading}>
                                     {isLoading ? "Creating Account..." : "Sign Up"}
                                 </button>
 
-                                <p className="text-center text-[13px] text-[#6c757d]">
+                                <p className="text-center text-sm font-medium text-black/50 pb-4 lg:pb-0">
                                     Already have an account? 
-                                    <Link to="/login" className="text-brand-blue font-bold ml-2 border-b-2 border-brand-blue/10 hover:border-brand-blue">Sign in</Link>
+                                    <Link to="/login" className="text-[#C9A84C] font-bold ml-2 hover:text-[#1A1A2E] transition-colors">Sign in</Link>
                                 </p>
                             </form>
                         </>

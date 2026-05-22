@@ -67,7 +67,9 @@ export const bookingApi = api.injectEndpoints({
         url: `/api/admin/bookings/${id}`,
         method: "GET",
       }),
-      providesTags: (_result, _error, id) => [{ type: "Booking", id: String(id) }],
+      providesTags: (_result, _error, id) => [
+        { type: "Booking", id: String(id) },
+      ],
     }),
     filterBookings: builder.query<
       BookingListResponse,
@@ -128,6 +130,39 @@ export const bookingApi = api.injectEndpoints({
             ]
           : [{ type: "Booking", id: "LIST" }],
     }),
+
+    // Customer: create a booking
+    createCustomerBooking: builder.mutation<
+      { success: boolean; message: string; data: Booking },
+      { service_id: string; booking_time: string }
+    >({
+      query: (body) => ({
+        url: "/api/customer/create-bookings",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: [{ type: "Booking", id: "LIST" }],
+    }),
+
+    getCustomerBookings: builder.query<
+      { success: boolean; count: number; data: Booking[] },
+      void
+    >({
+      query: () => ({
+        url: "/api/customer/all-bookings",
+        method: "GET",
+      }),
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ _id }) => ({
+                type: "Booking" as const,
+                id: String(_id),
+              })),
+              { type: "Booking", id: "LIST" },
+            ]
+          : [{ type: "Booking", id: "LIST" }],
+    }),
   }),
 });
 
@@ -137,4 +172,6 @@ export const {
   useFilterBookingsQuery,
   useUpdateBookingStatusMutation,
   useGetProviderBookingsQuery,
+  useCreateCustomerBookingMutation,
+  useGetCustomerBookingsQuery,
 } = bookingApi;

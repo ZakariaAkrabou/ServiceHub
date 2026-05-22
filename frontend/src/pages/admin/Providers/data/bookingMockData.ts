@@ -8,6 +8,7 @@ export interface Booking {
     provider: string;
     bookingDate: string;
     status: BookingStatus;
+    paymentStatus?: string;
 }
 
 export const mockBookings: Booking[] = [

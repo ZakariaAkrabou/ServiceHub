@@ -5,7 +5,7 @@ import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
 const VerifyEmail: React.FC = () => {
     const { token } = useParams<{ token: string }>();
-    const [verifyEmail, { isLoading }] = useVerifyEmailMutation();
+    const [verifyEmail] = useVerifyEmailMutation();
     const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
     const [message, setMessage] = useState("");
     const verificationStarted = useRef(false);

@@ -1,13 +1,22 @@
-import React, { useState, useMemo } from "react";
+
+import React, { useState, useMemo, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../../../components/client/Header";
 import Footer from "../../../components/client/Footer";
-import ServiceDetail from "./serviceDetail";
-import { 
-  Search, Star,  Heart,
-  Wrench, Hammer, Truck, Sparkle, TreePine, Construction, Paintbrush, Flame 
+import {
+  Search,
+  Star,
+  Wrench,
+  Hammer,
+  Truck,
+  Sparkle,
+  TreePine,
+  Construction,
+  Paintbrush,
+  Flame,
 } from "lucide-react";
 
-interface ServiceItem {
+export interface ServiceItem {
   id: string;
   name: string;
   category: string;
@@ -25,7 +34,7 @@ interface ServiceItem {
   badges: string[];
 }
 
-const mockupServices: ServiceItem[] = [
+export const mockupServices: ServiceItem[] = [
   {
     id: "s1",
     name: "Standard Home Cleaning & Deep Sanitization",
@@ -35,13 +44,16 @@ const mockupServices: ServiceItem[] = [
     duration: "2 Hours",
     rating: 4.8,
     reviews: 124,
-    description: "Deep, pristine cleaning for your bedrooms, living room, kitchen, and bathrooms. Includes dusting, vacuuming, mopping, and waste disposal.",
-    longDescription: "Our standard home cleaning package is designed to keep your home healthy, sparkling, and comfortable. Our certified professionals use eco-friendly products to clean all surfaces, dust hard-to-reach areas, mop floors, vacuum carpets, and sanitize toilets/showers. We pay special attention to detail, leaving your space looking and feeling refreshed.",
-    image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80",
+    description:
+      "Deep, pristine cleaning for your bedrooms, living room, kitchen, and bathrooms. Includes dusting, vacuuming, mopping, and waste disposal.",
+    longDescription:
+      "Our standard home cleaning package is designed to keep your home healthy, sparkling, and comfortable. Our certified professionals use eco-friendly products to clean all surfaces, dust hard-to-reach areas, mop floors, vacuum carpets, and sanitize toilets/showers. We pay special attention to detail, leaving your space looking and feeling refreshed.",
+    image:
+      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80",
     provider: "EcoClean Solutions",
     providerAvatar: "ES",
     providerTier: "Top Rated",
-    badges: ["Eco-friendly", "Verified Expert"]
+    badges: ["Eco-friendly", "Verified Expert"],
   },
   {
     id: "s2",
@@ -52,13 +64,16 @@ const mockupServices: ServiceItem[] = [
     duration: "3 Hours",
     rating: 4.9,
     reviews: 86,
-    description: "Complete garden care including lawn mowing, hedge trimming, weed control, and garden bed cleanup.",
-    longDescription: "Elevate your home's curb appeal with our professional landscaping and lawn care services. This comprehensive service includes precise lawn mowing, edge trimming, weeding, pruning shrubs, hedge sculpting, and clearing garden waste. We ensure your garden thrives in every season.",
-    image: "https://images.unsplash.com/photo-1558904541-efa8c1a68f6f?auto=format&fit=crop&w=800&q=80",
+    description:
+      "Complete garden care including lawn mowing, hedge trimming, weed control, and garden bed cleanup.",
+    longDescription:
+      "Elevate your home's curb appeal with our professional landscaping and lawn care services. This comprehensive service includes precise lawn mowing, edge trimming, weeding, pruning shrubs, hedge sculpting, and clearing garden waste. We ensure your garden thrives in every season.",
+    image:
+      "https://images.unsplash.com/photo-1558904541-efa8c1a68f6f?auto=format&fit=crop&w=800&q=80",
     provider: "GreenThumb Pros",
     providerAvatar: "GT",
     providerTier: "Level 2 Seller",
-    badges: ["Tools Included", "Top Rated"]
+    badges: ["Tools Included", "Top Rated"],
   },
   {
     id: "s3",
@@ -69,13 +84,16 @@ const mockupServices: ServiceItem[] = [
     duration: "1.5 Hours",
     rating: 4.7,
     reviews: 95,
-    description: "Fast fix for leaky pipes, clogged drains, toilet repairs, and faucet installations by certified plumbers.",
-    longDescription: "Don't let leaks or blocks ruin your day. Our expert plumbers offer reliable, high-speed diagnostic and repair services. From fixing leaking pipes and standard faucet installations to resolving complex toilet overflows and blocked drains, we resolve your technical plumbing emergencies with guaranteed durability.",
-    image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=80",
+    description:
+      "Fast fix for leaky pipes, clogged drains, toilet repairs, and faucet installations by certified plumbers.",
+    longDescription:
+      "Don't let leaks or blocks ruin your day. Our expert plumbers offer reliable, high-speed diagnostic and repair services. From fixing leaking pipes and standard faucet installations to resolving complex toilet overflows and blocked drains, we resolve your technical plumbing emergencies with guaranteed durability.",
+    image:
+      "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=80",
     provider: "Apex Plumbing",
     providerAvatar: "AP",
     providerTier: "Verified Expert",
-    badges: ["Same-Day Fix", "Licensed Pro"]
+    badges: ["Same-Day Fix", "Licensed Pro"],
   },
   {
     id: "s4",
@@ -86,13 +104,16 @@ const mockupServices: ServiceItem[] = [
     duration: "4 Hours",
     rating: 4.9,
     reviews: 62,
-    description: "Installation and integration of smart assistants, smart thermostats, security cameras, and smart lighting.",
-    longDescription: "Modernize your living space with a fully synchronized smart home ecosystem. Our certified IT and systems experts will install and seamlessly configure your smart devices, including voice assistants (Alexa/Google Home), smart thermostats (Nest), high-definition security cameras, video doorbells, and automated lighting networks.",
-    image: "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80",
+    description:
+      "Installation and integration of smart assistants, smart thermostats, security cameras, and smart lighting.",
+    longDescription:
+      "Modernize your living space with a fully synchronized smart home ecosystem. Our certified IT and systems experts will install and seamlessly configure your smart devices, including voice assistants (Alexa/Google Home), smart thermostats (Nest), high-definition security cameras, video doorbells, and automated lighting networks.",
+    image:
+      "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80",
     provider: "ByteSize Setup",
     providerAvatar: "BS",
     providerTier: "Top Rated",
-    badges: ["Certified Tech", "Smart Certified"]
+    badges: ["Certified Tech", "Smart Certified"],
   },
   {
     id: "s5",
@@ -103,13 +124,16 @@ const mockupServices: ServiceItem[] = [
     duration: "8 Hours",
     rating: 4.6,
     reviews: 43,
-    description: "Professional interior wall painting including surface preparation, priming, two finish coats, and clean up.",
-    longDescription: "Transform the look and mood of any room with our high-quality interior painting service. We handle everything from moving light furniture and laying protective dropsheets to wall preparation, minor plastering, priming, and applying two coats of premium low-VOC paint. We leave your walls immaculate.",
-    image: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=800&q=80",
+    description:
+      "Professional interior wall painting including surface preparation, priming, two finish coats, and clean up.",
+    longDescription:
+      "Transform the look and mood of any room with our high-quality interior painting service. We handle everything from moving light furniture and laying protective dropsheets to wall preparation, minor plastering, priming, and applying two coats of premium low-VOC paint. We leave your walls immaculate.",
+    image:
+      "https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=800&q=80",
     provider: "GoldAccent Decor",
     providerAvatar: "GA",
     providerTier: "Verified Expert",
-    badges: ["Premium Paint", "Insured"]
+    badges: ["Premium Paint", "Insured"],
   },
   {
     id: "s6",
@@ -120,13 +144,16 @@ const mockupServices: ServiceItem[] = [
     duration: "2 Hours",
     rating: 4.8,
     reviews: 110,
-    description: "TV mounting, furniture assembly, hanging pictures, cabinet repairs, and other light home handyman tasks.",
-    longDescription: "Clear your weekend to-do list with a professional handyman service. Our skilled technicians are equipped for a wide range of light installations, TV wall mounting, heavy-duty shelving installation, door handle repairs, cabinet hinge tuning, and assembling complex flat-pack furniture with utmost speed and accuracy.",
-    image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80",
+    description:
+      "TV mounting, furniture assembly, hanging pictures, cabinet repairs, and other light home handyman tasks.",
+    longDescription:
+      "Clear your weekend to-do list with a professional handyman service. Our skilled technicians are equipped for a wide range of light installations, TV wall mounting, heavy-duty shelving installation, door handle repairs, cabinet hinge tuning, and assembling complex flat-pack furniture with utmost speed and accuracy.",
+    image:
+      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80",
     provider: "FixIt Handymen",
     providerAvatar: "FI",
     providerTier: "Level 1 Seller",
-    badges: ["Multi-Skilled", "Quick Dispatch"]
+    badges: ["Multi-Skilled", "Quick Dispatch"],
   },
   {
     id: "s7",
@@ -137,13 +164,16 @@ const mockupServices: ServiceItem[] = [
     duration: "1.5 Hours",
     rating: 4.9,
     reviews: 74,
-    description: "Secure wall mounting of smart TVs on drywalls or masonry surfaces, with hidden cabling channels included.",
-    longDescription: "Get the perfect viewing angle with our professional television mounting service. We carefully locate structural wall studs, securely mount heavy-duty brackets, hide cables in sleek surface-mounted tracks, and connect your smart devices to ensure everything functions perfectly.",
-    image: "https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&w=800&q=80",
+    description:
+      "Secure wall mounting of smart TVs on drywalls or masonry surfaces, with hidden cabling channels included.",
+    longDescription:
+      "Get the perfect viewing angle with our professional television mounting service. We carefully locate structural wall studs, securely mount heavy-duty brackets, hide cables in sleek surface-mounted tracks, and connect your smart devices to ensure everything functions perfectly.",
+    image:
+      "https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&w=800&q=80",
     provider: "MountTech Pro",
     providerAvatar: "MT",
     providerTier: "Top Rated",
-    badges: ["Brackets Loaded", "1-Year Warranty"]
+    badges: ["Brackets Loaded", "1-Year Warranty"],
   },
   {
     id: "s8",
@@ -154,13 +184,276 @@ const mockupServices: ServiceItem[] = [
     duration: "4 Hours",
     rating: 4.8,
     reviews: 153,
-    description: "Professional packing, loading, and safe truck transport of light household furniture items locally.",
-    longDescription: "Minimize moving stress with our professional helpers. This service includes two vetted moving experts, a clean container van truck, furniture blankets, loading, transporting, and unpacking your possessions safely at your new location.",
-    image: "https://images.unsplash.com/photo-1603796846097-bee99e4a60c9?auto=format&fit=crop&w=800&q=80",
+    description:
+      "Professional packing, loading, and safe truck transport of light household furniture items locally.",
+    longDescription:
+      "Minimize moving stress with our professional helpers. This service includes two vetted moving experts, a clean container van truck, furniture blankets, loading, transporting, and unpacking your possessions safely at your new location.",
+    image:
+      "https://images.unsplash.com/photo-1603796846097-bee99e4a60c9?auto=format&fit=crop&w=800&q=80",
     provider: "QuickShift Crew",
     providerAvatar: "QS",
     providerTier: "Level 2 Seller",
-    badges: ["Truck Included", "Damage Protected"]
+    badges: ["Truck Included", "Damage Protected"],
+  },
+  {
+    id: "s9",
+    name: "Deep Kitchen & Bathroom Sanitization Service",
+    category: "Cleaning",
+    subCategory: "Deep Clean",
+    price: 180,
+    duration: "4 Hours",
+    rating: 4.9,
+    reviews: 112,
+    description:
+      "Intensive sanitization for stubborn grease, grime, limescale, and deep dirt in your kitchen and bathrooms.",
+    longDescription:
+      "Our deep sanitization package targets areas that accumulate the most buildup. We scrub and degrease ovens, range hoods, inside microwaves, and wipe down cupboards. In bathrooms, we remove tough soap scum, limescale, sanitize toilets, showers, and deep-clean tile grout. We leave your high-use areas completely pristine and bacteria-free.",
+    image:
+      "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=800&q=80",
+    provider: "Sanitize Pro",
+    providerAvatar: "SP",
+    providerTier: "Top Rated",
+    badges: ["Sanitized Clean", "Verified Expert"],
+  },
+  {
+    id: "s10",
+    name: "Professional Carpet Steam Cleaning & Stain Removal",
+    category: "Cleaning",
+    subCategory: "Carpet Clean",
+    price: 130,
+    duration: "3 Hours",
+    rating: 4.8,
+    reviews: 79,
+    description:
+      "Heavy-duty steam extraction cleaning for carpets and rugs. Targets deep stains, pet odors, and allergens.",
+    longDescription:
+      "Revitalize your carpets with our professional steam extraction cleaning. We pre-treat high-traffic areas and tough stains, then use high-powered industrial steam equipment to lift embedded dirt, bacteria, pet dander, and odors. Safe for kids and pets, drying within hours.",
+    image:
+      "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=800&q=80",
+    provider: "CarpetFresh",
+    providerAvatar: "CF",
+    providerTier: "Level 1 Seller",
+    badges: ["Stain Free Guarantee", "Eco-friendly"],
+  },
+  {
+    id: "s11",
+    name: "Complete Interior & Exterior Window Washing",
+    category: "Cleaning",
+    subCategory: "Window Wash",
+    price: 95,
+    duration: "2.5 Hours",
+    rating: 4.7,
+    reviews: 58,
+    description:
+      "Streak-free washing for interior and exterior glass windows, including screens and window sill detailing.",
+    longDescription:
+      "Bring maximum natural light back into your home. Our window cleaners wash all interior and exterior glass panels with specialized streak-free formulas. The service includes dusting window screens, cleaning frames, and wiping down sills to ensure a perfect finish.",
+    image:
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80",
+    provider: "ClearView Glass",
+    providerAvatar: "CG",
+    providerTier: "Level 2 Seller",
+    badges: ["Streak-free", "Insured"],
+  },
+  {
+    id: "s12",
+    name: "Hedge Sculpting, Shrub Trimming & Garden Cleanup",
+    category: "Gardening",
+    subCategory: "Hedge Trimming",
+    price: 110,
+    duration: "2.5 Hours",
+    rating: 4.6,
+    reviews: 64,
+    description:
+      "Precision trimming of hedges, bushes, and decorative shrubs, complete with green waste disposal.",
+    longDescription:
+      "Keep your garden looking structured and clean. Our landscaping experts shape and trim overgrown hedges, prune shrubs to promote healthy growth, and clean up all resulting leaf and branch debris, leaving your yard immaculately styled.",
+    image:
+      "https://images.unsplash.com/photo-1592417817098-8f3d6eb19675?auto=format&fit=crop&w=800&q=80",
+    provider: "GreenThumb Pros",
+    providerAvatar: "GT",
+    providerTier: "Level 2 Seller",
+    badges: ["Tools Included", "Debris Disposed"],
+  },
+  {
+    id: "s13",
+    name: "Garden Bed Weeding, Soil Aeration & Mulching",
+    category: "Gardening",
+    subCategory: "Garden Weeding",
+    price: 85,
+    duration: "2 Hours",
+    rating: 4.8,
+    reviews: 41,
+    description:
+      "Removal of weeds from roots, loosening soil, and applying mulch to keep your garden beds fresh.",
+    longDescription:
+      "Clear out weeds before they take over. We hand-pull invasive weeds from the root, aerate and prepare the soil, and spread high-quality organic mulch to suppress future weed growth and retain soil moisture for your plants.",
+    image:
+      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=800&q=80",
+    provider: "EcoGarden Helpers",
+    providerAvatar: "EH",
+    providerTier: "Verified Expert",
+    badges: ["Eco-friendly", "Licensed Pro"],
+  },
+  {
+    id: "s14",
+    name: "Professional Branch Pruning & Safety Tree Trimming",
+    category: "Gardening",
+    subCategory: "Tree Pruning",
+    price: 175,
+    duration: "3 Hours",
+    rating: 4.9,
+    reviews: 82,
+    description:
+      "Safe trimming of low-hanging tree branches, deadwood removal, and shaping for safety and aesthetics.",
+    longDescription:
+      "Ensure safety and tree health with professional pruning. We cut back hazardous or dead branches overhanging roofs, paths, and power lines, and thin out crowns to allow wind and sunlight through, using certified arborist equipment.",
+    image:
+      "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80",
+    provider: "TimberCraft Arbo",
+    providerAvatar: "TA",
+    providerTier: "Top Rated",
+    badges: ["Licensed Pro", "Safety Certified"],
+  },
+  {
+    id: "s15",
+    name: "Kitchen & Bathroom Faucet and Light Fixture Installation",
+    category: "Repairs",
+    subCategory: "Fixture Installation",
+    price: 115,
+    duration: "2 Hours",
+    rating: 4.7,
+    reviews: 53,
+    description:
+      "Professional mounting and plumbing/electrical hookup of kitchen faucets, sink basins, and vanity lighting.",
+    longDescription:
+      "Upgrade your fixtures stress-free. Our technicians securely install and test modern kitchen or bathroom faucets, replace old light fixtures, install vanity bars, and ensure proper sealing and connection without leaks or short-circuits.",
+    image:
+      "https://images.unsplash.com/photo-1585144860106-998ca0f2922a?auto=format&fit=crop&w=800&q=80",
+    provider: "Apex Plumbing",
+    providerAvatar: "AP",
+    providerTier: "Verified Expert",
+    badges: ["1-Year Warranty", "Tools Included"],
+  },
+  {
+    id: "s16",
+    name: "High-Speed Router Setup & Whole-Home Mesh Wi-Fi Config",
+    category: "Technical",
+    subCategory: "Router Setup",
+    price: 95,
+    duration: "1.5 Hours",
+    rating: 4.8,
+    reviews: 37,
+    description:
+      "Configure your home router, optimize Wi-Fi channels, set up mesh nodes, and secure your network connection.",
+    longDescription:
+      "Eliminate internet dead zones. Our technician will optimize your internet service provider's router, set up multi-node mesh Wi-Fi systems for maximum coverage, configure a secure password, and assist in connecting all your smart devices.",
+    image:
+      "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80",
+    provider: "ByteSize Setup",
+    providerAvatar: "BS",
+    providerTier: "Top Rated",
+    badges: ["Certified Tech", "Same-Day Fix"],
+  },
+  {
+    id: "s17",
+    name: "Smart Security Camera Installation & App Integration",
+    category: "Technical",
+    subCategory: "Camera Install",
+    price: 160,
+    duration: "2.5 Hours",
+    rating: 4.9,
+    reviews: 69,
+    description:
+      "Mounting and configuration of outdoor/indoor smart security cameras (Ring, Nest, Arlo) with mobile integration.",
+    longDescription:
+      "Keep an eye on your home from anywhere. We mount smart cameras on exterior walls, set up solar panels or wiring, connect them to your home network, and configure motion alerts and activity zones on your mobile applications.",
+    image:
+      "https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&w=800&q=80",
+    provider: "SecureTech Pros",
+    providerAvatar: "ST",
+    providerTier: "Verified Expert",
+    badges: ["Insured", "Smart Certified"],
+  },
+  {
+    id: "s18",
+    name: "Desktop & Laptop Hardware/Software Performance Diagnostic",
+    category: "Technical",
+    subCategory: "Device Diagnostic",
+    price: 75,
+    duration: "1 Hour",
+    rating: 4.5,
+    reviews: 28,
+    description:
+      "Troubleshoot slow computers, install operating system updates, remove malware, and resolve system crashes.",
+    longDescription:
+      "Get your computer running like new. We run full diagnostic checks, clean out clutter files, upgrade RAM or SSDs if requested, remove viruses, and resolve driver conflicts that cause slow performance or blue screen crashes.",
+    image:
+      "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80",
+    provider: "ByteSize Setup",
+    providerAvatar: "BS",
+    providerTier: "Top Rated",
+    badges: ["Certified Tech", "Quick Diagnosis"],
+  },
+  {
+    id: "s19",
+    name: "Premium Furniture Painting, Refinishing & Varnishing",
+    category: "Design",
+    subCategory: "Furniture Paint",
+    price: 210,
+    duration: "5 Hours",
+    rating: 4.8,
+    reviews: 35,
+    description:
+      "Refinish old wooden tables, chairs, or cabinets with high-quality staining, varnishing, or custom paint colors.",
+    longDescription:
+      "Breathe new life into your furniture. Our restoration experts sand down old finishes, patch minor cracks or dents, and apply premium stains, sealants, or decorative paint colors to give your wooden furniture a high-end, durable look.",
+    image:
+      "https://images.unsplash.com/photo-1505693395321-883724634266?auto=format&fit=crop&w=800&q=80",
+    provider: "GoldAccent Decor",
+    providerAvatar: "GA",
+    providerTier: "Verified Expert",
+    badges: ["Premium Paint", "Insured"],
+  },
+  {
+    id: "s20",
+    name: "Precision Wallpaper Installation & Old Paper Strip-down",
+    category: "Design",
+    subCategory: "Wallpaper Install",
+    price: 290,
+    duration: "6 Hours",
+    rating: 4.7,
+    reviews: 49,
+    description:
+      "Professional stripping of old wallpaper, wall priming, and matching patterned wallpaper hangings.",
+    longDescription:
+      "Get seamless wallpaper application. We strip existing wall coverings, sand and prime walls, measure precisely to ensure pattern matches, and hang wallpaper using commercial-grade adhesive for a long-lasting, bubble-free finish.",
+    image:
+      "https://images.unsplash.com/photo-1615529182904-14819c35db37?auto=format&fit=crop&w=800&q=80",
+    provider: "GoldAccent Decor",
+    providerAvatar: "GA",
+    providerTier: "Verified Expert",
+    badges: ["Insured", "Verified Expert"],
+  },
+  {
+    id: "s21",
+    name: "Interior Paint Color & Space Styling Consultation",
+    category: "Design",
+    subCategory: "Consultation",
+    price: 120,
+    duration: "1.5 Hours",
+    rating: 4.9,
+    reviews: 56,
+    description:
+      "On-site consultation to choose wall colors, accent layouts, furniture spacing, and decor elements.",
+    longDescription:
+      "Collaborate with a professional decorator to design your dream room. We assess room lighting, suggest cohesive color palettes, draw furniture layouts, and recommend accessories to optimize both the function and aesthetic of your space.",
+    image:
+      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80",
+    provider: "Interior Design Studio",
+    providerAvatar: "ID",
+    providerTier: "Top Rated",
+    badges: ["Certified Designer", "Top Rated"],
   }
 ];
 
@@ -172,47 +465,182 @@ const mainCategories = [
   { name: "Outdoor Help", icon: <TreePine size={24} />, value: "Gardening" },
   { name: "Home Repairs", icon: <Construction size={24} />, value: "Repairs" },
   { name: "Painting", icon: <Paintbrush size={24} />, value: "Design" },
-  { name: "Trending", icon: <Flame size={24} />, value: "All" }
+  { name: "Trending", icon: <Flame size={24} />, value: "All" },
 ];
 
 const subCategoryMap: Record<string, string[]> = {
-  All: ["All Services Available", "Verified Providers Only", "Popular Bookings"],
-  Cleaning: ["Standard Home Clean", "Deep Clean", "Carpet Clean", "Window Wash"],
-  Gardening: ["Lawn Mowing", "Hedge Trimming", "Garden Weeding", "Tree Pruning"],
-  Repairs: ["Leak Repair", "Fixture Installation", "Furniture Assemble", "TV Wall Mount"],
-  Technical: ["Smart Assistant", "Router Setup", "Camera Install", "Device Diagnostic"],
-  Design: ["Wall Painting", "Furniture Paint", "Wallpaper Install", "Consultation"]
+  All: ["All", "Verified Providers Only", "Popular Bookings"],
+  Cleaning: ["All", "Standard Home Clean", "Deep Clean", "Carpet Clean", "Window Wash"],
+  Gardening: ["All", "Lawn Mowing", "Hedge Trimming", "Garden Weeding", "Tree Pruning"],
+  Repairs: ["All", "Leak Repair", "Fixture Installation", "Furniture Assemble", "TV Wall Mount"],
+  Technical: ["All", "Smart Assistant", "Router Setup", "Camera Install", "Device Diagnostic"],
+  Design: ["All", "Wall Painting", "Furniture Paint", "Wallpaper Install", "Consultation"],
+};
+
+const ServiceMemeCard: React.FC<{
+  service: ServiceItem;
+  onClick: () => void;
+  style?: React.CSSProperties;
+}> = ({ service, onClick, style }) => {
+  return (
+    <div
+      onClick={onClick}
+      style={style}
+      className="
+        group relative w-full h-[340px] overflow-hidden rounded-2xl cursor-pointer anim-fade-up
+        bg-black transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl
+      "
+    >
+      {/* Full bleed photo */}
+      <img
+        src={service.image}
+        alt={service.name}
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+
+      {/* Dark gradient overlay — heavy at bottom */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0e1c]/95 via-[#0a0e1c]/45 to-[#0a0e1c]/10" />
+
+      {/* Rating pill — top left */}
+      <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-white/92 px-3 py-1 text-[11px] font-bold text-[#1A1A2E] backdrop-blur-sm">
+        <Star size={12} className="fill-[#C9A84C] text-[#C9A84C]" />
+        <span>{service.rating.toFixed(1)}</span>
+        <span className="text-black/30">•</span>
+        <span className="text-black/50 font-semibold">{service.reviews} Reviews</span>
+      </div>
+
+      {/* Bottom content */}
+      <div className="absolute bottom-0 left-0 right-0 z-10 p-4">
+        {/* Category label */}
+        <div className="text-[10px] font-bold uppercase tracking-widest text-white/60 mb-1">
+          {service.category}
+        </div>
+
+        {/* Big title */}
+        <div className="text-[20px] font-black leading-tight text-white mb-2">
+          {service.subCategory && service.subCategory !== "Popular Bookings"
+            ? service.subCategory
+            : service.category}
+        </div>
+
+        {/* Description */}
+        <p className="text-[11.5px] leading-relaxed text-white/70 line-clamp-2 mb-3">
+          {service.description}
+        </p>
+
+        {/* Footer row */}
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-white">
+            Explore Now →
+          </span>
+          <span className="text-[13px] font-black text-white">${service.price}</span>
+        </div>
+
+        {/* Animated gold underline */}
+        <div className="mt-2 h-[2px] w-9 bg-white/40 group-hover:bg-[#C9A84C] group-hover:w-12 transition-all duration-300 rounded-full" />
+      </div>
+    </div>
+  );
 };
 
 const ClientServices: React.FC = () => {
+  const navigate = useNavigate();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [activeSubFilter, setActiveSubFilter] = useState("All");
-  const [favorites, setFavorites] = useState<Record<string, boolean>>({});
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
+  const itemsPerPage = 6;
 
-  const toggleFavorite = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setFavorites(prev => ({
-      ...prev,
-      [id]: !prev[id]
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+    let W = (canvas.width = canvas.offsetWidth);
+    let H = (canvas.height = canvas.offsetHeight);
+
+    const resize = () => {
+      W = canvas.width = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+    };
+    window.addEventListener("resize", resize);
+
+    const particles = Array.from({ length: 55 }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.6 + 0.4,
+      vx: (Math.random() - 0.5) * 0.35,
+      vy: (Math.random() - 0.5) * 0.35,
+      alpha: Math.random() * 0.5 + 0.1,
     }));
-  };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, W, H);
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = W;
+        if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H;
+        if (p.y > H) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(201,168,76,${p.alpha})`;
+        ctx.fill();
+      }
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
+  // reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, activeSubFilter]);
 
   const filteredServices = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+
     return mockupServices.filter((service) => {
-      const matchesSearch = service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            service.description.toLowerCase().includes(searchQuery.toLowerCase());
-      
+      const matchesSearch =
+        q.length === 0 ||
+        service.name.toLowerCase().includes(q) ||
+        service.description.toLowerCase().includes(q);
+
       const matchesCategory = selectedCategory === "All" || service.category === selectedCategory;
-      
-      const matchesSubFilter = activeSubFilter === "All" || 
-                               activeSubFilter === "All Services Available" ||
-                               activeSubFilter === "Verified Providers Only" ||
-                               activeSubFilter === "Popular Bookings" ||
-                               service.subCategory === activeSubFilter;
-      
+
+      const matchesSubFilter = (() => {
+        if (activeSubFilter === "All") return true;
+
+        if (activeSubFilter === "Verified Providers Only") {
+          const tier = service.providerTier.toLowerCase();
+          const hasVerifiedTier = tier.includes("verified");
+          const hasVerifiedBadge = service.badges.some((b) => b.toLowerCase().includes("verified"));
+          const hasLicensedBadge = service.badges.some((b) => b.toLowerCase().includes("licensed"));
+          return hasVerifiedTier || hasVerifiedBadge || hasLicensedBadge;
+        }
+
+        if (activeSubFilter === "Popular Bookings") {
+          return (
+            service.reviews >= 100 ||
+            service.subCategory === "Popular Bookings" ||
+            service.badges.some((b) => b.toLowerCase().includes("top rated"))
+          );
+        }
+
+        return service.subCategory === activeSubFilter;
+      })();
+
       return matchesSearch && matchesCategory && matchesSubFilter;
     });
   }, [searchQuery, selectedCategory, activeSubFilter]);
@@ -220,12 +648,20 @@ const ClientServices: React.FC = () => {
   const handleCategorySelect = (value: string) => {
     setSelectedCategory(value);
     setActiveSubFilter("All");
+    setCurrentPage(1);
   };
 
   const subFilters = subCategoryMap[selectedCategory] || subCategoryMap["All"];
 
+  // Pagination
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedServices = filteredServices.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(filteredServices.length / itemsPerPage);
+
   return (
-    <div className="services-page-nav min-h-screen bg-[#F5F0E8]/20 font-sans antialiased text-[#1A1A2E] 
+    <div
+      className="services-page-nav min-h-screen bg-[#F5F0E8]/20 font-sans antialiased text-[#1A1A2E] 
       [&_.header-container]:bg-white/95 
       [&_.header-container]:backdrop-blur-md 
       [&_.header-container]:-webkit-backdrop-filter:blur(12px) 
@@ -251,23 +687,40 @@ const ClientServices: React.FC = () => {
     >
       <Header />
 
-      {/* Styled Entry Keyframe Animation */}
       <style>{`
         @keyframes pageFadeUp {
-          from {
-            opacity: 0;
-            transform: translateY(14px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(14px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-        .anim-fade-up {
-          animation: pageFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+        .anim-fade-up { animation: pageFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+        .ccw__canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+        .ccw__grid {
+          position: absolute; inset: 0;
+          background-image:
+            linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+          background-size: 80px 80px;
+          pointer-events: none;
         }
 
-        /* Global Priority Font override */
+        .ccw__blob { position: absolute; border-radius: 50%; filter: blur(100px); pointer-events: none; }
+        .ccw__blob--1 {
+          width: 600px; height: 600px;
+          background: radial-gradient(circle, rgba(201,168,76,0.18) 0%, transparent 70%);
+          top: -140px; right: -120px;
+          animation: blobFloat1 9s ease-in-out infinite alternate;
+        }
+        .ccw__blob--2 {
+          width: 400px; height: 400px;
+          background: radial-gradient(circle, rgba(0,140,255,0.12) 0%, transparent 70%);
+          bottom: -60px; left: -80px;
+          animation: blobFloat2 12s ease-in-out infinite alternate;
+        }
+        @keyframes blobFloat1 { from { transform: translate(0,0) scale(1); } to { transform: translate(30px,-40px) scale(1.08); } }
+        @keyframes blobFloat2 { from { transform: translate(0,0) scale(1); } to { transform: translate(-20px,30px) scale(1.05); } }
+
         .services-page-nav, 
         .services-page-nav *, 
         .services-page-nav button, 
@@ -281,41 +734,19 @@ const ClientServices: React.FC = () => {
         }
       `}</style>
 
-      {/* TaskRabbit-Inspired Premium Header Section */}
-      <section className="relative pt-36 pb-12 bg-white border-b border-black/3 overflow-hidden min-h-115 flex flex-col justify-center">
-        
-        {/* Left Side Organic Abstract Graphics */}
-        <div className="absolute left-0 top-[20%] -translate-x-[20%] w-60 h-60 rounded-full bg-[#1A1A2E]/5 z-0 pointer-events-none" />
-        <div className="absolute left-[3%] top-[35%] w-48 h-48 rounded-full bg-[#C9A84C]/5 z-0 pointer-events-none" />
-        <div className="absolute left-[1%] top-[55%] flex flex-col gap-2 opacity-15 pointer-events-none">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="flex gap-2">
-              {Array.from({ length: 8 }).map((_, j) => (
-                <div key={j} className="w-1.5 h-1.5 rounded-full bg-[#1A1A2E]" />
-              ))}
-            </div>
-          ))}
-        </div>
+      <section className="relative pt-36 pb-12 bg-[#0a1628] border-b border-black/3 overflow-hidden min-h-115 flex flex-col justify-center">
+        <canvas ref={canvasRef} className="ccw__canvas" />
+        <div className="ccw__grid" />
+        <div className="ccw__blob ccw__blob--1" />
+        <div className="ccw__blob ccw__blob--2" />
 
-        {/* Right Side Organic Abstract Graphics */}
-        <div className="absolute right-0 top-[15%] translate-x-[15%] w-72 h-72 rounded-full bg-[#C9A84C]/5 z-0 pointer-events-none" />
-        <div className="absolute right-[4%] top-[25%] w-16 h-16 rounded-full border-[3px] border-[#C9A84C]/25 z-0 pointer-events-none" />
-        <div className="absolute right-[2%] top-[45%] flex flex-col gap-2.5 opacity-20 pointer-events-none">
-          <div className="w-10 h-10 rounded-full bg-[#1A1A2E]/5" />
-          <div className="w-14 h-14 rounded-full bg-[#C9A84C]/5" />
-        </div>
-
-        {/* Center Content Wrapper */}
         <div className="max-w-7xl mx-auto px-6 relative z-10 w-full text-center flex flex-col items-center">
-          
-          {/* Main TaskRabbit-styled centered Headline */}
-          <h1 className="text-4xl md:text-5xl lg:text-6.5xl font-black text-[#1A1A2E] tracking-tight leading-[1.05] max-w-2xl font-sans mb-8 anim-fade-up">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.05] max-w-2xl font-sans mb-8 anim-fade-up">
             Book trusted help <br /> for home tasks
           </h1>
 
-          {/* Large Pill Centered Search Bar */}
           <div className="w-full max-w-xl relative group mb-10 anim-fade-up" style={{ animationDelay: "80ms" }}>
-            <div className="relative flex items-center bg-white border border-black/15 hover:border-black/25 rounded-full shadow-sm overflow-hidden focus-within:border-[#1A1A2E] focus-within:ring-2 focus-within:ring-[#1A1A2E]/5 transition-all">
+            <div className="relative flex items-center bg-white/95 backdrop-blur border border-white/20 hover:border-white/40 rounded-full shadow-sm overflow-hidden focus-within:border-white focus-within:ring-2 focus-within:ring-white/20 transition-all">
               <input
                 type="text"
                 placeholder="What do you need help with?"
@@ -329,7 +760,6 @@ const ClientServices: React.FC = () => {
             </div>
           </div>
 
-          {/* Horizontal Category Icons Selector (TaskRabbit exact reproduction using BRAND colors) */}
           <div className="w-full max-w-5xl overflow-x-auto pb-4 scrollbar-none anim-fade-up" style={{ animationDelay: "150ms" }}>
             <div className="flex justify-start md:justify-center items-center gap-6 md:gap-10 px-2 shrink-0">
               {mainCategories.map((cat) => {
@@ -340,24 +770,25 @@ const ClientServices: React.FC = () => {
                     onClick={() => handleCategorySelect(cat.value)}
                     className="flex flex-col items-center gap-2 group cursor-pointer shrink-0 transition-all"
                   >
-                    {/* Circle icon bubbles using Deep Blue (#1A1A2E) & Gold (#C9A84C) */}
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center border-2 transition-all ${
-                      isActive 
-                        ? "bg-[#1A1A2E] border-[#1A1A2E] text-[#C9A84C] scale-105 shadow-md shadow-[#1A1A2E]/10" 
-                        : "bg-white border-black/10 text-black/55 group-hover:border-[#1A1A2E] group-hover:text-[#1A1A2E] group-hover:bg-[#F5F0E8]/20"
-                    }`}>
+                    <div
+                      className={`w-16 h-16 rounded-full flex items-center justify-center border-2 transition-all ${
+                        isActive
+                          ? "bg-[#1A1A2E] border-[#1A1A2E] text-[#C9A84C] scale-105 shadow-md shadow-[#1A1A2E]/10"
+                          : "bg-white/10 border-white/15 text-white/80 group-hover:border-[#C9A84C]/60 group-hover:text-[#C9A84C] group-hover:bg-white/15"
+                      }`}
+                    >
                       {cat.icon}
                     </div>
-                    {/* Active label underline in Gold (#C9A84C) */}
+
                     <div className="flex flex-col items-center">
-                      <span className={`text-[11px] font-bold uppercase tracking-wider transition-colors ${
-                        isActive ? "text-[#1A1A2E] font-extrabold" : "text-black/50 group-hover:text-[#1A1A2E]"
-                      }`}>
+                      <span
+                        className={`text-[11px] font-bold uppercase tracking-wider transition-colors ${
+                          isActive ? "text-white font-extrabold" : "text-white/80 group-hover:text-white"
+                        }`}
+                      >
                         {cat.name}
                       </span>
-                      {isActive && (
-                        <div className="h-0.75 w-5 bg-[#C9A84C] rounded mt-0.5" />
-                      )}
+                      {isActive && <div className="h-[3px] w-5 bg-[#C9A84C] rounded mt-1" />}
                     </div>
                   </button>
                 );
@@ -365,7 +796,6 @@ const ClientServices: React.FC = () => {
             </div>
           </div>
 
-          {/* Horizontal Sub-Category Pill Buttons (Dynamic matching) */}
           <div className="w-full max-w-3xl overflow-x-auto pt-6 scrollbar-none anim-fade-up" style={{ animationDelay: "200ms" }}>
             <div className="flex justify-start md:justify-center items-center gap-2.5 shrink-0 px-2">
               {subFilters.map((sub) => {
@@ -373,11 +803,14 @@ const ClientServices: React.FC = () => {
                 return (
                   <button
                     key={sub}
-                    onClick={() => setActiveSubFilter(sub)}
-                    className={`h-9 px-4.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer border ${
+                    onClick={() => {
+                      setActiveSubFilter(sub);
+                      setCurrentPage(1);
+                    }}
+                    className={`h-9 px-4 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer border ${
                       isSubActive
-                        ? "bg-white border-[#1A1A2E] text-[#1A1A2E] font-extrabold shadow-xs"
-                        : "bg-[#F5F0E8]/40 border-black/5 text-black/60 hover:bg-[#F5F0E8]/70 hover:text-black/80"
+                        ? "bg-white border-white text-[#1A1A2E] font-extrabold shadow-sm"
+                        : "bg-white/8 border-white/12 text-white/80 hover:bg-white/15 hover:text-white"
                     }`}
                   >
                     {sub}
@@ -386,21 +819,27 @@ const ClientServices: React.FC = () => {
               })}
             </div>
           </div>
-
         </div>
       </section>
 
-      {/* Main Grid Catalogue Area (Fiverr-Inspired Elegant Layout) */}
       <section className="max-w-7xl mx-auto px-6 py-14">
-        
-        {/* Grid Header summary info */}
         <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-black/35 border-b border-black/4 pb-3 mb-10 anim-fade-up">
-          <span>{filteredServices.length} Services Available</span>
-          {(selectedCategory !== "All" || activeSubFilter !== "All") && (
+          <span>
+            {filteredServices.length} Services Available{" "}
+            {totalPages > 1 && (
+              <span className="ml-2 normal-case tracking-normal text-black/30 font-semibold">
+                • Page {currentPage} / {totalPages}
+              </span>
+            )}
+          </span>
+
+          {(selectedCategory !== "All" || activeSubFilter !== "All" || searchQuery.trim() !== "") && (
             <button
               onClick={() => {
+                setSearchQuery("");
                 setSelectedCategory("All");
                 setActiveSubFilter("All");
+                setCurrentPage(1);
               }}
               className="text-[#C9A84C] hover:underline cursor-pointer"
             >
@@ -418,102 +857,80 @@ const ClientServices: React.FC = () => {
             </p>
           </div>
         ) : (
-          /* Fiverr-Inspired Premium Gig Grid (3 Columns on Desktop) */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-            {filteredServices.map((service, index) => (
-              <div
-                key={service.id}
-                onClick={() => setSelectedService(service)}
-                style={{ animationDelay: `${50 + index * 40}ms` }}
-                className="group bg-white rounded-xl border border-black/6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-black/12 flex flex-col cursor-pointer anim-fade-up"
-              >
-                {/* Fiverr-Style Gig Thumbnail (aspect-video h-48) */}
-                <div className="h-48 relative overflow-hidden shrink-0">
-                  <img
-                    src={service.image}
-                    alt={service.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
-                  />
-                  {/* Floating Category tag */}
-                  <span className="absolute top-3 left-3 bg-[#1A1A2E] text-white text-[8px] font-bold uppercase tracking-widest px-2.5 py-1 rounded">
-                    {service.category}
-                  </span>
-                </div>
+          <>
+            {/* MEME-STYLE CARDS (like your image) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              {paginatedServices.map((service, index) => (
+                <ServiceMemeCard
+                  key={service.id}
+                  service={service}
+                  onClick={() => navigate(`/services/${service.id}`)}
+                  style={{ animationDelay: `${50 + index * 40}ms` }}
+                />
+              ))}
+            </div>
 
-                {/* Fiverr-Style Body details */}
-                <div className="p-5 flex-1 flex flex-col space-y-3">
-                  
-                  {/* Seller/Provider Profile row (Fiverr signature) */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {/* Avatar Circle */}
-                      <div className="w-6.5 h-6.5 rounded-full bg-[#1A1A2E] text-[#C9A84C] text-[10px] font-extrabold flex items-center justify-center border border-[#C9A84C]/25">
-                        {service.providerAvatar}
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[11px] font-bold text-black/85">{service.provider}</span>
-                        <span className="text-[9px] text-[#C9A84C] font-extrabold tracking-wider uppercase">{service.providerTier}</span>
-                      </div>
-                    </div>
-                  </div>
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-3 pb-8 anim-fade-up">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 rounded-lg border border-black/10 text-[13px] font-semibold text-[#1A1A2E] transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:bg-[#F5F0E8] hover:enabled:border-black/20"
+                >
+                  Previous
+                </button>
 
-                  {/* Gig Title (Comfortable height, standard text sizes, bold on hover) */}
-                  <h3 className="text-[14px] md:text-[15px] font-medium text-black/85 leading-snug group-hover:text-[#C9A84C] transition-colors line-clamp-2 pt-1 h-11">
-                    I will provide {service.name.toLowerCase()}
-                  </h3>
+                <div className="flex items-center gap-2">
+                  {[...Array(totalPages)].map((_, idx) => {
+                    const page = idx + 1;
+                    const isActive = page === currentPage;
+                    const isVisible = Math.abs(page - currentPage) <= 1 || page === 1 || page === totalPages;
 
-                  {/* Rating row with stars (Fiverr exact display) */}
-                  <div className="flex items-center gap-1 text-[11px] font-bold text-black/90">
-                    <Star size={12} className="fill-[#C9A84C] text-[#C9A84C]" />
-                    <span className="text-[#C9A84C]">{service.rating}</span>
-                    <span className="text-black/45 font-medium">({service.reviews})</span>
-                  </div>
+                    if (!isVisible) {
+                      if (page === 2 && currentPage > 3)
+                        return (
+                          <span key={page} className="text-black/30">
+                            ...
+                          </span>
+                        );
+                      if (page === totalPages - 1 && currentPage < totalPages - 2)
+                        return (
+                          <span key={page} className="text-black/30">
+                            ...
+                          </span>
+                        );
+                      return null;
+                    }
 
-                  {/* Styled Option Badges (Compact) */}
-                  <div className="flex flex-wrap gap-1 pt-1">
-                    {service.badges.slice(0, 2).map((badge) => (
-                      <span 
-                        key={badge}
-                        className="text-[9px] font-semibold tracking-wide px-2 py-0.5 rounded bg-[#F5F0E8]/70 text-[#1A1A2E]/80 border border-black/4"
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-9 h-9 rounded-lg text-[13px] font-bold transition-all ${
+                          isActive
+                            ? "bg-[#1A1A2E] text-white"
+                            : "border border-black/10 text-[#1A1A2E] hover:bg-[#F5F0E8] hover:border-black/20"
+                        }`}
                       >
-                        {badge}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Fiverr-Style Divider & Footer layout */}
-                  <div className="border-t border-black/5 pt-3.5 mt-auto flex items-center justify-between">
-                    {/* Left heart bookmark icon (Fiverr signature) */}
-                    <button 
-                      onClick={(e) => toggleFavorite(service.id, e)}
-                      className="p-1 text-black/35 hover:text-red-500 transition-colors"
-                    >
-                      <Heart 
-                        size={16} 
-                        className={favorites[service.id] ? "fill-red-500 text-red-500" : "text-black/30"} 
-                      />
-                    </button>
-
-                    {/* Right starting price block */}
-                    <div className="text-right">
-                      <span className="block text-[8px] tracking-wider text-black/40 font-bold uppercase">Starting At</span>
-                      <span className="text-lg font-extrabold text-[#1A1A2E] leading-none">${service.price}</span>
-                    </div>
-                  </div>
-
+                        {page}
+                      </button>
+                    );
+                  })}
                 </div>
+
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 rounded-lg border border-black/10 text-[13px] font-semibold text-[#1A1A2E] transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:bg-[#F5F0E8] hover:enabled:border-black/20"
+                >
+                  Next
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </section>
-
-      {/* Modern Modular ServiceDetail Modal Component overlay */}
-      <ServiceDetail 
-        service={selectedService} 
-        onClose={() => setSelectedService(null)} 
-      />
-
       <div className="services-page-nav-footer">
         <Footer />
       </div>

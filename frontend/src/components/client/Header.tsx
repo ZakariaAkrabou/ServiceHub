@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../app/store/store";
 import { logout } from "../../app/slices/AuthSlice";
@@ -15,6 +15,9 @@ const Header: React.FC = () => {
   const [logoutMutation] = useLogoutMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isLight = location.pathname === "/services";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -79,27 +82,84 @@ const Header: React.FC = () => {
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
+        /* Light Navbar overrides for /services page */
+        .header-container.light {
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border-bottom: 1px solid rgba(26, 26, 46, 0.08);
+        }
+        
+        .header-container.light.scrolled {
+          background: rgba(255, 255, 255, 0.96);
+          border-bottom: 1px solid rgba(26, 26, 46, 0.12);
+        }
+
+        .header-container.light .nav-links a {
+          color: #1A1A2E;
+        }
+
+        .header-container.light .nav-links a::after {
+          background: #c9a84c;
+        }
+
+        .header-container.light .nav-links a:hover {
+          color: #c9a84c;
+        }
+
+        .header-container.light .btn-login {
+          color: #1A1A2E;
+          border-color: rgba(26, 26, 46, 0.18);
+          background: rgba(26, 26, 46, 0.03);
+        }
+
+        .header-container.light .btn-login:hover {
+          background: rgba(26, 26, 46, 0.07);
+          border-color: rgba(26, 26, 46, 0.35);
+        }
+
+        .header-container.light .btn-cta {
+          background: #1A1A2E;
+          color: #ffffff;
+          box-shadow: 0 4px 15px rgba(26, 26, 46, 0.15);
+        }
+
+        .header-container.light .btn-cta:hover {
+          background: #2e2e4e;
+          box-shadow: 0 8px 25px rgba(26, 26, 46, 0.25);
+        }
+
+        .header-container.light .profile-trigger {
+          background: rgba(26, 26, 46, 0.03);
+          border-color: rgba(26, 26, 46, 0.12);
+        }
+
+        .header-container.light .profile-trigger:hover {
+          background: rgba(26, 26, 46, 0.08);
+          border-color: rgba(26, 26, 46, 0.25);
+        }
+
+        .header-container.light .mobile-btn span {
+          background: #1A1A2E;
+        }
+
+        .header-container.light .mobile-overlay {
+          background: #ffffff;
+        }
+
+        .header-container.light .mobile-overlay a {
+          color: #1A1A2E;
+        }
+
+        .header-container.light .mobile-overlay a:hover {
+          color: #c9a84c;
+        }
+
         .logo-link {
           text-decoration: none;
           z-index: 1100;
           display: inline-flex;
           align-items: center;
-        }
-
-        .logo-img {
-          height: 100px;
-          width: auto;
-          transition: all 0.4s ease;
-          display: block;
-        }
-
-        .header-container.scrolled .logo-text {
-          font-size: 22px;
-        }
-
-        .logo-link:hover .logo-text,
-        .logo-link:hover .logo-img {
-          transform: scale(1.05);
         }
 
         .logo-img {
@@ -111,6 +171,10 @@ const Header: React.FC = () => {
 
         .header-container.scrolled .logo-img {
           height: 32px;
+        }
+
+        .logo-link:hover .logo-img {
+          transform: scale(1.05);
         }
 
         .nav-links {
@@ -395,7 +459,7 @@ const Header: React.FC = () => {
         }
       `}</style>
 
-      <header className={`header-container ${scrolled ? 'scrolled' : ''}`}>
+      <header className={`header-container ${scrolled ? 'scrolled' : ''} ${isLight ? 'light' : ''}`}>
         <Link to="/" className="logo-link">
           <img src={logoServiceHub} alt="ServiceHub Logo" className="logo-img" />
         </Link>
@@ -420,7 +484,7 @@ const Header: React.FC = () => {
                     <User size={20} className="text-[#F6E304]" />
                   )}
                 </div>
-                <ChevronDown size={16} className={`text-white transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
+                <ChevronDown size={16} className={`transition-transform ${isLight ? 'text-[#1A1A2E]' : 'text-white'} ${showDropdown ? 'rotate-180' : ''}`} />
               </div>
 
               <div className={`dropdown-menu ${showDropdown ? 'active' : ''}`}>

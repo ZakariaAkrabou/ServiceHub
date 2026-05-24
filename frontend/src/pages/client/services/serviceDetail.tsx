@@ -247,7 +247,7 @@ const ServiceDetail: React.FC = () => {
           className="absolute inset-0 w-full h-full object-cover opacity-35 object-center pointer-events-none"
         />
 
-        <div className="max-w-7xl mx-auto px-6 relative z-10 w-full flex flex-col items-start anim-fade-up">
+        <div className="px-6 md:px-12 relative z-10 w-full flex flex-col items-start anim-fade-up">
           <button
             onClick={() => navigate("/services")}
             id="back-to-services-btn"
@@ -283,7 +283,7 @@ const ServiceDetail: React.FC = () => {
       </section>
 
       {/* Main Content Details Grid */}
-      <section className="max-w-7xl mx-auto px-6 py-12">
+      <section className="px-6 md:px-12 py-12 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Left Columns - Details */}
           <div className="lg:col-span-2 space-y-10">

@@ -5,6 +5,7 @@ import type { RootState } from "../../app/store/store";
 import { logout } from "../../app/slices/AuthSlice";
 import { User, LogOut, ChevronDown, UserCircle, Settings, LayoutDashboard, Bell } from "lucide-react";
 import logoServiceHub from "../../assets/log3.png";
+import logoBleu from "../../assets/logobleu.png";
 import { useLogoutMutation } from "../../app/api/AuthApi";
 
 const Header: React.FC = () => {
@@ -18,7 +19,7 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isLight = location.pathname === "/services" || location.pathname.startsWith("/services/") || location.pathname === "/profile";
+  const isLight = location.pathname === "/profile";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -318,6 +319,49 @@ const Header: React.FC = () => {
           color: #ff4d4d;
         }
 
+        .header-container.light {
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-container.light.scrolled {
+          background: rgba(255, 255, 255, 0.98);
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+          box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
+        }
+
+
+
+        .header-container.light .nav-links a {
+          color: #1a1a2e;
+        }
+
+        .header-container.light .nav-links a:hover {
+          color: #c9a84c;
+          text-shadow: none;
+        }
+
+        .header-container.light .btn-login {
+          color: #1a1a2e;
+          border-color: rgba(26,26,46,0.15);
+          background: rgba(26,26,46,0.05);
+        }
+
+        .header-container.light .btn-login:hover {
+          background: rgba(26,26,46,0.1);
+        }
+
+        .header-container.light .mobile-btn span {
+          background: #1a1a2e;
+        }
+
+        .header-container.light .mobile-btn.active span {
+          background: #c9a84c;
+        }
+
         /* Mobile Menu Button */
         .mobile-btn {
           display: none;
@@ -443,7 +487,7 @@ const Header: React.FC = () => {
 
       <header className={`header-container ${scrolled ? 'scrolled' : ''} ${isLight ? 'light' : ''}`}>
         <Link to="/" className="logo-link">
-          <img src={logoServiceHub} alt="ServiceHub Logo" className="logo-img" />
+          <img src={isLight ? logoBleu : logoServiceHub} alt="ServiceHub Logo" className="logo-img" />
         </Link>
 
         <nav className="nav-links">

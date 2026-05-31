@@ -412,30 +412,7 @@ const ClientServices: React.FC = () => {
   const totalPages = Math.ceil(filteredServices.length / itemsPerPage);
 
   return (
-    <div
-      className="services-page-nav min-h-screen bg-[#F5F0E8]/20 font-sans antialiased text-[#1A1A2E] 
-      [&_.header-container]:bg-white/95 
-      [&_.header-container]:backdrop-blur-md 
-      [&_.header-container]:-webkit-backdrop-filter:blur(12px) 
-      [&_.header-container]:border-b 
-      [&_.header-container]:border-black/5 
-      [&_.header-container]:shadow-sm
-      [&_.nav-links_a]:text-[#1A1A2E] 
-      hover:[&_.nav-links_a]:text-[#C9A84C]
-      [&_.nav-links_a::after]:bg-[#C9A84C]
-      [&_.btn-login]:text-[#1A1A2E] 
-      [&_.btn-login]:border-[#1A1A2E]/15 
-      [&_.btn-login]:bg-[#1A1A2E]/5 
-      hover:[&_.btn-login]:bg-[#1A1A2E]/10
-      [&_.btn-cta]:bg-[#1A1A2E] 
-      [&_.btn-cta]:text-white 
-      hover:[&_.btn-cta]:bg-[#2e2e4e]
-      [&_.profile-trigger]:border-[#1A1A2E]/10
-      [&_.profile-trigger]:bg-[#1A1A2E]/5
-      [&_.profile-trigger_span]:text-[#1A1A2E]
-      [&_.mobile-btn_span]:bg-[#1A1A2E]
-      [&_.mobile-overlay]:bg-white
-      [&_.mobile-overlay_a]:text-[#1A1A2E]"
+    <div className="services-page-nav min-h-screen bg-[#F5F0E8]/20 font-sans antialiased text-[#1A1A2E]"
     >
       <Header />
 

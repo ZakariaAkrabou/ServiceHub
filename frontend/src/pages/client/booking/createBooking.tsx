@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   X, Clock, CheckCircle2, AlertCircle,
   Loader2, ChevronLeft, ChevronRight, Hourglass, CalendarDays, Sparkles
@@ -46,6 +47,28 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
   const [step, setStep] = useState<"pick"|"confirm"|"success"|"error">("pick");
   const [errMsg, setErrMsg] = useState("");
   const [createBooking, { isLoading }] = useCreateCustomerBookingMutation();
+
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    const scrollY = window.scrollY;
+    const originalOverflow = document.body.style.overflow;
+    const originalPosition = document.body.style.position;
+    const originalTop = document.body.style.top;
+    const originalWidth = document.body.style.width;
+
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.position = originalPosition;
+      document.body.style.top = originalTop;
+      document.body.style.width = originalWidth;
+      window.scrollTo(0, scrollY);
+    };
+  }, []);
 
   if (!service) return null;
 
@@ -99,17 +122,26 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
   const navy = "#1A1A2E";
   const font = '"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif';
 
-  return (
+  return createPortal(
     <div
       onClick={onClose}
       style={{
-        position:"fixed", inset:0, zIndex:99999,
-        display:"flex", alignItems:"center", justifyContent:"center",
-        padding:"80px 16px 16px",          // 80px top = clears navbar
-        background:"rgba(10,10,20,0.72)",
-        backdropFilter:"blur(6px)",
-        WebkitBackdropFilter:"blur(6px)",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 99999,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "16px",
+        background: "rgba(10,10,20,0.75)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
         fontFamily: font,
+        overflowY: "auto",
+        isolation: "isolate",
       }}
     >
       <style>{`
@@ -148,6 +180,14 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
         .bk-scroll::-webkit-scrollbar { width:4px; }
         .bk-scroll::-webkit-scrollbar-track { background:transparent; }
         .bk-scroll::-webkit-scrollbar-thumb { background:rgba(0,0,0,.12); border-radius:4px; }
+
+        /* Responsive: stack panels vertically on smaller screens */
+        @media (max-width: 700px) {
+          .bk-root { max-width: 100% !important; }
+          .bk-root .bk-body-split { flex-direction: column !important; }
+          .bk-root .bk-body-split > div { flex: 1 1 auto !important; border-right: none !important; border-bottom: 1px solid rgba(0,0,0,.07); }
+          .bk-root .bk-body-split > div:last-child { border-bottom: none; }
+        }
       `}</style>
 
       {/* ══════ MODAL ══════ */}
@@ -155,25 +195,32 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
         className="bk-root"
         onClick={e => e.stopPropagation()}
         style={{
-          background:"#fff", borderRadius:20,
-          boxShadow:"0 32px 80px rgba(0,0,0,.35)",
-          overflow:"hidden", display:"flex", flexDirection:"column",
-          width:"100%", maxWidth:820,
-          maxHeight:"calc(100vh - 100px)",   // never taller than viewport minus navbar
+          background: "#fff",
+          borderRadius: 16,
+          boxShadow: "0 24px 60px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.05)",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          maxWidth: 680,
+          maxHeight: "min(520px, calc(100vh - 32px))",
+          margin: "auto",
+          position: "relative",
+          zIndex: 1,
         }}
       >
 
         {/* ─── TOP STRIP ─── */}
         <div style={{
           background:`linear-gradient(135deg, ${navy} 0%, #16213e 100%)`,
-          padding:"18px 24px",
+          padding:"12px 18px",
           display:"flex", alignItems:"center", justifyContent:"space-between",
           flexShrink:0,
         }}>
-          <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
             {service.image && (
               <img src={service.image} alt=""
-                style={{ width:48, height:48, borderRadius:10, objectFit:"cover",
+                style={{ width:36, height:36, borderRadius:8, objectFit:"cover",
                          border:"2px solid rgba(201,168,76,.35)", flexShrink:0 }} />
             )}
             <div>
@@ -183,8 +230,8 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
                 padding:"2px 7px", borderRadius:4, marginBottom:4
               }}>{service.category}</span>
               <h2 style={{
-                margin:0, color:"#fff", fontSize:15, fontWeight:700, lineHeight:1.3,
-                maxWidth:440, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap"
+                margin:0, color:"#fff", fontSize:13, fontWeight:700, lineHeight:1.3,
+                maxWidth:340, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap"
               }}>{service.name}</h2>
               {service.provider && (
                 <p style={{ margin:"2px 0 0", color:"rgba(255,255,255,.45)", fontSize:11 }}>
@@ -196,15 +243,15 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
 
           <div style={{ display:"flex", alignItems:"center", gap:16 }}>
             <div style={{ textAlign:"right" }}>
-              <p style={{ margin:0, fontSize:10, color:"rgba(255,255,255,.4)", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em" }}>Base Price</p>
-              <p style={{ margin:0, fontSize:22, fontWeight:800, color:gold, lineHeight:1 }}>${service.price}</p>
+              <p style={{ margin:0, fontSize:9, color:"rgba(255,255,255,.4)", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em" }}>Base Price</p>
+              <p style={{ margin:0, fontSize:18, fontWeight:800, color:gold, lineHeight:1 }}>${service.price}</p>
             </div>
             <button onClick={onClose} style={{
-              width:32, height:32, borderRadius:"50%", border:"none",
+              width:28, height:28, borderRadius:"50%", border:"none",
               background:"rgba(255,255,255,.1)", cursor:"pointer",
               display:"flex", alignItems:"center", justifyContent:"center", color:"#fff",
               flexShrink:0
-            }}><X size={14}/></button>
+            }}><X size={12}/></button>
           </div>
         </div>
 
@@ -212,15 +259,15 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
         {(step==="pick"||step==="confirm") && (
           <div style={{
             display:"flex", borderBottom:"1px solid rgba(0,0,0,.07)",
-            background:"#fafafa", flexShrink:0
+            background:"#fafafa", flexShrink:0, padding:0
           }}>
             {["Pick Date & Time","Confirm Booking"].map((label,i) => {
               const active = (i===0 && step==="pick") || (i===1 && step==="confirm");
               const done   = i===0 && step==="confirm";
               return (
                 <div key={i} style={{
-                  flex:1, textAlign:"center", padding:"10px 8px",
-                  fontSize:10.5, fontWeight:800, letterSpacing:"0.07em",
+                  flex:1, textAlign:"center", padding:"7px 8px",
+                  fontSize:9.5, fontWeight:800, letterSpacing:"0.07em",
                   textTransform:"uppercase",
                   color: active ? navy : done ? gold : "rgba(0,0,0,.28)",
                   borderBottom: active ? `2.5px solid ${navy}` : done ? `2.5px solid ${gold}` : "2.5px solid transparent",
@@ -235,23 +282,23 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
 
         {/* ─── BODY: PICK ─── */}
         {step==="pick" && (
-          <div style={{ display:"flex", flex:1, overflow:"hidden", minHeight:0 }}>
+          <div className="bk-body-split" style={{ display:"flex", flex:1, overflow:"auto", minHeight:0 }}>
 
             {/* LEFT — Calendar */}
             <div style={{
-              flex:"0 0 340px", padding:"20px 20px 20px 24px",
+              flex:"0 0 280px", padding:"14px 14px 14px 16px",
               borderRight:"1px solid rgba(0,0,0,.07)",
               display:"flex", flexDirection:"column",
               background:"#fff",
             }}>
               {/* Month nav */}
-              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
                 <button onClick={prevMonth} style={{
                   width:30, height:30, borderRadius:8,
                   border:"1.5px solid rgba(0,0,0,.1)", background:"#fff",
                   cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center"
                 }}><ChevronLeft size={14} color={navy}/></button>
-                <span style={{ fontSize:13, fontWeight:700, color:navy }}>
+                <span style={{ fontSize:11.5, fontWeight:700, color:navy }}>
                   {MONTH_NAMES[month]} {year}
                 </span>
                 <button onClick={nextMonth} style={{
@@ -262,7 +309,7 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
               </div>
 
               {/* Day headers */}
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", marginBottom:4 }}>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", marginBottom:2 }}>
                 {DAY_LABELS.map(d => (
                   <div key={d} style={{
                     textAlign:"center", fontSize:9.5, fontWeight:800,
@@ -291,7 +338,7 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
               </div>
 
               {/* Selected date pill */}
-              <div style={{ marginTop:14 }}>
+              <div style={{ marginTop:8 }}>
                 {selDate ? (
                   <div style={{
                     background:"#f5f0e8", borderRadius:10, padding:"9px 12px",
@@ -316,7 +363,7 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
 
             {/* RIGHT — Time + Summary */}
             <div className="bk-scroll"
-              style={{ flex:1, overflowY:"auto", padding:"20px 24px 20px 20px", display:"flex", flexDirection:"column", gap:18 }}>
+              style={{ flex:1, overflowY:"auto", padding:"14px 16px 14px 14px", display:"flex", flexDirection:"column", gap:12 }}>
 
               {/* Time slots */}
               <div>
@@ -389,11 +436,11 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
 
         {/* ─── BODY: CONFIRM ─── */}
         {step==="confirm" && (
-          <div style={{ display:"flex", flex:1, overflow:"hidden", minHeight:0 }}>
+          <div className="bk-body-split" style={{ display:"flex", flex:1, overflow:"auto", minHeight:0 }}>
 
             {/* LEFT — Booking details */}
             <div style={{
-              flex:"0 0 340px", padding:"22px 20px 22px 24px",
+              flex:"0 0 280px", padding:"14px 14px 14px 16px",
               borderRight:"1px solid rgba(0,0,0,.07)", overflowY:"auto"
             }} className="bk-scroll">
               <p style={{ margin:"0 0 14px", fontSize:11, fontWeight:800, color:"rgba(0,0,0,.35)", textTransform:"uppercase", letterSpacing:"0.08em" }}>
@@ -427,7 +474,7 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
             </div>
 
             {/* RIGHT — Pending notice */}
-            <div style={{ flex:1, padding:"22px 24px 22px 20px", display:"flex", flexDirection:"column", gap:14, overflowY:"auto" }} className="bk-scroll">
+            <div style={{ flex:1, padding:"14px 16px 14px 14px", display:"flex", flexDirection:"column", gap:10, overflowY:"auto" }} className="bk-scroll">
               <p style={{ margin:0, fontSize:11, fontWeight:800, color:"rgba(0,0,0,.35)", textTransform:"uppercase", letterSpacing:"0.08em" }}>
                 What happens next?
               </p>
@@ -466,12 +513,12 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
 
         {/* ─── BODY: SUCCESS ─── */}
         {step==="success" && (
-          <div style={{ display:"flex", flex:1, overflow:"hidden", minHeight:0 }}>
+          <div className="bk-body-split" style={{ display:"flex", flex:1, overflow:"auto", minHeight:0 }}>
             {/* Left green check */}
             <div style={{
-              flex:"0 0 300px", background:`linear-gradient(160deg, ${navy} 0%, #16213e 100%)`,
+              flex:"0 0 240px", background:`linear-gradient(160deg, ${navy} 0%, #16213e 100%)`,
               display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
-              padding:"32px 24px", gap:14, borderRight:"1px solid rgba(255,255,255,.05)"
+              padding:"24px 18px", gap:10, borderRight:"1px solid rgba(255,255,255,.05)"
             }}>
               <div style={{
                 width:72, height:72, borderRadius:"50%", background:"rgba(16,185,129,.15)",
@@ -488,7 +535,7 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
             </div>
 
             {/* Right pending info */}
-            <div style={{ flex:1, padding:"28px 28px", overflowY:"auto", display:"flex", flexDirection:"column", justifyContent:"center", gap:16 }} className="bk-scroll">
+            <div style={{ flex:1, padding:"18px 18px", overflowY:"auto", display:"flex", flexDirection:"column", justifyContent:"center", gap:12 }} className="bk-scroll">
               <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                 <div style={{
                   width:40, height:40, borderRadius:10, background:"rgba(201,168,76,.12)",
@@ -543,11 +590,11 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
 
         {/* ─── BODY: ERROR ─── */}
         {step==="error" && (
-          <div style={{ display:"flex", flex:1, overflow:"hidden", minHeight:0 }}>
+          <div className="bk-body-split" style={{ display:"flex", flex:1, overflow:"auto", minHeight:0 }}>
             <div style={{
-              flex:"0 0 280px", background:"#fef2f2",
+              flex:"0 0 220px", background:"#fef2f2",
               display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
-              padding:"32px 24px", gap:12, borderRight:"1px solid rgba(239,68,68,.1)"
+              padding:"24px 18px", gap:10, borderRight:"1px solid rgba(239,68,68,.1)"
             }}>
               <div style={{
                 width:64, height:64, borderRadius:"50%", background:"rgba(239,68,68,.12)",
@@ -559,7 +606,7 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
                 <h3 style={{ margin:0, fontSize:16, fontWeight:700, color:"#991b1b" }}>Booking Failed</h3>
               </div>
             </div>
-            <div style={{ flex:1, padding:"28px", display:"flex", flexDirection:"column", justifyContent:"center", gap:16 }}>
+            <div style={{ flex:1, padding:"18px", display:"flex", flexDirection:"column", justifyContent:"center", gap:12 }}>
               <p style={{ margin:0, fontSize:13, color:"rgba(0,0,0,.6)", lineHeight:1.7 }}>{errMsg}</p>
               <div style={{ display:"flex", gap:10 }}>
                 <button onClick={() => { setStep("pick"); setErrMsg(""); }} style={{
@@ -579,8 +626,8 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
         {(step==="pick" || step==="confirm") && (
           <div style={{
             display:"flex", alignItems:"center", justifyContent:"space-between",
-            padding:"13px 24px", borderTop:"1px solid rgba(0,0,0,.07)",
-            background:"#fff", gap:12, flexShrink:0
+            padding:"10px 18px", borderTop:"1px solid rgba(0,0,0,.07)",
+            background:"#fff", gap:10, flexShrink:0
           }}>
             <p style={{ margin:0, fontSize:11, color:"rgba(0,0,0,.35)", fontWeight:500 }}>
               {step==="pick"
@@ -591,7 +638,7 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
             <div style={{ display:"flex", gap:10, flexShrink:0 }}>
               {step==="confirm" && (
                 <button onClick={() => setStep("pick")} style={{
-                  height:40, paddingInline:18, borderRadius:9, fontSize:12, fontWeight:700,
+                  height:34, paddingInline:14, borderRadius:8, fontSize:11, fontWeight:700,
                   border:"1.5px solid rgba(0,0,0,.12)", background:"#fff", color:navy, cursor:"pointer"
                 }}>← Back</button>
               )}
@@ -600,7 +647,7 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
                   disabled={!selDate || !selTime}
                   onClick={() => setStep("confirm")}
                   style={{
-                    height:40, paddingInline:22, borderRadius:9, fontSize:12, fontWeight:700,
+                    height:34, paddingInline:18, borderRadius:8, fontSize:11, fontWeight:700,
                     background: (selDate && selTime) ? navy : "rgba(0,0,0,.08)",
                     color: (selDate && selTime) ? "#fff" : "rgba(0,0,0,.25)",
                     border:"none",
@@ -612,11 +659,11 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
                   onClick={handleBook}
                   disabled={isLoading}
                   style={{
-                    height:40, paddingInline:24, borderRadius:9, fontSize:12, fontWeight:800,
+                    height:34, paddingInline:18, borderRadius:8, fontSize:11, fontWeight:800,
                     background:gold, color:navy, border:"none",
                     cursor: isLoading ? "not-allowed" : "pointer",
                     opacity: isLoading ? 0.7 : 1,
-                    display:"flex", alignItems:"center", justifyContent:"center", gap:7
+                    display:"flex", alignItems:"center", justifyContent:"center", gap:6
                   }}
                 >
                   {isLoading
@@ -629,7 +676,8 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

@@ -19,7 +19,7 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isLight = location.pathname === "/services" || location.pathname === "/profile";
+  const isLight = location.pathname === "/profile";
 
   useEffect(() => {
     const handleScroll = () => {

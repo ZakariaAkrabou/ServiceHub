@@ -46,7 +46,7 @@ export default function Profile() {
     <div className="min-h-screen bg-[#FDFBF7] font-sans text-[#1A1A2E] flex flex-col">
       <Header />
       
-      <main className="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 pt-32 pb-24 flex flex-col md:flex-row gap-8">
+      <main className="grow max-w-7xl mx-auto w-full px-4 sm:px-6 pt-32 pb-24 flex flex-col md:flex-row gap-8">
         
         {/* Sidebar */}
         <aside className="w-full md:w-80 shrink-0">
@@ -97,7 +97,7 @@ export default function Profile() {
         </aside>
 
         {/* Main Content Area */}
-        <section className="flex-grow min-w-0">
+        <section className="grow min-w-0">
           {activeTab === "info" ? (
             <div className="bg-white rounded-2xl shadow-sm border border-[#EBE6DD] p-6 lg:p-8">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">

@@ -14,9 +14,9 @@ const AboutMission: React.FC = () => {
       <div className="absolute top-0 right-0 h-72 w-72 rounded-full bg-[#d4b46a]/20 blur-3xl" />
       <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-[#1a1a2e]/5 blur-3xl" />
 
-      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-2">
+      <div className="relative w-full grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
         {/* LEFT CONTENT */}
-        <div className="space-y-9 ">
+        <div className="space-y-9  ">
           <div className="flex items-center gap-3 ml-0">
             <span className="h-[2px] w-10 bg-[#c9a84c]" />
             <span
@@ -35,7 +35,7 @@ const AboutMission: React.FC = () => {
           </div>
 
           <div className="space-y-5">
-            <h2 className="max-w-2xl text-3xl font-black leading-tight tracking-[-0.04em] text-[#1a1a1a] sm:text-4xl lg:text-5xl">
+            <h2 className="max-w-2xl text-3xl   font-black leading-tight tracking-[-0.04em] text-[#1a1a1a] sm:text-4xl lg:text-5xl">
               Local services made
               <span className="block text-[#c9a84c]">simple, fast</span>
               and trustworthy.

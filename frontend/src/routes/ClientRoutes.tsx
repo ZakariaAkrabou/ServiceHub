@@ -12,6 +12,7 @@ import ProviderSettings from "../pages/provider/settings";
 import ProviderNotifications from "../pages/provider/notifications";
 import NotFound from "../pages/client/errors/NotFound";
 import About from "../pages/client/about/about";
+import Contact from "../pages/client/contact/contact";
 import ClientServices from "../pages/client/services/services";
 import ServiceDetail from "../pages/client/services/serviceDetail";
 import Profile from "../pages/client/profile/profile";
@@ -21,6 +22,7 @@ export default function ClientRoutes() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
       <Route path="/services" element={<ClientServices />} />
       <Route path="/services/:id" element={<ServiceDetail />} />
       <Route path="/profile" element={<Profile />} />

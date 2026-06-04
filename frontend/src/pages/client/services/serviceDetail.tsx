@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
-  ArrowLeft,
-  Clock,
-  Star,
+  ChevronRight,
   CheckCircle,
-  ShieldCheck,
   MessageSquare,
-  UserCheck,
+  MapPin,
+  Mail,
+  Phone,
+  Users,
+  CalendarDays,
+  BookOpen,
+  Home,
+  PhoneCall,
+  FileText,
+  Building2,
+  ArrowRight,
+  Wrench,
+  Shield,
+  Settings,
+  Zap,
 } from "lucide-react";
 import Header from "../../../components/client/Header";
 import Footer from "../../../components/client/Footer";
@@ -27,29 +38,12 @@ interface Review {
   comment: string;
 }
 
-interface Client {
-  name: string;
-  avatar: string;
-  date: string;
-  task: string;
-  status: string;
-}
-
 const ServiceDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const [service, setService] = useState<ServiceItem | null>(null);
-  const [hasBooked] = useState(false);
-  const [bookingSuccess, ] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
-
-
-  const [newRating, setNewRating] = useState(5);
-  const [newComment, setNewComment] = useState("");
-  const [hoveredStar, setHoveredStar] = useState<number | null>(null);
-
-
   const [reviewsList, setReviewsList] = useState<Review[]>([]);
 
   const {
@@ -75,16 +69,13 @@ const ServiceDetail: React.FC = () => {
     if (!customer || typeof customer === "string") {
       return { author: "Verified Customer", avatar: "VC" };
     }
-
     const person = customer as { firstName?: string; lastName?: string };
     const firstName = person.firstName || "Verified";
     const lastName = person.lastName || "Customer";
     const author = `${firstName} ${lastName}`.trim();
     const avatar = `${firstName[0] || "V"}${lastName[0] || "C"}`.toUpperCase();
-
     return { author, avatar };
   };
-
 
   useEffect(() => {
     if (serviceData) {
@@ -94,8 +85,7 @@ const ServiceDetail: React.FC = () => {
 
   useEffect(() => {
     if (!serviceReviewsData) return;
-
-    const mappedReviews: Review[] = serviceReviewsData.data.map((review) => {
+    const mappedReviews: Review[] = serviceReviewsData.data.map((review: any) => {
       const identity = getReviewIdentity(review.customer_id);
       return {
         id: review._id,
@@ -106,526 +96,649 @@ const ServiceDetail: React.FC = () => {
         comment: review.review || "",
       };
     });
-
     setReviewsList(mappedReviews);
   }, [serviceReviewsData]);
 
   if (isServiceLoading || isServiceFetching || isReviewsLoading) {
     return (
-      <div className="min-h-screen bg-[#F5F0E8]/20 flex flex-col justify-between">
+      <div className="sd-page">
         <Header />
-        <div className="max-w-7xl mx-auto px-6 py-32 text-center">
-          <h2 className="text-2xl font-bold text-[#1A1A2E]">
-            Loading service details...
-          </h2>
+        <div className="sd-loading">
+          <div className="sd-loading__spinner" />
+          <h2>Loading service details...</h2>
         </div>
         <Footer />
+        <style>{styles}</style>
       </div>
     );
   }
 
   if (serviceError || !service) {
     return (
-      <div className="min-h-screen bg-[#F5F0E8]/20 flex flex-col justify-between">
+      <div className="sd-page">
         <Header />
-        <div className="max-w-7xl mx-auto px-6 py-32 text-center">
-          <h2 className="text-2xl font-bold text-[#1A1A2E]">
-            Service not found
-          </h2>
-          <button
-            onClick={() => navigate("/services")}
-            className="mt-4 px-6 py-2 bg-[#1A1A2E] text-white rounded-lg hover:bg-[#C9A84C] hover:text-[#1A1A2E] transition"
-          >
+        <div className="sd-loading">
+          <h2>Service not found</h2>
+          <button onClick={() => navigate("/services")} className="sd-back-btn">
             Back to Services
           </button>
         </div>
         <Footer />
+        <style>{styles}</style>
       </div>
     );
   }
 
-  const clientDirectory: Client[] = reviewsList.slice(0, 4).map((review) => ({
-    name: review.author,
-    avatar: review.avatar,
-    date: review.date,
-    task: service.subCategory || service.category,
-    status: "Completed",
-  }));
+  const providerRaw = serviceData?.provider_id as any;
+  const providerEmail =
+    typeof providerRaw === "object" && providerRaw?.email
+      ? providerRaw.email
+      : "provider@example.com";
+  const providerPhone =
+    typeof providerRaw === "object" && providerRaw?.phone
+      ? providerRaw.phone
+      : "(808) 555-0111";
 
-  const handleBookService = () => {
-    setShowBookingModal(true);
-  };
+  // Sibling services for sidebar list
+  const siblingServices = [
+    "Roof Repair Pros",
+    service.name,
+    "Premier Roof Maintenance",
+    "Sky Shield Roofing",
+    "Elevate Roof Solutions",
+    "Horizon Guard Roofing",
+  ];
 
-  const handleReviewSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
+  const processItems = [
+    {
+      icon: <Wrench size={22} />,
+      name: "Roof Repair Pros",
+      desc: "Roofing is the process installing repairing and the maintaining and maintaining roofs",
+    },
+    {
+      icon: <Shield size={22} />,
+      name: "Weatherproof Roofing Solutions",
+      desc: "Roofing is the process installing repairing and the maintaining and maintaining roofs",
+    },
+    {
+      icon: <Settings size={22} />,
+      name: "Elite Roof Installations",
+      desc: "Roofing is the process installing repairing and the maintaining and maintaining roofs",
+    },
+    {
+      icon: <Zap size={22} />,
+      name: "Sky Shield Roofing",
+      desc: "Roofing is the process installing repairing and the maintaining and maintaining roofs",
+    },
+  ];
 
-    const addedReview: Review = {
-      id: `r-${Date.now()}`,
-      author: "You (Demo User)",
-      avatar: "U",
-      rating: newRating,
-      date: "Today",
-      comment: newComment.trim(),
-    };
-
-    setReviewsList([addedReview, ...reviewsList]);
-    setNewComment("");
-    setNewRating(5);
-  };
-
-
-  const totalStars = reviewsList.reduce((acc, curr) => acc + curr.rating, 0);
-  const averageRating =
-    reviewsList.length > 0
-      ? (totalStars / reviewsList.length).toFixed(1)
-      : service.rating.toFixed(1);
+  const descriptionText = service.longDescription || service.description || "";
 
   return (
-    <div
-      className="services-detail-page min-h-screen bg-[#F5F0E8]/20 font-sans antialiased text-[#1A1A2E]
-      [&_.header-container]:bg-white/95 
-      [&_.header-container]:backdrop-blur-md 
-      [&_.header-container]:border-b 
-      [&_.header-container]:border-black/5 
-      [&_.header-container]:shadow-sm
-      [&_.nav-links_a]:text-[#1A1A2E] 
-      hover:[&_.nav-links_a]:text-[#C9A84C]
-      [&_.nav-links_a::after]:bg-[#C9A84C]
-      [&_.btn-login]:text-[#1A1A2E] 
-      [&_.btn-login]:border-[#1A1A2E]/15 
-      [&_.btn-login]:bg-[#1A1A2E]/5 
-      hover:[&_.btn-login]:bg-[#1A1A2E]/10
-      [&_.btn-cta]:bg-[#1A1A2E] 
-      [&_.btn-cta]:text-white 
-      hover:[&_.btn-cta]:bg-[#2e2e4e]
-      [&_.profile-trigger]:border-[#1A1A2E]/10
-      [&_.profile-trigger]:bg-[#1A1A2E]/5
-      [&_.profile-trigger_span]:text-[#1A1A2E]
-      [&_.mobile-btn_span]:bg-[#1A1A2E]
-      [&_.mobile-overlay]:bg-white
-      [&_.mobile-overlay_a]:text-[#1A1A2E]"
-    >
+    <div className="sd-page">
       <Header />
+      <style>{styles}</style>
 
-      <style>{`
-        @keyframes pageFadeUp {
-          from { opacity: 0; transform: translateY(14px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .anim-fade-up { animation: pageFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) both; }
-        
-        .ccw__grid {
-          position: absolute; inset: 0;
-          background-image:
-            linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
-          background-size: 80px 80px;
-          pointer-events: none;
-        }
-
-        .services-detail-page, 
-        .services-detail-page *, 
-        .services-detail-page button, 
-        .services-detail-page span, 
-        .services-detail-page h1, 
-        .services-detail-page h2, 
-        .services-detail-page h3,
-        .services-detail-page p {
-          font-family: "Times New Roman", sans-serif, "Geist", "Inter" !important;
-        }
-      `}</style>
-
-
-      <section className="relative pt-32 pb-20 bg-[#0a1628] border-b border-black/3 overflow-hidden min-h-100 flex flex-col justify-center text-white">
-        <div className="ccw__grid" />
-        <div className="absolute inset-0 bg-linear-to-r from-[#0a1628]/95 via-[#0a1628]/80 to-transparent z-5" />
-
-        <img
-          src={service.image}
-          alt={service.name}
-          className="absolute inset-0 w-full h-full object-cover opacity-35 object-center pointer-events-none"
-        />
-
-        <div className="px-6 md:px-12 relative z-10 w-full flex flex-col items-start anim-fade-up">
-          <button
-            onClick={() => navigate("/services")}
-            id="back-to-services-btn"
-            className="flex items-center gap-2 text-white/80 hover:text-[#C9A84C] font-semibold text-xs uppercase tracking-widest mb-6 transition cursor-pointer"
-          >
-            <ArrowLeft size={16} /> Back to Catalog
-          </button>
-
-          <span className="bg-[#C9A84C] text-[#1A1A2E] text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-md mb-4 inline-block">
-            {service.category}
-          </span>
-
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] max-w-4xl font-sans mb-6">
-            {service.name}
-          </h1>
-
-          <div className="flex flex-wrap items-center gap-6 text-sm text-white/80">
-            <div className="flex items-center gap-1">
-              <Star size={16} className="fill-[#C9A84C] text-[#C9A84C]" />
-              <span className="font-bold text-white">{averageRating}</span>
-              <span>•</span>
-              <span className="font-semibold">
-                {reviewsList.length} Reviews
-              </span>
-            </div>
-            <span>•</span>
-            <div className="flex items-center gap-1.5">
-              <Clock size={16} className="text-[#C9A84C]" />
-              <span className="font-bold">{service.duration} Duration</span>
-            </div>
-          </div>
+      {/* Hero Banner */}
+      <div className="sd-hero">
+        <div className="sd-hero__inner">
+          <h1 className="sd-hero__title">{service.name}</h1>
+          <nav className="sd-hero__breadcrumb" aria-label="Breadcrumb">
+            <Link to="/" className="sd-hero__bc-link">HOME</Link>
+            <span className="sd-hero__bc-sep">/</span>
+            <Link to="/services" className="sd-hero__bc-link">SERVICES</Link>
+            <span className="sd-hero__bc-sep">/</span>
+            <span className="sd-hero__bc-active">{service.name.toUpperCase()}</span>
+          </nav>
         </div>
-      </section>
+      </div>
 
-      {/* Main Content Details Grid */}
-      <section className="px-6 md:px-12 py-12 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          {/* Left Columns - Details */}
-          <div className="lg:col-span-2 space-y-10">
-            {/* Overview Card */}
-            <div className="bg-white rounded-3xl p-8 border border-black/4 shadow-xs anim-fade-up">
-              <h2 className="text-xl font-bold uppercase tracking-wider text-[#1A1A2E] mb-6 border-b border-black/5 pb-3">
-                Service Description
-              </h2>
-              <p className="text-sm md:text-base leading-relaxed text-black/75 mb-6 whitespace-pre-line font-serif">
-                {service.longDescription}
+      {/* Main Layout */}
+      <main className="sd-main">
+        <div className="sd-grid">
+
+          {/* ── LEFT COLUMN ── */}
+          <div className="sd-left">
+
+            {/* Main service image */}
+            <div className="sd-main-image">
+              <img src={service.image} alt={service.name} />
+            </div>
+
+            {/* Section: Hand working / Overview */}
+            <div className="sd-section">
+              <h2 className="sd-section__title">Hand working</h2>
+              <p className="sd-section__body">{descriptionText}</p>
+              <ul className="sd-bullet-list">
+                <li>Roof is a nutritious category of food that includes various</li>
+                <li>My Roof is a nutritious category of food that includes various</li>
+                <li>These ground nuts can be used in a variety of recipes</li>
+              </ul>
+            </div>
+
+            {/* Section: Repairs & Upgrades */}
+            <div className="sd-section">
+              <h2 className="sd-section__title">Repairs &amp; Upgrades</h2>
+              <p className="sd-section__body">
+                {descriptionText ||
+                  "Nutmeal is a nutritious category of food that includes various types of ground nuts, such as almonds, walnuts, and peanuts These ground nuts can be used in a variety of recipes, including smoothies, baked goods, and savory dishes Nutmeal is a versatile ingredient."}
               </p>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                <div className="flex items-start gap-3 p-4 bg-[#F5F0E8]/20 rounded-2xl border border-black/3">
-                  <ShieldCheck
-                    className="text-[#C9A84C] shrink-0 mt-0.5"
-                    size={20}
-                  />
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#1A1A2E]">
-                      Damage Liability Protection
-                    </h4>
-                    <p className="text-[11px] text-black/50 mt-1">
-                      Every booking is automatically covered under our secure
-                      warranty scheme.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 p-4 bg-[#F5F0E8]/20 rounded-2xl border border-black/3">
-                  <CheckCircle
-                    className="text-[#C9A84C] shrink-0 mt-0.5"
-                    size={20}
-                  />
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#1A1A2E]">
-                      Certified Professionals
-                    </h4>
-                    <p className="text-[11px] text-black/50 mt-1">
-                      Our providers pass standard vetting, background checks,
-                      and identity screenings.
-                    </p>
-                  </div>
-                </div>
+            {/* Double image row */}
+            <div className="sd-double-image">
+              <div className="sd-double-image__item">
+                <img src={service.image} alt={`${service.name} detail 1`} />
+              </div>
+              <div className="sd-double-image__item">
+                <img src={service.image} alt={`${service.name} detail 2`} />
               </div>
             </div>
 
-            {/* Past Customers who booked this Provider */}
-            <div className="bg-white rounded-3xl p-8 border border-black/4 shadow-xs anim-fade-up">
-              <h2 className="text-xl font-bold uppercase tracking-wider text-[#1A1A2E] mb-6 border-b border-black/5 pb-3">
-                Client Directory
-                <span className="block text-[11px] font-normal text-black/40 mt-1 normal-case tracking-normal">
-                  Clients who previously worked with {service.provider}
-                </span>
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {clientDirectory.map((client, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between p-4 rounded-2xl border border-black/3 bg-[#F5F0E8]/10 hover:bg-[#F5F0E8]/30 transition duration-300"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[#1A1A2E] text-[#C9A84C] flex items-center justify-center font-bold text-xs">
-                        {client.avatar}
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-bold text-[#1A1A2E]">
-                          {client.name}
-                        </h4>
-                        <span className="text-[10px] text-black/45 block mt-0.5">
-                          {client.task}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className="inline-block text-[8px] bg-green-100 text-green-800 font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full">
-                        {client.status}
-                      </span>
-                      <span className="block text-[9px] text-black/40 mt-1 font-semibold">
-                        {client.date}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-                {clientDirectory.length === 0 && (
-                  <div className="md:col-span-2 text-center text-[12px] text-black/45 py-6 border border-dashed border-black/10 rounded-2xl">
-                    No client activity available yet.
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Reviews Section */}
-            <div className="bg-white rounded-3xl p-8 border border-black/4 shadow-xs anim-fade-up">
-              <h2 className="text-xl font-bold uppercase tracking-wider text-[#1A1A2E] mb-6 border-b border-black/5 pb-3 flex items-center justify-between">
-                <span>Reviews & Feedback</span>
-                <span className="text-xs font-semibold text-[#C9A84C] flex items-center gap-1 normal-case tracking-normal">
-                  <Star size={14} className="fill-[#C9A84C] text-[#C9A84C]" />{" "}
-                  {averageRating} rating
-                </span>
-              </h2>
-
-              {/* Conditional Review Form */}
-              <div className="mb-10 p-6 rounded-2xl border border-dashed border-[#C9A84C]/30 bg-[#F5F0E8]/10">
-                {hasBooked ? (
-                  <form onSubmit={handleReviewSubmit} className="space-y-4">
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-[#1A1A2E] flex items-center gap-2">
-                      <MessageSquare size={16} className="text-[#C9A84C]" />{" "}
-                      Write Your Review
-                    </h3>
-
-                    {/* Star Interactive Selector */}
+            {/* Section: Our Service Process */}
+            <div className="sd-section">
+              <h2 className="sd-section__title">Our Service Process</h2>
+              <div className="sd-process-grid">
+                {processItems.map((item, idx) => (
+                  <div key={idx} className="sd-process-item">
+                    <div className="sd-process-item__icon">{item.icon}</div>
                     <div>
-                      <span className="block text-[11px] font-bold text-black/50 mb-2 uppercase tracking-wide">
-                        Your Rating:
-                      </span>
-                      <div className="flex items-center gap-1.5">
-                        {[1, 2, 3, 4, 5].map((star) => {
-                          const isActive =
-                            hoveredStar !== null
-                              ? star <= hoveredStar
-                              : star <= newRating;
-                          return (
-                            <button
-                              key={star}
-                              type="button"
-                              onClick={() => setNewRating(star)}
-                              onMouseEnter={() => setHoveredStar(star)}
-                              onMouseLeave={() => setHoveredStar(null)}
-                              className="cursor-pointer transition-transform hover:scale-110"
-                            >
-                              <Star
-                                size={22}
-                                className={`transition-colors ${
-                                  isActive
-                                    ? "fill-[#C9A84C] text-[#C9A84C]"
-                                    : "text-black/15 fill-transparent"
-                                }`}
-                              />
-                            </button>
-                          );
-                        })}
-                      </div>
+                      <h4 className="sd-process-item__name">{item.name}</h4>
+                      <p className="sd-process-item__desc">{item.desc}</p>
                     </div>
-
-                    {/* Review text area */}
-                    <div>
-                      <label
-                        htmlFor="review-comment-input"
-                        className="block text-[11px] font-bold text-black/50 mb-2 uppercase tracking-wide"
-                      >
-                        Your Feedback:
-                      </label>
-                      <textarea
-                        id="review-comment-input"
-                        rows={4}
-                        placeholder="Tell others about your experience with this service..."
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        className="w-full p-4 rounded-xl border border-black/10 focus:border-[#C9A84C] outline-none text-xs leading-relaxed font-serif bg-white"
-                        required
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      id="submit-review-btn"
-                      className="px-6 py-2.5 bg-[#1A1A2E] text-white hover:bg-[#C9A84C] hover:text-[#1A1A2E] text-xs font-bold uppercase tracking-widest rounded-lg transition-all cursor-pointer"
-                    >
-                      Post Review
-                    </button>
-                  </form>
-                ) : (
-                  <div className="text-center py-4 space-y-2">
-                    <span className="inline-block text-xl">🔒</span>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#1A1A2E]">
-                      Review Submission Locked
-                    </h4>
-                    <p className="text-[11px] text-black/50 max-w-sm mx-auto leading-normal">
-                      Only verified clients who have booked this service can
-                      leave feedback. Please complete a booking using the
-                      sidebar card to unlock writing a review.
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Reviews List */}
-              <div className="space-y-6">
-                {reviewsList.map((review) => (
-                  <div
-                    key={review.id}
-                    className="border-b border-black/4 pb-6 last:border-b-0 last:pb-0"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-[#F5F0E8] border border-black/5 text-[#1A1A2E] flex items-center justify-center font-bold text-xs uppercase">
-                          {review.avatar}
-                        </div>
-                        <div>
-                          <h4 className="text-xs font-bold text-[#1A1A2E]">
-                            {review.author}
-                          </h4>
-                          <span className="text-[10px] text-black/40 font-semibold">
-                            {review.date}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-0.5">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            size={12}
-                            className={`${
-                              i < review.rating
-                                ? "fill-[#C9A84C] text-[#C9A84C]"
-                                : "text-black/10"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-xs font-serif leading-relaxed text-black/70 italic pl-12">
-                      "{review.comment}"
-                    </p>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Right Column - Booking Card Sidebar */}
-          <div className="space-y-6">
-            {/* Booking Alert banner */}
-            {bookingSuccess && (
-              <div className="bg-[#1A1A2E] border-2 border-[#C9A84C] text-white p-5 rounded-2xl shadow-xl flex items-start gap-3 animate-[pageFadeUp_0.4s_ease-out]">
-                <UserCheck
-                  className="text-[#C9A84C] shrink-0 mt-0.5"
-                  size={24}
-                />
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#C9A84C]">
-                    Booking Successful!
-                  </h4>
-                  <p className="text-[10px] text-white/80 mt-1 leading-normal">
-                    You have successfully booked this service. The provider has
-                    been notified. You can now leave a review in the feedback
-                    section below.
-                  </p>
+          {/* ── RIGHT SIDEBAR ── */}
+          <aside className="sd-sidebar">
+
+            {/* All Services list */}
+            <div className="sd-widget">
+              <h3 className="sd-widget__title">Our All Service</h3>
+              <ul className="sd-service-list">
+                {siblingServices.map((svc, idx) => {
+                  const isActive = svc === service.name;
+                  return (
+                    <li key={idx} className={`sd-service-list__item ${isActive ? "is-active" : ""}`}>
+                      <span>{svc}</span>
+                      <span className={`sd-service-list__arrow ${isActive ? "is-active" : ""}`}>
+                        <ArrowRight size={14} />
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+           
+
+            {/* Brochure downloads */}
+            <div className="sd-widget">
+              <h3 className="sd-widget__title">Brochure</h3>
+              <div className="sd-brochure-list">
+                <div className="sd-brochure-item">
+                  <div className="sd-brochure-item__icon">
+                    <FileText size={20} />
+                  </div>
+                  <div className="sd-brochure-item__info">
+                    <span className="sd-brochure-item__name">Download Brochure</span>
+                    <span className="sd-brochure-item__sub">
+                      Lorem Ipsum is simply is dumiomy is tex Lorem Ipsum is simply is ou our
+                    </span>
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {/* Checkout Pricing Sidebar Card */}
-            <div className="bg-white rounded-3xl p-6 border border-black/4 shadow-sm sticky top-28">
-              <span className="text-[9px] uppercase font-bold tracking-widest text-black/35 block mb-1">
-                Pricing Package
-              </span>
-              <div className="flex items-baseline gap-1.5 border-b border-black/5 pb-4 mb-4">
-                <span className="text-3xl font-black text-[#1A1A2E] font-serif">
-                  ${service.price}
-                </span>
-                <span className="text-xs text-black/40 font-semibold">
-                  / Flat Rate
-                </span>
-              </div>
-
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center justify-between text-xs text-black/60">
-                  <span>Estimated Duration</span>
-                  <span className="font-bold text-[#1A1A2E] flex items-center gap-1">
-                    <Clock size={12} /> {service.duration}
-                  </span>
+                <div className="sd-brochure-item">
+                  <div className="sd-brochure-item__icon">
+                    <Building2 size={20} />
+                  </div>
+                  <div className="sd-brochure-item__info">
+                    <span className="sd-brochure-item__name">Company Details</span>
+                    <span className="sd-brochure-item__sub">
+                      Lorem Ipsum is simply is dumiomy is tex Lorem Ipsum is simply is ou our
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between text-xs text-black/60">
-                  <span>Service Provider</span>
-                  <span className="font-bold text-[#C9A84C]">
-                    {service.provider}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs text-black/60">
-                  <span>Tier Level</span>
-                  <span className="text-[10px] uppercase font-extrabold text-[#1A1A2E] bg-[#F5F0E8] px-2 py-0.5 rounded">
-                    {service.providerTier}
-                  </span>
-                </div>
-              </div>
-
-              {/* Service Badges */}
-              <div className="flex flex-wrap gap-1.5 mb-6">
-                {service.badges.map((badge, idx) => (
-                  <span
-                    key={idx}
-                    className="text-[9px] font-bold text-white bg-[#1A1A2E] px-2.5 py-1 rounded-md tracking-wide"
-                  >
-                    {badge}
-                  </span>
-                ))}
-              </div>
-
-              {/* Checkout / Booking Action Buttons */}
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  id="book-service-btn"
-                  onClick={handleBookService}
-                  className="w-full py-3 bg-[#1A1A2E] text-white hover:bg-[#C9A84C] hover:text-[#1A1A2E] font-bold text-xs uppercase tracking-widest rounded-xl transition duration-300 cursor-pointer text-center shadow-xs"
-                >
-                  Book Service Now
-                </button>
-
-              {/* Real Booking Popup */}
-              {showBookingModal && service && (
-                <CreateBooking
-                  service={{
-                    _id: service.id,
-                    name: service.name,
-                    price: service.price,
-                    category: service.category,
-                    duration: service.duration,
-                    provider: service.provider,
-                    image: service.image,
-                  }}
-                  onClose={() => setShowBookingModal(false)}
-                />
-              )}
-
-                <p className="text-[10px] text-center text-black/35 mt-3 leading-normal">
-                  Payments are secure. No charges will be placed until service
-                  completion is confirmed.
-                </p>
               </div>
             </div>
-          </div>
+
+            {/* Book button */}
+            <button
+              type="button"
+              className="sd-book-btn"
+              onClick={() => setShowBookingModal(true)}
+            >
+              <CalendarDays size={16} />
+              Book This Service
+            </button>
+
+          </aside>
         </div>
-      </section>
+      </main>
+
+      {/* Booking Modal */}
+      {showBookingModal && service && (
+        <CreateBooking
+          service={{
+            _id: service.id,
+            name: service.name,
+            price: service.price,
+            category: service.category,
+            duration: service.duration,
+            provider: service.provider,
+            image: service.image,
+          }}
+          onClose={() => setShowBookingModal(false)}
+        />
+      )}
 
       <Footer />
     </div>
   );
 };
+
+const styles = `
+  :root {
+    --font-main: "DM Sans", "Inter", sans-serif;
+    --bg:       #ffffff;
+    --surface:  #ffffff;
+    --text:     #1a1a2e;
+    --text-muted: #6b7280;
+    --border:   #eaedf1;
+    --red:      #c9a84c;
+    --red-dark: #b8963e;
+    --radius:   16px;
+    --shadow-sm: 0 4px 12px rgba(0,0,0,0.03);
+    --shadow:    0 10px 30px rgba(0,0,0,0.05);
+    --shadow-lg: 0 20px 40px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; }
+
+  .sd-page {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-main);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Loading */
+  .sd-loading {
+    max-width: 100%;
+    margin: 0;
+    padding: 120px 48px;
+    text-align: center;
+  }
+  .sd-loading h2 { font-size: 18px; font-weight: 700; margin: 0; color: var(--text); }
+  .sd-loading__spinner {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 3px solid rgba(0,0,0,.1);
+    border-top-color: var(--red);
+    animation: sdSpin .7s linear infinite;
+    margin: 0 auto 14px;
+  }
+  @keyframes sdSpin { to { transform: rotate(360deg); } }
+  .sd-back-btn {
+    margin-top: 16px; padding: 10px 20px;
+    background: var(--red); color: #fff;
+    border: none; border-radius: var(--radius);
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    font-family: var(--font-main);
+  }
+
+  /* ── HERO ── */
+  .sd-hero {
+    background:
+      linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.6)),
+      url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80') center/cover no-repeat;
+    padding: 140px 48px 80px;
+    text-align: center;
+    min-height: 340px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .sd-hero__inner { max-width: 100%; margin: 0; }
+  .sd-hero__title {
+    font-family: var(--font-main);
+    font-size: clamp(36px, 5vw, 60px);
+    font-weight: 900;
+    color: #fff;
+    margin: 0 0 20px;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+  }
+  .sd-hero__breadcrumb {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 700; color: #fff;
+    font-family: var(--font-main);
+    letter-spacing: 1px;
+  }
+  .sd-hero__bc-link {
+    color: #fff; text-decoration: none;
+    transition: color .2s;
+  }
+  .sd-hero__bc-link:hover { color: var(--red); }
+  .sd-hero__bc-sep { color: var(--red); font-weight: 800; }
+  .sd-hero__bc-active { color: var(--red); }
+
+  /* ── MAIN ── */
+  .sd-main {
+    max-width: 100%;
+    margin: 0;
+    padding: 64px 48px 80px;
+    background: #ffffff;
+  }
+
+  @media (max-width: 1100px) {
+    .sd-hero { padding: 120px 32px 64px; }
+    .sd-main { padding: 48px 32px 72px; }
+  }
+
+  @media (max-width: 900px) {
+    .sd-hero { padding: 140px 24px 48px; }
+    .sd-main { padding: 40px 24px 64px; }
+  }
+
+  /* ── GRID ── */
+  .sd-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 40px;
+    align-items: start;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  @media (max-width: 900px) {
+    .sd-grid { grid-template-columns: 1fr; }
+    .sd-sidebar { order: -1; }
+  }
+
+  /* ── LEFT COLUMN ── */
+  .sd-left { display: flex; flex-direction: column; gap: 48px; }
+
+  .sd-main-image {
+    border-radius: 4px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+  }
+  .sd-main-image img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: transform .6s ease;
+  }
+  .sd-main-image:hover img { transform: scale(1.03); }
+
+  .sd-section {}
+  .sd-section__title {
+    font-family: var(--font-main);
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--text);
+    margin: 0 0 24px;
+    letter-spacing: -0.5px;
+    position: relative;
+    padding-bottom: 12px;
+  }
+  .sd-section__title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: var(--red);
+    border-radius: 2px;
+  }
+  .sd-section__body {
+    font-size: 15.5px;
+    line-height: 1.8;
+    color: var(--text-muted);
+    margin: 0;
+    font-family: var(--font-main);
+  }
+
+  .sd-bullet-list {
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .sd-bullet-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    font-family: var(--font-main);
+  }
+  .sd-bullet-list li::before {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--red);
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+
+  .sd-double-image {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .sd-double-image__item {
+    border-radius: 4px;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+  }
+  .sd-double-image__item img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: transform .6s ease;
+  }
+  .sd-double-image__item:hover img { transform: scale(1.04); }
+
+  /* Service process grid */
+  .sd-process-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 12px;
+  }
+  @media (max-width: 600px) {
+    .sd-process-grid { grid-template-columns: 1fr; }
+    .sd-double-image { grid-template-columns: 1fr; }
+  }
+  .sd-process-item {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+  }
+  .sd-process-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+    border-color: var(--red);
+  }
+  .sd-process-item__icon {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--red);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--red);
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+  }
+  .sd-process-item:hover .sd-process-item__icon {
+    background: var(--red);
+    color: #fff;
+  }
+  .sd-process-item__name {
+    margin: 0 0 8px;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text);
+    font-family: var(--font-main);
+  }
+  .sd-process-item__desc {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    font-family: var(--font-main);
+  }
+
+  /* ── RIGHT SIDEBAR ── */
+  .sd-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: sticky;
+    top: 100px;
+  }
+  @media (max-width: 900px) {
+    .sd-sidebar { position: static; }
+  }
+
+  /* Widget base */
+  .sd-widget {
+    background: var(--surface);
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  .sd-widget__title {
+    font-family: var(--font-main);
+    font-size: 16px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    background: #fdfdfd;
+  }
+
+  /* Services list */
+  .sd-service-list {
+    list-style: none;
+    margin: 0; padding: 0;
+  }
+  .sd-service-list__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: all .2s ease;
+    font-family: var(--font-main);
+  }
+  .sd-service-list__item:last-child { border-bottom: none; }
+  .sd-service-list__item:hover { background: var(--red); color: #fff; }
+  .sd-service-list__item.is-active {
+    background: var(--red);
+    color: #fff;
+    font-weight: 700;
+  }
+  .sd-service-list__arrow {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+    color: inherit;
+    transition: transform .2s ease;
+    flex-shrink: 0;
+  }
+  .sd-service-list__item:hover .sd-service-list__arrow,
+  .sd-service-list__item.is-active .sd-service-list__arrow {
+    transform: translateX(4px);
+  }
+
+  /* Brochure */
+  .sd-brochure-list {
+    display: flex;
+    flex-direction: column;
+  }
+  .sd-brochure-item {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .sd-brochure-item:last-child { border-bottom: none; }
+  .sd-brochure-item:hover { background: #fafafa; }
+  .sd-brochure-item__icon {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--red);
+    flex-shrink: 0;
+    transition: all .2s;
+  }
+  .sd-brochure-item:hover .sd-brochure-item__icon {
+    background: var(--red);
+    color: #fff;
+    border-color: var(--red);
+  }
+  .sd-brochure-item__name {
+    display: block;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+    font-family: var(--font-main);
+  }
+  .sd-brochure-item__sub {
+    display: block;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    font-family: var(--font-main);
+  }
+
+  /* Book button */
+  .sd-book-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 18px;
+    border-radius: 4px;
+    border: none;
+    background: var(--red);
+    color: #fff;
+    font-family: var(--font-main);
+    font-size: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .sd-book-btn:hover {
+    background: var(--text);
+    transform: translateY(-2px);
+  }
+`;
 
 export default ServiceDetail;

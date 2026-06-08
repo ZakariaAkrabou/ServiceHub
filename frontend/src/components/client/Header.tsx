@@ -18,8 +18,7 @@ const Header: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const isLight = location.pathname === "/profile";
+  const isLight = location.pathname === "/profile" || location.pathname.match(/^\/services\/.+/);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -592,7 +591,7 @@ const Header: React.FC = () => {
           ) : (
             <>
               <Link to="/login" className="btn-login">Login</Link>
-              <a href="#contact" className="btn-cta">Contact us</a>
+              <Link to="/contact" className="btn-cta">Contact us</Link>
             </>
           )}
         </div>
@@ -615,7 +614,7 @@ const Header: React.FC = () => {
     
           <div className="mobile-auth">
             <Link to="/login" className="btn-login" style={{ width: '100%', textAlign: 'center' }} onClick={() => setOpen(false)}>Login</Link>
-            <a href="#contact" className="btn-cta" style={{ width: '100%', textAlign: 'center' }} onClick={() => setOpen(false)}>Contact us</a>
+            <Link to="/contact" className="btn-cta" style={{ width: '100%', textAlign: 'center' }} onClick={() => setOpen(false)}>Contact us</Link>
           </div>
         </div>
       </header>

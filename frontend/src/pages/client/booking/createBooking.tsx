@@ -153,7 +153,7 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
 
         /* Calendar day cell */
         .bk-d {
-          width:100%; aspect-ratio:1;
+          width:100%; aspect-ratio:1; padding:0; margin:0;
           display:flex; align-items:center; justify-content:center;
           border-radius:50%; font-size:12.5px; font-weight:500;
           cursor:pointer; border:none; background:transparent;
@@ -320,7 +320,7 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
               </div>
 
               {/* Calendar grid */}
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:2, flex:1 }}>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:2 }}>
                 {Array.from({length:firstDay}).map((_,i) => <div key={`e${i}`}/>)}
                 {Array.from({length:daysInMonth},(_,i)=>i+1).map(day => {
                   const ds = dayStr(day);
@@ -338,7 +338,7 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
               </div>
 
               {/* Selected date pill */}
-              <div style={{ marginTop:8 }}>
+              <div style={{ marginTop:"auto" }}>
                 {selDate ? (
                   <div style={{
                     background:"#f5f0e8", borderRadius:10, padding:"9px 12px",

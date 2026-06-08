@@ -98,7 +98,7 @@ export default function Footer() {
         .footer-root {
           background-color: #0a1628;
           font-family: ${fontFamily};
-          padding: 72px 48px 0;
+          padding: 20px 48px 0;
           position: relative;
           overflow: hidden;
           box-sizing: border-box;
@@ -191,7 +191,7 @@ export default function Footer() {
         .footer-divider {
           border: none;
           border-top: 1px solid rgba(255,255,255,0.08);
-          margin: 0 0 64px;
+          margin: 0 0 32px;
         }
 
         /* ── Grid layout ── */
@@ -201,13 +201,13 @@ export default function Footer() {
           gap: 32px;
           max-width: 1400px;
           margin: 0 auto;
-          padding-bottom: 64px;
+          padding-bottom: 32px;
         }
 
         /* ── Tablet (≤ 860px): stack into 2 columns, col3 full width ── */
         @media (max-width: 860px) {
           .footer-root {
-            padding: 56px 32px 0;
+            padding: 32px 32px 0;
           }
           .footer-grid {
             grid-template-columns: 1fr 1fr;
@@ -229,12 +229,12 @@ export default function Footer() {
         /* ── Mobile (≤ 560px): single column ── */
         @media (max-width: 560px) {
           .footer-root {
-            padding: 44px 20px 0;
+            padding: 24px 20px 0;
           }
           .footer-grid {
             grid-template-columns: 1fr;
             gap: 40px;
-            padding-bottom: 48px;
+            padding-bottom: 24px;
           }
           .footer-col2 {
             text-align: left !important;

@@ -93,7 +93,6 @@ const AboutHero: React.FC = () => {
         .ahr__blob {
           position: absolute;
           border-radius: 50%;
-          filter: blur(100px);
           pointer-events: none;
         }
         .ahr__blob--1 {

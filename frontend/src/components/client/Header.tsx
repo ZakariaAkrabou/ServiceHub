@@ -18,7 +18,7 @@ const Header: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const isLight = location.pathname === "/profile" || location.pathname.match(/^\/services\/.+/);
+  const isLight = location.pathname === "/profile" || location.pathname.startsWith("/services");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,7 +63,7 @@ const Header: React.FC = () => {
           left: 0;
           right: 0;
           z-index: 1000;
-          padding: 16px 48px; /* Reduced padding for smaller navbar */
+          padding: 12px 48px;
           transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
           display: flex;
           align-items: center;
@@ -101,7 +101,6 @@ const Header: React.FC = () => {
           width: auto;
           transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
           display: block;
-          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
         }
 
         .header-container.scrolled .logo-img {
@@ -123,14 +122,11 @@ const Header: React.FC = () => {
         .nav-links a {
           color: rgba(255, 255, 255, 0.9);
           text-decoration: none;
-          font-size: 14.5px;
-          font-weight: 600;
-          letter-spacing: 0.04em;
-          text-transform: uppercase;
+          font-size: 15px;
+          font-weight: 500;
           transition: all 0.3s ease;
           position: relative;
           padding: 8px 0;
-          text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
         }
 
         .nav-links a::after {
@@ -159,7 +155,6 @@ const Header: React.FC = () => {
 
         .nav-links a.active {
           color: #ffffff;
-          text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
         .auth-actions {
@@ -179,7 +174,6 @@ const Header: React.FC = () => {
           border: 1px solid rgba(255, 255, 255, 0.15);
           background: rgba(255, 255, 255, 0.03);
           backdrop-filter: blur(4px);
-          text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
         }
 
         .btn-login:hover {
@@ -262,7 +256,6 @@ const Header: React.FC = () => {
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), 0 0 10px rgba(201, 168, 76, 0.3);
         }
 
         .dropdown-menu {
@@ -306,10 +299,9 @@ const Header: React.FC = () => {
         .user-role {
           display: block;
           color: rgba(201, 168, 76, 0.9);
-          font-size: 11px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
+          font-size: 12px;
+          font-weight: 500;
+          text-transform: capitalize;
           margin-top: 2px;
         }
 
@@ -547,12 +539,11 @@ const Header: React.FC = () => {
                     background: isLight ? 'rgba(26,26,46,0.05)' : 'rgba(255,255,255,0.08)',
                     border: isLight ? '1px solid rgba(26,26,46,0.12)' : '1px solid rgba(255,255,255,0.12)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', transition: 'all 0.2s ease',
-                    boxShadow: isLight ? 'none' : '0 2px 5px rgba(0,0,0,0.3)'
+                    cursor: 'pointer', transition: 'all 0.2s ease'
                   }}
                   aria-label="Messages"
                 >
-                  <MessageSquare size={16} color={isLight ? '#1A1A2E' : '#ffffff'} style={{ filter: isLight ? 'none' : 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }} />
+                  <MessageSquare size={16} color={isLight ? '#1A1A2E' : '#ffffff'} />
                 </button>
               </Link>
 
@@ -565,12 +556,11 @@ const Header: React.FC = () => {
                     background: isLight ? 'rgba(26,26,46,0.05)' : 'rgba(255,255,255,0.08)',
                     border: isLight ? '1px solid rgba(26,26,46,0.12)' : '1px solid rgba(255,255,255,0.12)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', transition: 'all 0.2s ease',
-                    boxShadow: isLight ? 'none' : '0 2px 5px rgba(0,0,0,0.3)'
+                    cursor: 'pointer', transition: 'all 0.2s ease'
                   }}
                   aria-label="Notifications"
                 >
-                  <Bell size={16} color={isLight ? '#1A1A2E' : '#ffffff'} style={{ filter: isLight ? 'none' : 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }} />
+                  <Bell size={16} color={isLight ? '#1A1A2E' : '#ffffff'} />
                 </button>
                 {/* Notification mini panel */}
                 {showNotifPanel && (
@@ -613,7 +603,7 @@ const Header: React.FC = () => {
                     {user?.image ? (
                       <img src={user.image} alt="Profile" className="w-full h-full rounded-full" />
                     ) : (
-                      <User size={20} className="text-[#F6E304]" />
+                      <User size={20} className="text-[#c9a84c]" />
                     )}
                   </div>
                   <ChevronDown size={16} className={`transition-transform ${isLight ? 'text-[#1A1A2E]' : 'text-white'} ${showDropdown ? 'rotate-180' : ''}`} />

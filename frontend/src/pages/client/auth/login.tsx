@@ -4,7 +4,7 @@ import { useLoginMutation } from "../../../app/api/AuthApi";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../../../app/slices/AuthSlice";
 import { toast } from "react-toastify";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState("");
@@ -44,6 +44,12 @@ const Login: React.FC = () => {
 
             <section className="relative bg-[url('https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center hidden lg:flex flex-col justify-center p-20 text-white">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628]/95 via-[#0a1628]/75 to-transparent" />
+                <div className="absolute top-8 left-8 z-20 animate-[pageFadeUp_0.4s_ease-out]">
+                    <Link to="/" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-xs font-bold tracking-widest uppercase">
+                        <ArrowLeft size={16} />
+                        Go Home
+                    </Link>
+                </div>
                 <div className="relative z-10 animate-[pageFadeUp_0.6s_ease-out]">
                     <span className="text-[#C9A84C] font-bold tracking-widest uppercase text-sm mb-4 block">Welcome to ServiceHub</span>
                     <h2 className="font-serif text-[clamp(32px,4vw,56px)] font-black leading-[1.1] mb-6 tracking-tight text-white">
@@ -58,7 +64,10 @@ const Login: React.FC = () => {
 
             <section className="flex items-center justify-center p-6 sm:p-10 bg-[#F5F0E8]/20 overflow-y-auto">
                 <div className="w-full max-w-[420px] animate-[pageFadeUp_0.8s_ease-out]">
-                    <div className="mb-8 lg:hidden flex justify-center">
+                    <div className="mb-8 lg:hidden flex items-center justify-center relative mt-4">
+                        <Link to="/" className="absolute left-0 text-[#1A1A2E]/40 hover:text-[#1A1A2E] transition-colors" title="Go Home">
+                            <ArrowLeft size={22} />
+                        </Link>
                         <span className="text-3xl font-black text-[#1A1A2E] font-serif">Service<span className="text-[#C9A84C]">Hub</span></span>
                     </div>
 

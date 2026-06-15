@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../../components/client/Header";
@@ -10,6 +11,7 @@ import {
   ChevronDown,
   PlayCircle
 } from "lucide-react";
+import { getRandomReviews } from "../../../utils/serviceUtils";
 import {
   useFilterCustomerServicesQuery,
   useGetCustomerAllServicesQuery,
@@ -169,7 +171,7 @@ const ServiceMemeCard: React.FC<{
       className="group flex flex-col w-full h-full cursor-pointer transition-all duration-300 hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] border border-transparent rounded-lg overflow-hidden bg-white"
     >
       {/* Top Photo */}
-      <div className="w-full aspect-[4/3] relative rounded-lg overflow-hidden">
+      <div className="w-full aspect-4/3 relative rounded-lg overflow-hidden">
         <img
           src={service.image}
           alt={service.name}
@@ -197,7 +199,7 @@ const ServiceMemeCard: React.FC<{
         </div>
         
         {/* Title */}
-        <h3 className="text-[16px] text-[#404145] leading-[22px] mb-2 line-clamp-2 hover:underline">
+        <h3 className="text-[16px] text-[#404145] leading-5.5 mb-2 line-clamp-2 hover:underline">
           {service.name || service.description}
         </h3>
         
@@ -205,7 +207,7 @@ const ServiceMemeCard: React.FC<{
         <div className="flex items-center gap-1 mb-4 mt-auto">
           <Star size={15} className="fill-[#222325] text-[#222325]" />
           <span className="text-[15px] font-bold text-[#222325]">{(service.rating || 5.0).toFixed(1)}</span>
-          <span className="text-[15px] text-[#74767e]">({service.reviews > 0 ? service.reviews : Math.floor(Math.random() * 50) + 10})</span>
+          <span className="text-[15px] text-[#74767e]">({service.reviews > 0 ? service.reviews : getRandomReviews()})</span>
         </div>
         
         {/* Price */}
@@ -264,9 +266,7 @@ const ClientServices: React.FC = () => {
 
   const itemsPerPage = 12;
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedCategory, activeSubFilter]);
+  // Removed redundant useEffect; page reset is handled in individual handlers
 
   const activeApiServices = useMemo(() => {
     if (isSearchActive) return searchedServicesData?.data || [];
@@ -321,7 +321,7 @@ const ClientServices: React.FC = () => {
     <div className="min-h-screen bg-white font-sans text-[#222325]">
       <Header />
 
-      <main className="max-w-[1440px] mx-auto px-6 pt-32 pb-8">
+      <main className="max-w-360 mx-auto px-6 pt-32 pb-8">
         {/* Breadcrumbs */}
         <div className="text-[14px] text-[#74767e] mb-6 flex items-center gap-2">
           <button className="hover:underline" onClick={() => { setSelectedCategory("All"); setActiveSubFilter("All"); }}>Home</button>

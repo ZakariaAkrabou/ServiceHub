@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useRegisterMutation } from "../../../app/api/AuthApi";
 import { toast } from "react-toastify";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 const Register: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -55,6 +55,12 @@ const Register: React.FC = () => {
 
             <section className="relative bg-[url('https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center hidden lg:flex flex-col justify-center p-16 text-white">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628]/95 via-[#0a1628]/75 to-transparent" />
+                <div className="absolute top-8 left-8 z-20 animate-[pageFadeUp_0.4s_ease-out]">
+                    <Link to="/" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-xs font-bold tracking-widest uppercase">
+                        <ArrowLeft size={16} />
+                        Go Home
+                    </Link>
+                </div>
                 <div className="relative z-10 animate-[pageFadeUp_0.6s_ease-out]">
                     <span className="text-[#C9A84C] font-bold tracking-widest uppercase text-sm mb-4 block">Join Our Network</span>
                     <h2 className="font-serif text-[clamp(32px,3.5vw,50px)] font-black leading-[1.1] mb-6 tracking-tight text-white">
@@ -69,7 +75,10 @@ const Register: React.FC = () => {
 
             <section className="flex flex-col p-[16px_32px] sm:p-[16px_40px] bg-[#F5F0E8]/20 justify-center overflow-y-auto">
                 <div className="w-full max-w-[460px] m-auto animate-[pageFadeUp_0.8s_ease-out]">
-                    <div className="mb-6 lg:hidden flex justify-center mt-4">
+                    <div className="mb-6 lg:hidden flex items-center justify-center relative mt-4">
+                        <Link to="/" className="absolute left-0 text-[#1A1A2E]/40 hover:text-[#1A1A2E] transition-colors" title="Go Home">
+                            <ArrowLeft size={22} />
+                        </Link>
                         <span className="text-3xl font-black text-[#1A1A2E] font-serif">Service<span className="text-[#C9A84C]">Hub</span></span>
                     </div>
 
@@ -82,7 +91,7 @@ const Register: React.FC = () => {
                             </div>
                             <h1 className="font-serif text-[38px] font-black text-[#1A1A2E] mb-4 tracking-tight">Check your email</h1>
                             <p className="text-black/50 text-[16px] mb-10 leading-relaxed font-medium">
-                                We've sent a verification link to <span className="font-bold text-[#1A1A2E]">{formData.email}</span>. 
+                                We've sent a verification link to <span className="font-bold text-[#1A1A2E]">{formData.email}</span>.
                                 Please click the link to confirm your account and start using ServiceHub.
                             </p>
                             <Link to="/login" className="inline-block w-full p-4 bg-[#1A1A2E] text-white rounded-xl text-sm uppercase tracking-widest font-bold shadow-[0_8px_20px_rgba(26,26,46,0.15)] hover:bg-[#C9A84C] hover:text-[#1A1A2E] hover:-translate-y-1 transition-all duration-300">
@@ -95,13 +104,13 @@ const Register: React.FC = () => {
                             <p className="text-black/50 text-[15px] mb-5 font-medium">Join our community and get things done.</p>
 
                             <div className="grid grid-cols-2 gap-2 mb-4 bg-black/5 p-1.5 rounded-xl">
-                                <div 
+                                <div
                                     className={`p-2.5 text-center rounded-lg cursor-pointer text-[12px] font-bold uppercase tracking-wider transition-all duration-300 ${role === "customer" ? "bg-white text-[#1A1A2E] shadow-sm" : "text-black/40 hover:text-black/60"}`}
                                     onClick={() => setRole("customer")}
                                 >
                                     Customer
                                 </div>
-                                <div 
+                                <div
                                     className={`p-2.5 text-center rounded-lg cursor-pointer text-[12px] font-bold uppercase tracking-wider transition-all duration-300 ${role === "provider" ? "bg-[#1A1A2E] text-[#C9A84C] shadow-sm" : "text-black/40 hover:text-black/60"}`}
                                     onClick={() => setRole("provider")}
                                 >
@@ -120,10 +129,10 @@ const Register: React.FC = () => {
                                 <div className="grid grid-cols-2 gap-[12px_16px]">
                                     <div className="mb-0">
                                         <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">First Name</label>
-                                        <input 
-                                            type="text" 
+                                        <input
+                                            type="text"
                                             name="firstName"
-                                            className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20" 
+                                            className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20"
                                             placeholder="John"
                                             value={formData.firstName}
                                             onChange={handleChange}
@@ -132,10 +141,10 @@ const Register: React.FC = () => {
                                     </div>
                                     <div className="mb-0">
                                         <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">Last Name</label>
-                                        <input 
-                                            type="text" 
+                                        <input
+                                            type="text"
                                             name="lastName"
-                                            className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20" 
+                                            className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20"
                                             placeholder="Doe"
                                             value={formData.lastName}
                                             onChange={handleChange}
@@ -145,10 +154,10 @@ const Register: React.FC = () => {
 
                                     <div className="mb-0">
                                         <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">Email Address</label>
-                                        <input 
-                                            type="email" 
+                                        <input
+                                            type="email"
                                             name="email"
-                                            className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20" 
+                                            className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20"
                                             placeholder="john@example.com"
                                             value={formData.email}
                                             onChange={handleChange}
@@ -158,10 +167,10 @@ const Register: React.FC = () => {
 
                                     <div className="mb-0">
                                         <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">Phone</label>
-                                        <input 
-                                            type="tel" 
+                                        <input
+                                            type="tel"
                                             name="phone"
-                                            className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20" 
+                                            className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20"
                                             placeholder="+212 600..."
                                             value={formData.phone}
                                             onChange={handleChange}
@@ -172,16 +181,16 @@ const Register: React.FC = () => {
                                     <div className="col-span-2 mb-0">
                                         <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">Password</label>
                                         <div className="relative">
-                                            <input 
-                                                type={showPassword ? "text" : "password"} 
+                                            <input
+                                                type={showPassword ? "text" : "password"}
                                                 name="password"
-                                                className="w-full p-[12px_16px] pr-10 border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20" 
+                                                className="w-full p-[12px_16px] pr-10 border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20"
                                                 placeholder="••••••••"
                                                 value={formData.password}
                                                 onChange={handleChange}
                                                 required
                                             />
-                                            <button 
+                                            <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
                                                 className="absolute right-4 top-1/2 -translate-y-1/2 text-black/30 hover:text-[#C9A84C] transition-colors cursor-pointer"
@@ -195,9 +204,9 @@ const Register: React.FC = () => {
                                         <>
                                             <div className="mb-0">
                                                 <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">Category</label>
-                                                <select 
+                                                <select
                                                     name="serviceCategory"
-                                                    className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E]" 
+                                                    className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E]"
                                                     value={formData.serviceCategory}
                                                     onChange={handleChange}
                                                     required
@@ -212,10 +221,10 @@ const Register: React.FC = () => {
 
                                             <div className="mb-0">
                                                 <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">Location</label>
-                                                <input 
-                                                    type="text" 
+                                                <input
+                                                    type="text"
                                                     name="location"
-                                                    className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20" 
+                                                    className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20"
                                                     placeholder="Rabat"
                                                     value={formData.location}
                                                     onChange={handleChange}
@@ -225,9 +234,9 @@ const Register: React.FC = () => {
 
                                             <div className="col-span-2 mb-0">
                                                 <label className="block text-[11px] font-bold text-black/50 mb-1.5 uppercase tracking-widest">Description</label>
-                                                <textarea 
+                                                <textarea
                                                     name="serviceDescription"
-                                                    className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20 min-h-14 resize-y" 
+                                                    className="w-full p-[12px_16px] border border-black/10 rounded-xl text-[14px] font-medium transition-all outline-none bg-white focus:border-[#C9A84C] focus:ring-4 focus:ring-[#C9A84C]/10 text-[#1A1A2E] placeholder-black/20 min-h-14 resize-y"
                                                     placeholder="Briefly describe your services..."
                                                     value={formData.serviceDescription}
                                                     onChange={handleChange}
@@ -243,7 +252,7 @@ const Register: React.FC = () => {
                                 </button>
 
                                 <p className="text-center text-sm font-medium text-black/50 pb-4 lg:pb-0">
-                                    Already have an account? 
+                                    Already have an account?
                                     <Link to="/login" className="text-[#C9A84C] font-bold ml-2 hover:text-[#1A1A2E] transition-colors">Sign in</Link>
                                 </p>
                             </form>

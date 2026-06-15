@@ -33,25 +33,22 @@ const QuestionSection: React.FC = () => {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-20 flex flex-col lg:flex-row gap-16 items-start font-sans">
+    <section className="max-w-[1440px] mx-auto px-6 py-12 flex flex-col lg:flex-row gap-16 items-start font-sans">
       {/* Left Column */}
       <div className="w-full lg:w-1/2 flex flex-col">
-        <h3 className="font-bold tracking-widest uppercase mb-4 text-[13px]" style={{ color: "var(--red)" }}>
+        <h3 className="font-bold tracking-widest uppercase mb-4 text-[13px] text-[#c9a84c]">
           SOME IMPORTANT FAQ'S
         </h3>
-        <h2 className="text-3xl md:text-[42px] leading-[1.1] font-black mb-6" style={{ color: "var(--text)" }}>
+        <h2 className="text-3xl md:text-[42px] leading-[1.1] font-black mb-6 text-[#222325]">
           Frequently Asked Questions About Our Services
         </h2>
-        <p className="text-[14.5px] leading-relaxed mb-8" style={{ color: "var(--text-muted)" }}>
+        <p className="text-[14.5px] leading-relaxed mb-8 text-[#74767e]">
           Find answers to the most common questions our clients have about bookings, 
           pricing, provider verification, and more. We're here to ensure your 
           experience is smooth and stress-free.
         </p>
         <div>
-          <button 
-            className="text-white text-[14px] font-bold py-3.5 px-8 rounded transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-md cursor-pointer"
-            style={{ background: "var(--red)" }}
-          >
+          <button className="text-white text-[15px] font-bold py-3.5 px-8 rounded-lg transition-colors hover:bg-[#b8963e] shadow-md cursor-pointer bg-[#c9a84c]">
             Have Any Questions
           </button>
         </div>
@@ -64,29 +61,21 @@ const QuestionSection: React.FC = () => {
           return (
             <div 
               key={index} 
-              className="flex flex-col rounded-sm overflow-hidden border shadow-sm transition-all"
-              style={{ borderColor: "var(--border)" }}
+              className="flex flex-col rounded-lg overflow-hidden border shadow-sm transition-all border-[#e4e5e7]"
             >
               <button 
                 onClick={() => toggleFAQ(index)}
-                className="w-full flex items-center justify-between p-5 cursor-pointer transition-colors"
-                style={{ 
-                  background: isOpen ? "var(--red)" : "var(--surface)",
-                  color: isOpen ? "white" : "var(--text)"
-                }}
+                className={`w-full flex items-center justify-between p-5 cursor-pointer transition-colors ${isOpen ? "bg-[#c9a84c] text-white" : "bg-white text-[#222325] hover:bg-gray-50"}`}
               >
                 <span className="text-[15.5px] font-bold text-left">{`Q: ${faq.question}`}</span>
                 {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
               </button>
               
               <div 
-                className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-[500px] border-t" : "max-h-0"}`}
-                style={{ 
-                  background: "var(--surface)", 
-                  borderColor: isOpen ? "rgba(0,0,0,0.05)" : "transparent"
-                }}
+                className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-[500px] border-t border-[#e4e5e7]" : "max-h-0"}`}
+                style={{ background: "white" }}
               >
-                <div className="p-6 text-[14.5px] leading-relaxed" style={{ color: "var(--text-muted)" }}>
+                <div className="p-6 text-[14.5px] leading-relaxed text-[#74767e]">
                   {`A: ${faq.answer}`}
                 </div>
               </div>

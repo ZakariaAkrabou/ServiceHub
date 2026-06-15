@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../app/store/store";
 import { logout } from "../../app/slices/AuthSlice";
-import { User, LogOut, ChevronDown, UserCircle, Settings, LayoutDashboard, Bell } from "lucide-react";
+import { User, LogOut, ChevronDown, UserCircle, Settings, LayoutDashboard, Bell, MessageSquare } from "lucide-react";
 import logoServiceHub from "../../assets/log3.png";
 import logoBleu from "../../assets/logobleu.png";
 import { useLogoutMutation } from "../../app/api/AuthApi";
@@ -97,15 +97,15 @@ const Header: React.FC = () => {
         }
 
         .logo-img {
-          height: 32px;
+          height: 38px;
           width: auto;
           transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
           display: block;
-          filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
         }
 
         .header-container.scrolled .logo-img {
-          height: 28px;
+          height: 32px;
         }
 
         .nav-links {
@@ -130,6 +130,7 @@ const Header: React.FC = () => {
           transition: all 0.3s ease;
           position: relative;
           padding: 8px 0;
+          text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
         }
 
         .nav-links a::after {
@@ -151,8 +152,14 @@ const Header: React.FC = () => {
           text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
-        .nav-links a:hover::after {
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
           width: 100%;
+        }
+
+        .nav-links a.active {
+          color: #ffffff;
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
         .auth-actions {
@@ -172,6 +179,7 @@ const Header: React.FC = () => {
           border: 1px solid rgba(255, 255, 255, 0.15);
           background: rgba(255, 255, 255, 0.03);
           backdrop-filter: blur(4px);
+          text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
         }
 
         .btn-login:hover {
@@ -254,7 +262,7 @@ const Header: React.FC = () => {
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 0 10px rgba(201, 168, 76, 0.3);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), 0 0 10px rgba(201, 168, 76, 0.3);
         }
 
         .dropdown-menu {
@@ -385,6 +393,7 @@ const Header: React.FC = () => {
 
         .header-container.light .mobile-btn span {
           background: #1a1a2e;
+          box-shadow: none;
         }
 
         .header-container.light .mobile-btn.active span {
@@ -410,6 +419,7 @@ const Header: React.FC = () => {
           background: #ffffff;
           transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
           border-radius: 2px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.5);
         }
 
         .mobile-btn:hover span {
@@ -477,7 +487,8 @@ const Header: React.FC = () => {
         .mobile-overlay.active a.nav-item:nth-child(2) { transition-delay: 0.15s; }
         .mobile-overlay.active a.nav-item:nth-child(3) { transition-delay: 0.2s; }
 
-        .mobile-overlay a.nav-item:hover {
+        .mobile-overlay a.nav-item:hover,
+        .mobile-overlay a.nav-item.active {
           color: #c9a84c;
           transform: scale(1.05) translateY(-2px);
         }
@@ -520,16 +531,31 @@ const Header: React.FC = () => {
         </Link>
 
         <nav className="nav-links">
-            <a href="/">Home</a>
-        
-          <Link to="/services">Services</Link>
-            <Link to="/about">About</Link>
-        
+          <Link to="/" className={location.pathname === '/' ? 'active' : ''}>Home</Link>
+          <Link to="/services" className={location.pathname.startsWith('/services') ? 'active' : ''}>Services</Link>
+          <Link to="/about" className={location.pathname === '/about' ? 'active' : ''}>About</Link>
         </nav>
 
         <div className="auth-actions">
           {isAuthenticated ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {/* Chat Icon */}
+              <Link to="/chat" style={{ textDecoration: 'none' }}>
+                <button
+                  style={{
+                    width: 38, height: 38, borderRadius: '50%',
+                    background: isLight ? 'rgba(26,26,46,0.05)' : 'rgba(255,255,255,0.08)',
+                    border: isLight ? '1px solid rgba(26,26,46,0.12)' : '1px solid rgba(255,255,255,0.12)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', transition: 'all 0.2s ease',
+                    boxShadow: isLight ? 'none' : '0 2px 5px rgba(0,0,0,0.3)'
+                  }}
+                  aria-label="Messages"
+                >
+                  <MessageSquare size={16} color={isLight ? '#1A1A2E' : '#ffffff'} style={{ filter: isLight ? 'none' : 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }} />
+                </button>
+              </Link>
+
               {/* Notification Bell */}
               <div style={{ position: 'relative' }}>
                 <button
@@ -539,11 +565,12 @@ const Header: React.FC = () => {
                     background: isLight ? 'rgba(26,26,46,0.05)' : 'rgba(255,255,255,0.08)',
                     border: isLight ? '1px solid rgba(26,26,46,0.12)' : '1px solid rgba(255,255,255,0.12)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', transition: 'all 0.2s ease'
+                    cursor: 'pointer', transition: 'all 0.2s ease',
+                    boxShadow: isLight ? 'none' : '0 2px 5px rgba(0,0,0,0.3)'
                   }}
                   aria-label="Notifications"
                 >
-                  <Bell size={16} color={isLight ? '#1A1A2E' : '#ffffff'} />
+                  <Bell size={16} color={isLight ? '#1A1A2E' : '#ffffff'} style={{ filter: isLight ? 'none' : 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }} />
                 </button>
                 {/* Notification mini panel */}
                 {showNotifPanel && (
@@ -637,10 +664,9 @@ const Header: React.FC = () => {
         </button>
 
         <div className={`mobile-overlay ${open ? 'active' : ''}`}>
-          <a href="/" className="nav-item" onClick={() => setOpen(false)}>Home</a>
-          
-          <Link to="/services" className="nav-item" onClick={() => setOpen(false)}>Services</Link>
-          <Link to="/about" className="nav-item" onClick={() => setOpen(false)}>About</Link>
+          <Link to="/" className={`nav-item ${location.pathname === '/' ? 'active' : ''}`} onClick={() => setOpen(false)}>Home</Link>
+          <Link to="/services" className={`nav-item ${location.pathname.startsWith('/services') ? 'active' : ''}`} onClick={() => setOpen(false)}>Services</Link>
+          <Link to="/about" className={`nav-item ${location.pathname === '/about' ? 'active' : ''}`} onClick={() => setOpen(false)}>About</Link>
     
           <div className="mobile-auth">
             <Link to="/login" className="btn-login" style={{ width: '100%', textAlign: 'center', border: 'none', background: 'transparent' }} onClick={() => setOpen(false)}>Login</Link>

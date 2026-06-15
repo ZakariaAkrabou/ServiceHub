@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { Link} from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useRegisterMutation } from "../../../app/api/AuthApi";
 import { toast } from "react-toastify";
 import { Eye, EyeOff } from "lucide-react";
 
 const Register: React.FC = () => {
-    const [role, setRole] = useState("customer");
+    const [searchParams] = useSearchParams();
+    const initialTab = searchParams.get("tab") === "provider" ? "provider" : "customer";
+    const [role, setRole] = useState(initialTab);
     const [showPassword, setShowPassword] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [formData, setFormData] = useState({

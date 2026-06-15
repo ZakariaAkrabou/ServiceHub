@@ -63,7 +63,7 @@ const Header: React.FC = () => {
           left: 0;
           right: 0;
           z-index: 1000;
-          padding: 24px 48px;
+          padding: 16px 48px; /* Reduced padding for smaller navbar */
           transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
           display: flex;
           align-items: center;
@@ -76,7 +76,7 @@ const Header: React.FC = () => {
         }
 
         .header-container.scrolled {
-          padding: 14px 48px;
+          padding: 10px 48px;
           background: rgba(10, 14, 28, 0.75);
           backdrop-filter: blur(24px);
           -webkit-backdrop-filter: blur(24px);
@@ -97,7 +97,7 @@ const Header: React.FC = () => {
         }
 
         .logo-img {
-          height: 45px;
+          height: 32px;
           width: auto;
           transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
           display: block;
@@ -105,7 +105,7 @@ const Header: React.FC = () => {
         }
 
         .header-container.scrolled .logo-img {
-          height: 36px;
+          height: 28px;
         }
 
         .nav-links {
@@ -178,6 +178,26 @@ const Header: React.FC = () => {
           background: rgba(255, 255, 255, 0.1);
           border-color: rgba(201, 168, 76, 0.6);
           color: #c9a84c;
+          transform: translateY(-1px);
+        }
+
+        .btn-provider {
+          color: #c9a84c;
+          text-decoration: none;
+          font-size: 14px;
+          font-weight: 600;
+          padding: 10px 24px;
+          border-radius: 100px;
+          transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+          border: 1px solid rgba(201, 168, 76, 0.4);
+          background: rgba(201, 168, 76, 0.05);
+          backdrop-filter: blur(4px);
+        }
+
+        .btn-provider:hover {
+          background: rgba(201, 168, 76, 0.1);
+          border-color: rgba(201, 168, 76, 0.8);
+          color: #d8b75c;
           transform: translateY(-1px);
         }
 
@@ -351,6 +371,16 @@ const Header: React.FC = () => {
 
         .header-container.light .btn-login:hover {
           background: rgba(26,26,46,0.1);
+        }
+
+        .header-container.light .btn-provider {
+          color: #c9a84c;
+          border-color: rgba(201, 168, 76, 0.6);
+          background: rgba(201, 168, 76, 0.05);
+        }
+
+        .header-container.light .btn-provider:hover {
+          background: rgba(201, 168, 76, 0.15);
         }
 
         .header-container.light .mobile-btn span {
@@ -590,8 +620,8 @@ const Header: React.FC = () => {
             </div>
           ) : (
             <>
-              <Link to="/login" className="btn-login">Login</Link>
-              <Link to="/contact" className="btn-cta">Contact us</Link>
+              <Link to="/login" className="btn-login" style={{ border: 'none', background: 'transparent' }}>Login</Link>
+              <Link to="/register?tab=provider" className="btn-cta">Join as Provider</Link>
             </>
           )}
         </div>
@@ -613,8 +643,8 @@ const Header: React.FC = () => {
           <Link to="/about" className="nav-item" onClick={() => setOpen(false)}>About</Link>
     
           <div className="mobile-auth">
-            <Link to="/login" className="btn-login" style={{ width: '100%', textAlign: 'center' }} onClick={() => setOpen(false)}>Login</Link>
-            <Link to="/contact" className="btn-cta" style={{ width: '100%', textAlign: 'center' }} onClick={() => setOpen(false)}>Contact us</Link>
+            <Link to="/login" className="btn-login" style={{ width: '100%', textAlign: 'center', border: 'none', background: 'transparent' }} onClick={() => setOpen(false)}>Login</Link>
+            <Link to="/register?tab=provider" className="btn-cta" style={{ width: '100%', textAlign: 'center' }} onClick={() => setOpen(false)}>Join as Provider</Link>
           </div>
         </div>
       </header>

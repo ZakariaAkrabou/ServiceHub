@@ -7,6 +7,9 @@ import { User, LogOut, ChevronDown, UserCircle, Settings, LayoutDashboard, Bell,
 import logoServiceHub from "../../assets/log3.png";
 import logoBleu from "../../assets/logobleu.png";
 import { useLogoutMutation } from "../../app/api/AuthApi";
+import { useGetCustomerNotificationsQuery, useMarkCustomerNotificationReadMutation, useMarkAllCustomerNotificationsReadMutation } from "../../app/api/NotificationApi";
+import { useSocket, getSocket } from "../../hooks/useSocket";
+import { toast } from "react-toastify";
 
 const Header: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -19,6 +22,42 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isLight = location.pathname === "/profile" || location.pathname.startsWith("/services");
+  const isCustomer = user?.role === "customer";
+
+  const { data: notifData, refetch: refetchNotifs } = useGetCustomerNotificationsQuery(undefined, { skip: !isAuthenticated || !isCustomer });
+  const [markRead] = useMarkCustomerNotificationReadMutation();
+  const [markAllRead] = useMarkAllCustomerNotificationsReadMutation();
+
+  const notifications = notifData?.data || [];
+  const unreadCount = notifications.filter((n: any) => !n.is_read).length;
+
+  const socketRef = useSocket(user?._id || user?.userId, user?.role);
+
+  useEffect(() => {
+    const socket = getSocket();
+    
+    const handleBookingUpdate = (data: any) => {
+      if (isCustomer) {
+        toast.info(data.message || "Booking status updated");
+        refetchNotifs();
+      }
+    };
+    
+    socket.on("bookingUpdate", handleBookingUpdate);
+    
+    return () => {
+      socket.off("bookingUpdate", handleBookingUpdate);
+    };
+  }, [isCustomer, refetchNotifs]);
+
+  const handleNotifClick = async (notif: any) => {
+    if (!notif.is_read) {
+      await markRead(notif._id);
+      refetchNotifs();
+    }
+    setShowNotifPanel(false);
+    navigate(`/bookings?highlight=${notif.booking_id?._id || notif.booking_id}`);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -561,33 +600,74 @@ const Header: React.FC = () => {
                   aria-label="Notifications"
                 >
                   <Bell size={16} color={isLight ? '#1A1A2E' : '#ffffff'} />
+                  {unreadCount > 0 && (
+                    <span style={{ position: 'absolute', top: -4, right: -4, background: '#e74c3c', color: 'white', fontSize: 10, fontWeight: 'bold', padding: '2px 6px', borderRadius: 10 }}>
+                      {unreadCount}
+                    </span>
+                  )}
                 </button>
                 {/* Notification mini panel */}
                 {showNotifPanel && (
                   <div style={{
                     position: 'absolute', top: 'calc(100% + 10px)', right: 0,
-                    width: 280, background: '#ffffff', borderRadius: 14,
+                    width: 320, background: '#ffffff', borderRadius: 14,
                     border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
                     padding: '12px', zIndex: 2000
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                       <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#1A1A2E' }}>Notifications</span>
-                      <button onClick={() => setShowNotifPanel(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: 16 }}>×</button>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        {unreadCount > 0 && (
+                          <button onClick={async () => { await markAllRead(); refetchNotifs(); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3498db', fontSize: 11, fontWeight: 600 }}>Mark all read</button>
+                        )}
+                        <button onClick={() => setShowNotifPanel(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: 16, lineHeight: 1 }}>×</button>
+                      </div>
                     </div>
-                    <div style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(0,0,0,0.35)', fontSize: 12 }}>
-                      <Bell size={20} style={{ margin: '0 auto 6px', opacity: 0.3 }} />
-                      <p>No new notifications</p>
-                    </div>
+                    
+                    {notifications.length > 0 ? (
+                      <div style={{ maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {notifications.map((notif: any) => (
+                          <div 
+                            key={notif._id} 
+                            onClick={() => handleNotifClick(notif)}
+                            style={{ 
+                              padding: '10px', 
+                              borderRadius: '8px', 
+                              background: notif.is_read ? 'transparent' : 'rgba(201, 168, 76, 0.05)',
+                              border: notif.is_read ? '1px solid transparent' : '1px solid rgba(201, 168, 76, 0.2)',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'flex-start',
+                              gap: '10px',
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            <div style={{ width: 8, height: 8, borderRadius: '50%', background: notif.is_read ? 'transparent' : '#c9a84c', marginTop: 6, flexShrink: 0 }}></div>
+                            <div>
+                              <p style={{ margin: 0, fontSize: 13, color: '#1a1a2e', fontWeight: notif.is_read ? 400 : 600, lineHeight: 1.4 }}>{notif.message}</p>
+                              <span style={{ fontSize: 11, color: '#888', marginTop: 4, display: 'block' }}>{new Date(notif.createdAt).toLocaleString()}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(0,0,0,0.35)', fontSize: 12 }}>
+                        <Bell size={20} style={{ margin: '0 auto 6px', opacity: 0.3 }} />
+                        <p>No new notifications</p>
+                      </div>
+                    )}
+                    
                     <Link
                       to="/bookings"
                       onClick={() => setShowNotifPanel(false)}
                       style={{
-                        display: 'block', textAlign: 'center', marginTop: 8,
-                        fontSize: 11, fontWeight: 700, color: '#C9A84C',
-                        textDecoration: 'none', padding: '6px 0'
+                        display: 'block', textAlign: 'center', marginTop: 12,
+                        fontSize: 12, fontWeight: 700, color: '#C9A84C',
+                        textDecoration: 'none', padding: '8px 0',
+                        borderTop: '1px solid rgba(0,0,0,0.05)'
                       }}
                     >
-                      View My Bookings →
+                      View All Bookings →
                     </Link>
                   </div>
                 )}

@@ -1,24 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import React, { useState, useMemo } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
-  ChevronRight,
-  CheckCircle,
-  MessageSquare,
-  MapPin,
-  Mail,
-  Phone,
-  Users,
-  CalendarDays,
-  BookOpen,
-  Home,
-  PhoneCall,
+  Star,
+  Check,
+  Clock,
+  ArrowRight,
   FileText,
   Building2,
-  ArrowRight,
-  Wrench,
-  Shield,
-  Settings,
-  Zap,
+  Heart,
+  ChevronRight,
+  Share2
 } from "lucide-react";
 import Header from "../../../components/client/Header";
 import Footer from "../../../components/client/Footer";
@@ -38,13 +29,19 @@ interface Review {
   comment: string;
 }
 
+interface ServiceReview {
+  _id: string;
+  customer_id?: unknown;
+  rating: number;
+  createdAt?: string;
+  review?: string;
+}
+
 const ServiceDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const [service, setService] = useState<ServiceItem | null>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [reviewsList, setReviewsList] = useState<Review[]>([]);
 
   const {
     data: serviceData,
@@ -77,15 +74,16 @@ const ServiceDetail: React.FC = () => {
     return { author, avatar };
   };
 
-  useEffect(() => {
+  const service = useMemo<ServiceItem | null>(() => {
     if (serviceData) {
-      setService(mapCustomerServiceToItem(serviceData));
+      return mapCustomerServiceToItem(serviceData);
     }
+    return null;
   }, [serviceData]);
 
-  useEffect(() => {
-    if (!serviceReviewsData) return;
-    const mappedReviews: Review[] = serviceReviewsData.data.map((review: any) => {
+  const reviewsList = useMemo<Review[]>(() => {
+    if (!serviceReviewsData) return [];
+    return serviceReviewsData.data.map((review: ServiceReview) => {
       const identity = getReviewIdentity(review.customer_id);
       return {
         id: review._id,
@@ -96,225 +94,255 @@ const ServiceDetail: React.FC = () => {
         comment: review.review || "",
       };
     });
-    setReviewsList(mappedReviews);
   }, [serviceReviewsData]);
 
   if (isServiceLoading || isServiceFetching || isReviewsLoading) {
     return (
-      <div className="sd-page">
+      <div className="min-h-screen bg-white font-sans text-[#222325]">
         <Header />
-        <div className="sd-loading">
-          <div className="sd-loading__spinner" />
-          <h2>Loading service details...</h2>
+        <div className="flex flex-col items-center justify-center py-48">
+          <div className="w-10 h-10 border-4 border-[#e4e5e7] border-t-[#c9a84c] rounded-full animate-spin mb-4" />
+          <h2 className="text-[18px] font-bold text-[#222325]">Loading service details...</h2>
         </div>
         <Footer />
-        <style>{styles}</style>
       </div>
     );
   }
 
   if (serviceError || !service) {
     return (
-      <div className="sd-page">
+      <div className="min-h-screen bg-white font-sans text-[#222325]">
         <Header />
-        <div className="sd-loading">
-          <h2>Service not found</h2>
-          <button onClick={() => navigate("/services")} className="sd-back-btn">
+        <div className="flex flex-col items-center justify-center py-48">
+          <h2 className="text-[24px] font-bold text-[#222325] mb-6">Service not found</h2>
+          <button onClick={() => navigate("/services")} className="px-6 py-3 bg-[#c9a84c] text-white font-bold rounded-lg hover:bg-[#b8963e] transition-colors">
             Back to Services
           </button>
         </div>
         <Footer />
-        <style>{styles}</style>
       </div>
     );
   }
 
-  const providerRaw = serviceData?.provider_id as any;
-  const providerEmail =
-    typeof providerRaw === "object" && providerRaw?.email
-      ? providerRaw.email
-      : "provider@example.com";
-  const providerPhone =
-    typeof providerRaw === "object" && providerRaw?.phone
-      ? providerRaw.phone
-      : "(808) 555-0111";
-
-  // Sibling services for sidebar list
   const siblingServices = [
     "Roof Repair Pros",
     service.name,
     "Premier Roof Maintenance",
     "Sky Shield Roofing",
     "Elevate Roof Solutions",
-    "Horizon Guard Roofing",
   ];
-
-  const processItems = [
-    {
-      icon: <Wrench size={22} />,
-      name: "Roof Repair Pros",
-      desc: "Roofing is the process installing repairing and the maintaining and maintaining roofs",
-    },
-    {
-      icon: <Shield size={22} />,
-      name: "Weatherproof Roofing Solutions",
-      desc: "Roofing is the process installing repairing and the maintaining and maintaining roofs",
-    },
-    {
-      icon: <Settings size={22} />,
-      name: "Elite Roof Installations",
-      desc: "Roofing is the process installing repairing and the maintaining and maintaining roofs",
-    },
-    {
-      icon: <Zap size={22} />,
-      name: "Sky Shield Roofing",
-      desc: "Roofing is the process installing repairing and the maintaining and maintaining roofs",
-    },
-  ];
-
-  const descriptionText = service.longDescription || service.description || "";
 
   return (
-    <div className="sd-page">
+    <div className="min-h-screen bg-white font-sans text-[#222325]">
       <Header />
-      <style>{styles}</style>
-
-      {/* Hero Banner */}
-      <div className="sd-hero">
-        <div className="sd-hero__inner">
-          <h1 className="sd-hero__title">{service.name}</h1>
-          <nav className="sd-hero__breadcrumb" aria-label="Breadcrumb">
-            <Link to="/" className="sd-hero__bc-link">HOME</Link>
-            <span className="sd-hero__bc-sep">/</span>
-            <Link to="/services" className="sd-hero__bc-link">SERVICES</Link>
-            <span className="sd-hero__bc-sep">/</span>
-            <span className="sd-hero__bc-active">{service.name.toUpperCase()}</span>
-          </nav>
+      
+      {/* Main Container */}
+      <main className="max-w-[1440px] mx-auto px-6 pt-32 pb-16">
+        
+        {/* Breadcrumbs */}
+        <div className="text-[14px] text-[#74767e] mb-8 flex items-center gap-2">
+          <Link to="/" className="hover:underline">Home</Link>
+          <span>/</span>
+          <Link to="/services" className="hover:underline">Services</Link>
+          <span>/</span>
+          <Link to="/services" className="hover:underline">{service.category}</Link>
         </div>
-      </div>
 
-      {/* Main Layout */}
-      <main className="sd-main">
-        <div className="sd-grid">
-
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 items-start">
+          
           {/* ── LEFT COLUMN ── */}
-          <div className="sd-left">
+          <div className="w-full lg:w-[60%] flex flex-col">
+            
+            {/* Title */}
+            <h1 className="text-[28px] md:text-[36px] font-black leading-[1.3] text-[#222325] mb-6">
+              {service.name}
+            </h1>
 
-            {/* Main service image */}
-            <div className="sd-main-image">
-              <img src={service.image} alt={service.name} />
+            {/* Provider Info Row */}
+            <div className="flex flex-wrap items-center gap-4 mb-8">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-[#f5f5f5] flex items-center justify-center text-[13px] font-bold text-[#404145] shadow-sm">
+                  {service.providerAvatar}
+                </div>
+                <span className="text-[16px] font-bold text-[#222325] hover:underline cursor-pointer">{service.provider}</span>
+                <span className="text-[14px] text-[#c9a84c] font-bold ml-1">{service.providerTier}</span>
+              </div>
+              <div className="w-px h-5 bg-[#e4e5e7] hidden sm:block"></div>
+              <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1 text-[#c9a84c]">
+                   <Star size={18} className="fill-[#c9a84c]" />
+                   <Star size={18} className="fill-[#c9a84c]" />
+                   <Star size={18} className="fill-[#c9a84c]" />
+                   <Star size={18} className="fill-[#c9a84c]" />
+                   <Star size={18} className="fill-[#c9a84c]" />
+                </div>
+                <span className="text-[15px] font-bold text-[#c9a84c] ml-1">{service.rating.toFixed(1)}</span>
+                <span className="text-[15px] text-[#74767e] hover:underline cursor-pointer">
+                  ({service.reviews > 0 ? service.reviews : '1k+'} reviews)
+                </span>
+              </div>
             </div>
 
-            {/* Section: Hand working / Overview */}
-            <div className="sd-section">
-              <h2 className="sd-section__title">Hand working</h2>
-              <p className="sd-section__body">{descriptionText}</p>
-              <ul className="sd-bullet-list">
-                <li>Roof is a nutritious category of food that includes various</li>
-                <li>My Roof is a nutritious category of food that includes various</li>
-                <li>These ground nuts can be used in a variety of recipes</li>
+            {/* Main Image */}
+            <div className="w-full aspect-video rounded-xl overflow-hidden mb-12 border border-[#e4e5e7]">
+              <img src={service.image} alt={service.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+            </div>
+
+            {/* About Section */}
+            <div className="mb-12 border-b border-[#e4e5e7] pb-12">
+              <h2 className="text-[22px] font-bold text-[#222325] mb-6">About this service</h2>
+              <div className="text-[16px] leading-relaxed text-[#404145] space-y-4">
+                <p>{service.longDescription || service.description || "No detailed description provided for this service yet."}</p>
+                <p>We pride ourselves on providing top-tier service tailored perfectly to your requirements. Our certified professionals ensure that everything is executed seamlessly from start to finish.</p>
+              </div>
+              
+              <ul className="mt-8 space-y-4">
+                <li className="flex items-start gap-3 text-[16px] text-[#404145]">
+                  <Check size={20} className="text-[#c9a84c] flex-shrink-0 mt-0.5" />
+                  <span>Comprehensive consultation and assessment</span>
+                </li>
+                <li className="flex items-start gap-3 text-[16px] text-[#404145]">
+                  <Check size={20} className="text-[#c9a84c] flex-shrink-0 mt-0.5" />
+                  <span>High quality materials and professional equipment</span>
+                </li>
+                <li className="flex items-start gap-3 text-[16px] text-[#404145]">
+                  <Check size={20} className="text-[#c9a84c] flex-shrink-0 mt-0.5" />
+                  <span>Post-service cleanup and quality assurance</span>
+                </li>
               </ul>
             </div>
 
-            {/* Section: Repairs & Upgrades */}
-            <div className="sd-section">
-              <h2 className="sd-section__title">Repairs &amp; Upgrades</h2>
-              <p className="sd-section__body">
-                {descriptionText ||
-                  "Nutmeal is a nutritious category of food that includes various types of ground nuts, such as almonds, walnuts, and peanuts These ground nuts can be used in a variety of recipes, including smoothies, baked goods, and savory dishes Nutmeal is a versatile ingredient."}
-              </p>
-            </div>
-
-            {/* Double image row */}
-            <div className="sd-double-image">
-              <div className="sd-double-image__item">
-                <img src={service.image} alt={`${service.name} detail 1`} />
-              </div>
-              <div className="sd-double-image__item">
-                <img src={service.image} alt={`${service.name} detail 2`} />
-              </div>
-            </div>
-
-            {/* Section: Our Service Process */}
-            <div className="sd-section">
-              <h2 className="sd-section__title">Our Service Process</h2>
-              <div className="sd-process-grid">
-                {processItems.map((item, idx) => (
-                  <div key={idx} className="sd-process-item">
-                    <div className="sd-process-item__icon">{item.icon}</div>
-                    <div>
-                      <h4 className="sd-process-item__name">{item.name}</h4>
-                      <p className="sd-process-item__desc">{item.desc}</p>
+            {/* Reviews Section Placeholder */}
+            <div>
+              <h2 className="text-[22px] font-bold text-[#222325] mb-6">What people loved about this seller</h2>
+              {reviewsList.length > 0 ? (
+                <div className="space-y-6">
+                  {reviewsList.map((rev) => (
+                    <div key={rev.id} className="border-b border-[#e4e5e7] pb-6">
+                      <div className="flex items-center gap-3 mb-3">
+                         <div className="w-10 h-10 rounded-full bg-[#f5f5f5] flex items-center justify-center font-bold text-[#404145]">
+                           {rev.avatar}
+                         </div>
+                         <div>
+                           <div className="font-bold text-[#222325]">{rev.author}</div>
+                           <div className="flex items-center gap-2">
+                              <Star size={12} className="fill-[#c9a84c] text-[#c9a84c]" />
+                              <span className="text-[13px] font-bold text-[#c9a84c]">{rev.rating.toFixed(1)}</span>
+                              <span className="text-[12px] text-[#74767e]">{rev.date}</span>
+                           </div>
+                         </div>
+                      </div>
+                      <p className="text-[#404145] leading-relaxed text-[15px]">{rev.comment}</p>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-[#74767e] italic">No reviews yet for this service.</p>
+              )}
             </div>
+
           </div>
 
-          {/* ── RIGHT SIDEBAR ── */}
-          <aside className="sd-sidebar">
+          {/* ── RIGHT COLUMN (Sticky Sidebar) ── */}
+          <div className="w-full lg:w-[40%] flex flex-col gap-6 sticky top-[100px]">
+            
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-5 mb-2">
+              <button className="flex items-center gap-2 text-[15px] font-bold text-[#74767e] hover:text-[#c9a84c] transition-colors">
+                <Heart size={18} /> Save
+              </button>
+              <button className="flex items-center gap-2 text-[15px] font-bold text-[#74767e] hover:text-[#c9a84c] transition-colors">
+                <Share2 size={18} /> Share
+              </button>
+            </div>
 
-            {/* All Services list */}
-            <div className="sd-widget">
-              <h3 className="sd-widget__title">Our All Service</h3>
-              <ul className="sd-service-list">
+            {/* Pricing Card */}
+            <div className="border border-[#e4e5e7] rounded-[12px] bg-white overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+              {/* Header */}
+              <div className="bg-[#fafafa] border-b border-[#e4e5e7] px-6 py-4 flex justify-between items-center">
+                 <h3 className="text-[16px] font-bold text-[#222325] uppercase tracking-wider">Service Booking</h3>
+                 <span className="text-[26px] font-normal text-[#222325]">US${service.price}</span>
+              </div>
+              
+              <div className="p-6">
+                <h4 className="font-bold text-[16px] text-[#222325] mb-2">Standard Package</h4>
+                <p className="text-[15px] text-[#74767e] mb-6 leading-relaxed">
+                  {service.description || "Complete execution of the requested service by our verified professional."}
+                </p>
+
+                <div className="flex items-center gap-4 text-[14px] font-bold text-[#404145] mb-6">
+                  <div className="flex items-center gap-2">
+                    <Clock size={18} className="text-[#c9a84c]" />
+                    <span>Flexible Schedule</span>
+                  </div>
+                </div>
+
+                <ul className="space-y-3.5 mb-8">
+                  <li className="flex items-center gap-3 text-[14px] text-[#404145]">
+                    <Check size={18} className="text-[#c9a84c]" /> Service Guarantee
+                  </li>
+                  <li className="flex items-center gap-3 text-[14px] text-[#404145]">
+                    <Check size={18} className="text-[#c9a84c]" /> Background Checked Pro
+                  </li>
+                  <li className="flex items-center gap-3 text-[14px] text-[#404145]">
+                    <Check size={18} className="text-[#c9a84c]" /> Secure Online Payment
+                  </li>
+                </ul>
+
+                <button 
+                  onClick={() => setShowBookingModal(true)}
+                  className="w-full py-3.5 bg-[#c9a84c] text-white text-[16px] font-bold rounded-lg hover:bg-[#b8963e] transition-colors flex items-center justify-center gap-2"
+                >
+                  Continue <ArrowRight size={18} />
+                </button>
+                
+                <p className="text-center text-[13px] text-[#74767e] mt-4 font-medium">You won't be charged yet</p>
+              </div>
+            </div>
+
+            {/* Related Services */}
+            <div className="border border-[#e4e5e7] rounded-[12px] bg-white overflow-hidden">
+              <h4 className="text-[16px] font-bold text-[#222325] px-6 py-4 border-b border-[#e4e5e7] bg-[#fafafa]">
+                Related Services
+              </h4>
+              <ul className="flex flex-col">
                 {siblingServices.map((svc, idx) => {
                   const isActive = svc === service.name;
                   return (
-                    <li key={idx} className={`sd-service-list__item ${isActive ? "is-active" : ""}`}>
-                      <span>{svc}</span>
-                      <span className={`sd-service-list__arrow ${isActive ? "is-active" : ""}`}>
-                        <ArrowRight size={14} />
-                      </span>
+                    <li key={idx} className={`px-6 py-3.5 border-b border-[#e4e5e7] last:border-0 cursor-pointer transition-colors flex items-center justify-between ${isActive ? "bg-[#c9a84c] text-white font-bold" : "text-[#404145] hover:bg-[#f5f5f5]"}`}>
+                      <span className="text-[14px] truncate">{svc}</span>
+                      <ChevronRight size={16} className={isActive ? "text-white" : "text-[#c5c6c9]"} />
                     </li>
                   );
                 })}
               </ul>
             </div>
 
-           
-
-            {/* Brochure downloads */}
-            <div className="sd-widget">
-              <h3 className="sd-widget__title">Brochure</h3>
-              <div className="sd-brochure-list">
-                <div className="sd-brochure-item">
-                  <div className="sd-brochure-item__icon">
-                    <FileText size={20} />
+            {/* Support / Company Details */}
+            <div className="border border-[#e4e5e7] rounded-[12px] bg-white overflow-hidden mt-2">
+              <div className="flex flex-col">
+                <div className="p-5 border-b border-[#e4e5e7] hover:bg-[#f5f5f5] cursor-pointer transition-colors flex gap-4 items-center">
+                  <div className="w-10 h-10 rounded-full bg-[#fffcf5] border border-[#f0e6ce] flex items-center justify-center text-[#c9a84c] flex-shrink-0">
+                    <FileText size={18} />
                   </div>
-                  <div className="sd-brochure-item__info">
-                    <span className="sd-brochure-item__name">Download Brochure</span>
-                    <span className="sd-brochure-item__sub">
-                      Lorem Ipsum is simply is dumiomy is tex Lorem Ipsum is simply is ou our
-                    </span>
+                  <div>
+                    <span className="block text-[14px] font-bold text-[#222325] mb-0.5">Download Brochure</span>
+                    <span className="block text-[13px] text-[#74767e]">Get all details in a PDF</span>
                   </div>
                 </div>
-                <div className="sd-brochure-item">
-                  <div className="sd-brochure-item__icon">
-                    <Building2 size={20} />
+                <div className="p-5 hover:bg-[#f5f5f5] cursor-pointer transition-colors flex gap-4 items-center">
+                  <div className="w-10 h-10 rounded-full bg-[#fffcf5] border border-[#f0e6ce] flex items-center justify-center text-[#c9a84c] flex-shrink-0">
+                    <Building2 size={18} />
                   </div>
-                  <div className="sd-brochure-item__info">
-                    <span className="sd-brochure-item__name">Company Details</span>
-                    <span className="sd-brochure-item__sub">
-                      Lorem Ipsum is simply is dumiomy is tex Lorem Ipsum is simply is ou our
-                    </span>
+                  <div>
+                    <span className="block text-[14px] font-bold text-[#222325] mb-0.5">View Provider Profile</span>
+                    <span className="block text-[13px] text-[#74767e]">See everything they offer</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Book button */}
-            <button
-              type="button"
-              className="sd-book-btn"
-              onClick={() => setShowBookingModal(true)}
-            >
-              <CalendarDays size={16} />
-              Book This Service
-            </button>
-
-          </aside>
+          </div>
         </div>
       </main>
 
@@ -338,407 +366,5 @@ const ServiceDetail: React.FC = () => {
     </div>
   );
 };
-
-const styles = `
-  :root {
-    --font-main: "DM Sans", "Inter", sans-serif;
-    --bg:       #ffffff;
-    --surface:  #ffffff;
-    --text:     #1a1a2e;
-    --text-muted: #6b7280;
-    --border:   #eaedf1;
-    --red:      #c9a84c;
-    --red-dark: #b8963e;
-    --radius:   16px;
-    --shadow-sm: 0 4px 12px rgba(0,0,0,0.03);
-    --shadow:    0 10px 30px rgba(0,0,0,0.05);
-    --shadow-lg: 0 20px 40px rgba(0,0,0,0.08);
-  }
-
-  * { box-sizing: border-box; }
-
-  .sd-page {
-    min-height: 100vh;
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-main);
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* Loading */
-  .sd-loading {
-    max-width: 100%;
-    margin: 0;
-    padding: 120px 48px;
-    text-align: center;
-  }
-  .sd-loading h2 { font-size: 18px; font-weight: 700; margin: 0; color: var(--text); }
-  .sd-loading__spinner {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    border: 3px solid rgba(0,0,0,.1);
-    border-top-color: var(--red);
-    animation: sdSpin .7s linear infinite;
-    margin: 0 auto 14px;
-  }
-  @keyframes sdSpin { to { transform: rotate(360deg); } }
-  .sd-back-btn {
-    margin-top: 16px; padding: 10px 20px;
-    background: var(--red); color: #fff;
-    border: none; border-radius: var(--radius);
-    font-size: 14px; font-weight: 700; cursor: pointer;
-    font-family: var(--font-main);
-  }
-
-  /* ── HERO ── */
-  .sd-hero {
-    background:
-      linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.6)),
-      url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80') center/cover no-repeat;
-    padding: 140px 48px 80px;
-    text-align: center;
-    min-height: 340px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  .sd-hero__inner { max-width: 100%; margin: 0; }
-  .sd-hero__title {
-    font-family: var(--font-main);
-    font-size: clamp(36px, 5vw, 60px);
-    font-weight: 900;
-    color: #fff;
-    margin: 0 0 20px;
-    letter-spacing: -0.5px;
-    text-transform: uppercase;
-  }
-  .sd-hero__breadcrumb {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-size: 14px; font-weight: 700; color: #fff;
-    font-family: var(--font-main);
-    letter-spacing: 1px;
-  }
-  .sd-hero__bc-link {
-    color: #fff; text-decoration: none;
-    transition: color .2s;
-  }
-  .sd-hero__bc-link:hover { color: var(--red); }
-  .sd-hero__bc-sep { color: var(--red); font-weight: 800; }
-  .sd-hero__bc-active { color: var(--red); }
-
-  /* ── MAIN ── */
-  .sd-main {
-    max-width: 100%;
-    margin: 0;
-    padding: 64px 48px 80px;
-    background: #ffffff;
-  }
-
-  @media (max-width: 1100px) {
-    .sd-hero { padding: 120px 32px 64px; }
-    .sd-main { padding: 48px 32px 72px; }
-  }
-
-  @media (max-width: 900px) {
-    .sd-hero { padding: 140px 24px 48px; }
-    .sd-main { padding: 40px 24px 64px; }
-  }
-
-  /* ── GRID ── */
-  .sd-grid {
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 40px;
-    align-items: start;
-    max-width: 1280px;
-    margin: 0 auto;
-  }
-  @media (max-width: 900px) {
-    .sd-grid { grid-template-columns: 1fr; }
-    .sd-sidebar { order: -1; }
-  }
-
-  /* ── LEFT COLUMN ── */
-  .sd-left { display: flex; flex-direction: column; gap: 48px; }
-
-  .sd-main-image {
-    border-radius: 4px;
-    overflow: hidden;
-    aspect-ratio: 16/9;
-  }
-  .sd-main-image img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-    transition: transform .6s ease;
-  }
-  .sd-main-image:hover img { transform: scale(1.03); }
-
-  .sd-section {}
-  .sd-section__title {
-    font-family: var(--font-main);
-    font-size: 32px;
-    font-weight: 900;
-    color: var(--text);
-    margin: 0 0 24px;
-    letter-spacing: -0.5px;
-    position: relative;
-    padding-bottom: 12px;
-  }
-  .sd-section__title::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 60px;
-    height: 4px;
-    background: var(--red);
-    border-radius: 2px;
-  }
-  .sd-section__body {
-    font-size: 15.5px;
-    line-height: 1.8;
-    color: var(--text-muted);
-    margin: 0;
-    font-family: var(--font-main);
-  }
-
-  .sd-bullet-list {
-    margin: 20px 0 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .sd-bullet-list li {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    font-size: 15px;
-    color: var(--text-muted);
-    line-height: 1.6;
-    font-family: var(--font-main);
-  }
-  .sd-bullet-list li::before {
-    content: '';
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--red);
-    flex-shrink: 0;
-    margin-top: 6px;
-  }
-
-  .sd-double-image {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
-  .sd-double-image__item {
-    border-radius: 4px;
-    overflow: hidden;
-    aspect-ratio: 4/3;
-  }
-  .sd-double-image__item img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-    transition: transform .6s ease;
-  }
-  .sd-double-image__item:hover img { transform: scale(1.04); }
-
-  /* Service process grid */
-  .sd-process-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    margin-top: 12px;
-  }
-  @media (max-width: 600px) {
-    .sd-process-grid { grid-template-columns: 1fr; }
-    .sd-double-image { grid-template-columns: 1fr; }
-  }
-  .sd-process-item {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    padding: 24px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    transition: all 0.3s ease;
-  }
-  .sd-process-item:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow);
-    border-color: var(--red);
-  }
-  .sd-process-item__icon {
-    width: 56px; height: 56px;
-    border-radius: 50%;
-    background: var(--surface);
-    border: 2px solid var(--red);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--red);
-    flex-shrink: 0;
-    transition: all 0.3s ease;
-  }
-  .sd-process-item:hover .sd-process-item__icon {
-    background: var(--red);
-    color: #fff;
-  }
-  .sd-process-item__name {
-    margin: 0 0 8px;
-    font-size: 17px;
-    font-weight: 800;
-    color: var(--text);
-    font-family: var(--font-main);
-  }
-  .sd-process-item__desc {
-    margin: 0;
-    font-size: 14px;
-    color: var(--text-muted);
-    line-height: 1.6;
-    font-family: var(--font-main);
-  }
-
-  /* ── RIGHT SIDEBAR ── */
-  .sd-sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    position: sticky;
-    top: 100px;
-  }
-  @media (max-width: 900px) {
-    .sd-sidebar { position: static; }
-  }
-
-  /* Widget base */
-  .sd-widget {
-    background: var(--surface);
-    border-radius: 4px;
-    border: 1px solid var(--border);
-  }
-  .sd-widget__title {
-    font-family: var(--font-main);
-    font-size: 16px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 0;
-    padding: 20px;
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
-    background: #fdfdfd;
-  }
-
-  /* Services list */
-  .sd-service-list {
-    list-style: none;
-    margin: 0; padding: 0;
-  }
-  .sd-service-list__item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-muted);
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: all .2s ease;
-    font-family: var(--font-main);
-  }
-  .sd-service-list__item:last-child { border-bottom: none; }
-  .sd-service-list__item:hover { background: var(--red); color: #fff; }
-  .sd-service-list__item.is-active {
-    background: var(--red);
-    color: #fff;
-    font-weight: 700;
-  }
-  .sd-service-list__arrow {
-    width: 28px; height: 28px;
-    display: flex; align-items: center; justify-content: center;
-    background: transparent;
-    color: inherit;
-    transition: transform .2s ease;
-    flex-shrink: 0;
-  }
-  .sd-service-list__item:hover .sd-service-list__arrow,
-  .sd-service-list__item.is-active .sd-service-list__arrow {
-    transform: translateX(4px);
-  }
-
-  /* Brochure */
-  .sd-brochure-list {
-    display: flex;
-    flex-direction: column;
-  }
-  .sd-brochure-item {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: background .2s;
-  }
-  .sd-brochure-item:last-child { border-bottom: none; }
-  .sd-brochure-item:hover { background: #fafafa; }
-  .sd-brochure-item__icon {
-    width: 48px; height: 48px;
-    border-radius: 50%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--red);
-    flex-shrink: 0;
-    transition: all .2s;
-  }
-  .sd-brochure-item:hover .sd-brochure-item__icon {
-    background: var(--red);
-    color: #fff;
-    border-color: var(--red);
-  }
-  .sd-brochure-item__name {
-    display: block;
-    font-size: 15px;
-    font-weight: 800;
-    color: var(--text);
-    margin-bottom: 4px;
-    font-family: var(--font-main);
-  }
-  .sd-brochure-item__sub {
-    display: block;
-    font-size: 13px;
-    color: var(--text-muted);
-    line-height: 1.4;
-    font-family: var(--font-main);
-  }
-
-  /* Book button */
-  .sd-book-btn {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 18px;
-    border-radius: 4px;
-    border: none;
-    background: var(--red);
-    color: #fff;
-    font-family: var(--font-main);
-    font-size: 15px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  .sd-book-btn:hover {
-    background: var(--text);
-    transform: translateY(-2px);
-  }
-`;
 
 export default ServiceDetail;

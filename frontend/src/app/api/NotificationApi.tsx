@@ -44,6 +44,26 @@ export const NotificationApi = api.injectEndpoints({
       }),
       invalidatesTags: ["Notification"],
     }),
+
+    // Customer notifications
+    getCustomerNotifications: builder.query<{ success: boolean; count: number, data: any[] }, void>({
+      query: () => "/api/customer/notifications",
+      providesTags: ["Notification"],
+    }),
+    markCustomerNotificationRead: builder.mutation<any, string>({
+      query: (id) => ({
+        url: `/api/customer/notifications/${id}/read`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Notification"],
+    }),
+    markAllCustomerNotificationsRead: builder.mutation<any, void>({
+      query: () => ({
+        url: "/api/customer/notifications/read-all",
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Notification"],
+    }),
   }),
   overrideExisting: true,
 });
@@ -56,4 +76,7 @@ export const {
   useGetProviderNotificationsQuery,
   useMarkProviderNotificationReadMutation,
   useMarkAllProviderNotificationsReadMutation,
+  useGetCustomerNotificationsQuery,
+  useMarkCustomerNotificationReadMutation,
+  useMarkAllCustomerNotificationsReadMutation,
 } = NotificationApi;

@@ -381,8 +381,8 @@ export const getServiceReviews = async (req, res) => {
     const averageRating =
       totalReviews > 0
         ? Math.round(
-            (reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews) * 10,
-          ) / 10
+          (reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews) * 10,
+        ) / 10
         : 0;
 
     res.status(200).json({

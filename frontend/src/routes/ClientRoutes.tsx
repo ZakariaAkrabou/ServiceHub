@@ -16,6 +16,7 @@ import Contact from "../pages/client/contact/contact";
 import ClientServices from "../pages/client/services/services";
 import ServiceDetail from "../pages/client/services/serviceDetail";
 import Profile from "../pages/client/profile/profile";
+import ClientBookings from "../pages/client/booking/clientBookings";
 
 export default function ClientRoutes() {
   return (
@@ -26,6 +27,7 @@ export default function ClientRoutes() {
       <Route path="/services" element={<ClientServices />} />
       <Route path="/services/:id" element={<ServiceDetail />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/bookings" element={<ClientBookings />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgetPassword />} />

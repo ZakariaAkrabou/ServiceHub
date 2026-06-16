@@ -3,6 +3,7 @@ import { api } from "./Config";
 export interface Booking {
   _id: string;
   status: string;
+  chosenContactMethod?: string;
   booking_time?: string;
   customer_id: {
     _id: string;
@@ -16,6 +17,7 @@ export interface Booking {
     name?: string;
     price?: number;
     category?: string;
+    image?: string;
     provider_id?: {
       _id: string;
       firstName: string;
@@ -163,6 +165,21 @@ export const bookingApi = api.injectEndpoints({
             ]
           : [{ type: "Booking", id: "LIST" }],
     }),
+
+    setContactMethod: builder.mutation<
+      { success: boolean; message: string; data: Booking; providerEmail?: string },
+      { id: string; method: "email" | "chat" }
+    >({
+      query: ({ id, method }) => ({
+        url: `/api/customer/bookings/${id}/contact-method`,
+        method: "PATCH",
+        body: { method },
+      }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: "Booking", id: String(id) },
+        { type: "Booking", id: "LIST" },
+      ],
+    }),
   }),
 });
 
@@ -174,4 +191,5 @@ export const {
   useGetProviderBookingsQuery,
   useCreateCustomerBookingMutation,
   useGetCustomerBookingsQuery,
+  useSetContactMethodMutation,
 } = bookingApi;

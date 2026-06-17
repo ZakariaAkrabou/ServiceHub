@@ -201,7 +201,7 @@ export const updateBookingStatus = async (req, res) => {
 
     let service;
 
-    if (req.user.role === "provider") {
+    if (["provider", "service_provider"].includes(req.user.role)) {
       service = await Service.findById(booking.service_id);
 
       if (!service || String(service.provider_id) !== String(userId)) {
@@ -245,7 +245,7 @@ export const updateBookingStatus = async (req, res) => {
 
     let notifications = [];
 
-    if (req.user.role === "provider") {
+    if (["provider", "service_provider"].includes(req.user.role)) {
       let message = "";
 
       if (status === "confirmed") {
@@ -259,6 +259,7 @@ export const updateBookingStatus = async (req, res) => {
       const notif = await Notification.create({
         user_id: booking.customer_id,
         booking_id: booking._id,
+        service_id: booking.service_id,
         type: "booking_updated",
         message,
       });
@@ -288,6 +289,8 @@ export const updateBookingStatus = async (req, res) => {
     notifications.forEach((n) => {
       io.to(n.userId.toString()).emit("bookingUpdate", {
         booking_id: n.data.booking_id,
+        service_id: n.data.service_id,
+        status: status,
         message: n.data.message,
         type: n.data.type,
       });

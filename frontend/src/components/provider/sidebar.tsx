@@ -8,6 +8,7 @@ import {
   Briefcase,
   Settings,
   LogOut,
+  MessageSquare,
 } from "lucide-react";
 
 import { useLogoutMutation } from "../../app/api/AuthApi";
@@ -38,6 +39,11 @@ const items: Item[] = [
     icon: CalendarDays,
   },
  
+  {
+    to: "/provider/contact",
+    label: "Messages",
+    icon: MessageSquare,
+  },
   {
     to: "/provider/settings",
     label: "Settings",

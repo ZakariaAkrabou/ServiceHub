@@ -84,7 +84,7 @@ const ClientBookings: React.FC = () => {
     <div className="min-h-screen bg-[#f8f9fa] font-sans text-[#222325] flex flex-col">
       <Header />
       
-      <main className="flex-grow max-w-[1200px] w-full mx-auto px-6 pt-32 pb-16">
+      <main className="grow max-w-300 w-full mx-auto px-6 pt-32 pb-16">
         <h1 className="text-3xl font-black mb-8 text-[#1a1a2e]">My Bookings</h1>
 
         {/* Tabs */}
@@ -133,7 +133,7 @@ const ClientBookings: React.FC = () => {
                     {booking.status}
                   </div>
                 </div>
-                <div className="p-5 flex-grow flex flex-col">
+                <div className="p-5 grow flex flex-col">
                   <div className="text-xs font-bold text-[#c9a84c] uppercase tracking-wider mb-2">
                     {booking.service_id?.category || "Unknown"}
                   </div>
@@ -166,7 +166,7 @@ const ClientBookings: React.FC = () => {
 
       {/* Booking Detail Modal */}
       {selectedBookingId && selectedBooking && (
-        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 sm:p-6">
+        <div className="fixed inset-0 z-2000 flex items-center justify-center p-4 sm:p-6">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedBookingId(null)}></div>
           
           <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -181,11 +181,11 @@ const ClientBookings: React.FC = () => {
               {/* Status Header */}
               <div className={`p-4 rounded-xl border mb-6 flex items-start gap-4 ${getStatusColor(selectedBooking.status)}`}>
                 {selectedBooking.status === "pending" && (
-                  <div className="w-8 h-8 rounded-full border-2 border-orange-500 border-t-transparent animate-spin flex-shrink-0" />
+                  <div className="w-8 h-8 rounded-full border-2 border-orange-500 border-t-transparent animate-spin shrink-0" />
                 )}
-                {selectedBooking.status === "confirmed" && <CheckCircle className="flex-shrink-0" size={32} />}
-                {selectedBooking.status === "completed" && <CheckCircle className="flex-shrink-0" size={32} />}
-                {selectedBooking.status === "cancelled" && <XCircle className="flex-shrink-0" size={32} />}
+                {selectedBooking.status === "confirmed" && <CheckCircle className="shrink-0" size={32} />}
+                {selectedBooking.status === "completed" && <CheckCircle className="shrink-0" size={32} />}
+                {selectedBooking.status === "cancelled" && <XCircle className="shrink-0" size={32} />}
                 
                 <div>
                   <h3 className="font-bold text-lg capitalize mb-1">Status: {selectedBooking.status}</h3>

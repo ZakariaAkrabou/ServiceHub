@@ -10,6 +10,7 @@ import ProviderBookings from "../pages/provider/bookings";
 import ProviderServices from "../pages/provider/services";
 import ProviderSettings from "../pages/provider/settings";
 import ProviderNotifications from "../pages/provider/notifications";
+import ProviderContact from "../pages/provider/contact";
 import NotFound from "../pages/client/errors/NotFound";
 import About from "../pages/client/about/about";
 import Contact from "../pages/client/contact/contact";
@@ -17,6 +18,7 @@ import ClientServices from "../pages/client/services/services";
 import ServiceDetail from "../pages/client/services/serviceDetail";
 import Profile from "../pages/client/profile/profile";
 import ClientBookings from "../pages/client/booking/clientBookings";
+import Chat from "../pages/client/chat/chat";
 
 export default function ClientRoutes() {
   return (
@@ -28,6 +30,8 @@ export default function ClientRoutes() {
       <Route path="/services/:id" element={<ServiceDetail />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/bookings" element={<ClientBookings />} />
+      <Route path="/chat" element={<Chat />} />
+      <Route path="/chat/:bookingId" element={<Chat />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgetPassword />} />
@@ -37,6 +41,7 @@ export default function ClientRoutes() {
       <Route path="/provider/bookings" element={<ProviderBookings />} />
       <Route path="/provider/services" element={<ProviderServices />} />
       <Route path="/provider/settings" element={<ProviderSettings />} />
+      <Route path="/provider/contact" element={<ProviderContact />} />
       <Route
         path="/provider/notifications"
         element={<ProviderNotifications />}

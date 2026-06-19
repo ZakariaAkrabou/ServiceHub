@@ -32,3 +32,29 @@ export const getChatMessages = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
+export const getUnreadChatCount = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const count = await Chat.countDocuments({ receiver_id: userId, isRead: false });
+        res.status(200).json({ success: true, count });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+export const markMessagesAsRead = async (req, res) => {
+    try {
+        const { bookingId } = req.params;
+        const userId = req.user.userId;
+
+        await Chat.updateMany(
+            { booking_id: bookingId, receiver_id: userId, isRead: false },
+            { $set: { isRead: true } }
+        );
+
+        res.status(200).json({ success: true, message: "Messages marked as read" });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};

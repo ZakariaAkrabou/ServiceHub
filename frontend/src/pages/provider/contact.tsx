@@ -1,39 +1,122 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import ProviderLayouts from '../../components/provider/ProviderLayouts';
 import { Send, MoreVertical, Search, Paperclip, Image as ImageIcon, Smile, ArrowLeft, MessageSquare } from 'lucide-react';
-
-const mockConversations = [
-    { id: '1', client: 'John Smith', service: 'Plumbing Repair', lastMessage: 'See you at 2 PM!', time: '10:42 AM', unread: 1, avatar: 'JS' },
-    { id: '2', client: 'Emma Johnson', service: 'Deep Cleaning', lastMessage: 'Thank you so much.', time: 'Yesterday', unread: 0, avatar: 'EJ' },
-    { id: '3', client: 'Michael Brown', service: 'Electrical Fix', lastMessage: 'Can I reschedule for tomorrow?', time: 'Mon', unread: 0, avatar: 'MB' },
-];
-
-const mockMessages = [
-    { id: 1, sender: 'them', text: 'Hi! I need help with my kitchen sink.', time: '10:30 AM' },
-    { id: 2, sender: 'me', text: 'Hello John! I can certainly help with that.', time: '10:32 AM' },
-    { id: 3, sender: 'me', text: 'Are you available today around 2 PM?', time: '10:35 AM' },
-    { id: 4, sender: 'them', text: 'Yes, 2 PM works perfectly.', time: '10:40 AM' },
-    { id: 5, sender: 'them', text: 'See you at 2 PM!', time: '10:42 AM' },
-];
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '../../app/slices/AuthSlice';
+import { useGetProviderBookingsQuery, useGetChatMessagesQuery, useMarkChatMessagesAsReadMutation, ChatMessage } from '../../app/api/BookingApi';
+import { io, Socket } from 'socket.io-client';
 
 const ProviderContact: React.FC = () => {
-    const [activeChat, setActiveChat] = useState<string | null>('1');
+    const user = useSelector(selectCurrentUser);
+    const [activeChat, setActiveChat] = useState<string | null>(null);
     const [message, setMessage] = useState('');
-    const [messages, setMessages] = useState(mockMessages);
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const socketRef = useRef<Socket | null>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const activeConv = mockConversations.find(c => c.id === activeChat);
+    const { data: bookingsData } = useGetProviderBookingsQuery();
+    const [markAsRead] = useMarkChatMessagesAsReadMutation();
+
+    const chatBookings = useMemo(() => {
+        if (!bookingsData?.data) return [];
+        return bookingsData.data.filter(b => b.status === 'confirmed' && b.chosenContactMethod === 'chat');
+    }, [bookingsData]);
+
+    const activeConv = chatBookings.find(b => b._id === activeChat);
+
+    useEffect(() => {
+        if (!activeChat && chatBookings.length > 0) {
+            setActiveChat(chatBookings[0]._id);
+        }
+    }, [chatBookings, activeChat]);
+
+    const { data: chatHistory, refetch: refetchChatHistory } = useGetChatMessagesQuery(activeChat as string, {
+        skip: !activeChat
+    });
+
+    useEffect(() => {
+        if (chatHistory?.success && chatHistory.chat) {
+            setMessages(chatHistory.chat);
+        }
+    }, [chatHistory]);
+
+    useEffect(() => {
+        if (activeChat) {
+            refetchChatHistory();
+        }
+    }, [activeChat, refetchChatHistory]);
+
+    useEffect(() => {
+        if (!socketRef.current) {
+            socketRef.current = io("http://localhost:5000", { withCredentials: true });
+        }
+        const socket = socketRef.current;
+
+        if (activeChat && user?._id) {
+            socket.emit("joinRoom", activeChat, user._id);
+            socket.emit("mark_read", { bookingId: activeChat, userId: user._id });
+            markAsRead(activeChat);
+        }
+
+        const onReceiveMessage = (response: { success: boolean, message: ChatMessage }) => {
+            if (response.success && response.message && response.message.booking_id === activeChat) {
+                setMessages(prev => {
+                    if (prev.some(m => m._id === response.message._id)) return prev;
+                    return [...prev, response.message];
+                });
+
+                // If we received a message while in chat, mark it read immediately
+                if (response.message.receiver_id === user?._id) {
+                    socket.emit("mark_read", { bookingId: activeChat, userId: user._id });
+                    markAsRead(activeChat);
+                }
+            }
+        };
+
+        const onMessagesRead = ({ bookingId }: { bookingId: string }) => {
+            if (bookingId === activeChat) {
+                setMessages(prev => prev.map(m => ({ ...m, isRead: true })));
+            }
+        };
+
+        socket.on("receive_message", onReceiveMessage);
+        socket.on("messages_read", onMessagesRead);
+
+        return () => {
+            socket.off("receive_message", onReceiveMessage);
+            socket.off("messages_read", onMessagesRead);
+        };
+    }, [activeChat, user?._id, markAsRead]);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
 
     const handleSend = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!message.trim()) return;
+        if (!message.trim() || !activeChat || !user?._id || !socketRef.current) return;
 
-        setMessages([...messages, {
-            id: Date.now(),
-            sender: 'me',
-            text: message,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }]);
+        socketRef.current.emit("sendMessage", {
+            data: {
+                bookingId: activeChat,
+                senderId: user._id,
+                message: message.trim()
+            }
+        });
+
         setMessage('');
+    };
+
+    const getClientName = (conv: any) => {
+        const c = conv?.customer_id;
+        if (c) return `${c.firstName} ${c.lastName}`;
+        return "Client";
+    };
+
+    const getClientInitials = (conv: any) => {
+        const c = conv?.customer_id;
+        if (c) return `${c.firstName?.[0] || ''}${c.lastName?.[0] || ''}`.toUpperCase();
+        return "C";
     };
 
     return (
@@ -61,7 +144,7 @@ const ProviderContact: React.FC = () => {
                 <div className="flex-1 w-full bg-white rounded-2xl shadow-sm border border-[#e9e3d3] flex overflow-hidden">
 
                     {/* Sidebar */}
-                    <div className={`w-full md:w-[320px] lg:w-[350px] border-r border-[#e9e3d3] flex flex-col ${activeChat ? 'hidden md:flex' : 'flex'}`}>
+                    <div className={`w-full md:w-[320px] lg:w-87.5 border-r border-[#e9e3d3] flex flex-col ${activeChat ? 'hidden md:flex' : 'flex'}`}>
                         <div className="p-4 border-b border-[#e9e3d3]">
                             <div className="relative">
                                 <input
@@ -74,36 +157,36 @@ const ProviderContact: React.FC = () => {
                         </div>
 
                         <div className="flex-1 overflow-y-auto custom-scrollbar">
-                            {mockConversations.map((conv) => (
-                                <div
-                                    key={conv.id}
-                                    onClick={() => setActiveChat(conv.id)}
-                                    className={`flex items-center gap-3 p-4 cursor-pointer transition-colors border-b border-[#e9e3d3]/50 ${activeChat === conv.id ? 'bg-[#faf9f7]' : 'hover:bg-[#f8f6f1]'}`}
-                                >
-                                    <div className="relative shrink-0">
-                                        <div className="w-11 h-11 rounded-full bg-[#081D3A] text-[#C9A84C] flex items-center justify-center font-bold text-sm">
-                                            {conv.avatar}
-                                        </div>
-                                        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#C9A84C] rounded-full border-2 border-white"></div>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-baseline mb-0.5">
-                                            <h3 className="text-sm font-bold text-[#1a1a2e] truncate">{conv.client}</h3>
-                                            <span className="text-[11px] text-[#9a9a9a] whitespace-nowrap ml-2">{conv.time}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <p className={`text-xs truncate ${conv.unread ? 'font-bold text-[#1a1a2e]' : 'text-[#5f5f5f]'}`}>
-                                                {conv.lastMessage}
-                                            </p>
-                                            {conv.unread > 0 && (
-                                                <span className="w-4 h-4 shrink-0 rounded-full bg-[#C9A84C] text-white flex items-center justify-center text-[9px] font-bold ml-2">
-                                                    {conv.unread}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
+                            {chatBookings.length === 0 ? (
+                                <div className="p-5 text-center text-[#9a9a9a] text-sm">
+                                    No active client messages.
                                 </div>
-                            ))}
+                            ) : (
+                                chatBookings.map((conv) => (
+                                    <div
+                                        key={conv._id}
+                                        onClick={() => setActiveChat(conv._id)}
+                                        className={`flex items-center gap-3 p-4 cursor-pointer transition-colors border-b border-[#e9e3d3]/50 ${activeChat === conv._id ? 'bg-[#faf9f7]' : 'hover:bg-[#f8f6f1]'}`}
+                                    >
+                                        <div className="relative shrink-0">
+                                            <div className="w-11 h-11 rounded-full bg-brand-blue text-[#C9A84C] flex items-center justify-center font-bold text-sm">
+                                                {getClientInitials(conv)}
+                                            </div>
+                                            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#C9A84C] rounded-full border-2 border-white"></div>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex justify-between items-baseline mb-0.5">
+                                                <h3 className="text-sm font-bold text-[#1a1a2e] truncate">{getClientName(conv)}</h3>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <p className="text-xs truncate text-[#5f5f5f]">
+                                                    {conv.service_id?.name}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
 
@@ -120,12 +203,12 @@ const ProviderContact: React.FC = () => {
                                         >
                                             <ArrowLeft size={20} />
                                         </button>
-                                        <div className="w-9 h-9 rounded-full bg-[#081D3A] text-[#C9A84C] flex items-center justify-center font-bold text-xs shrink-0">
-                                            {activeConv.avatar}
+                                        <div className="w-9 h-9 rounded-full bg-brand-blue text-[#C9A84C] flex items-center justify-center font-bold text-xs shrink-0">
+                                            {getClientInitials(activeConv)}
                                         </div>
                                         <div>
-                                            <h2 className="text-sm font-bold text-[#1a1a2e] leading-tight">{activeConv.client}</h2>
-                                            <span className="text-[11px] text-[#C9A84C] font-medium">Online • {activeConv.service}</span>
+                                            <h2 className="text-sm font-bold text-[#1a1a2e] leading-tight">{getClientName(activeConv)}</h2>
+                                            <span className="text-[11px] text-[#C9A84C] font-medium">Online • Client</span>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-1">
@@ -137,36 +220,46 @@ const ProviderContact: React.FC = () => {
 
                                 {/* Messages Area */}
                                 <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar bg-[#faf9f7]">
-                                    <div className="text-center">
-                                        <span className="bg-[#e9e3d3]/50 text-[#5f5f5f] text-[11px] font-medium px-3 py-1 rounded-full">
-                                            Today
-                                        </span>
-                                    </div>
-                                    {messages.map((msg) => (
-                                        <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
-                                            <div className={`max-w-[75%] ${msg.sender === 'me' ? 'order-1' : 'order-2'}`}>
-                                                <div className={`p-3.5 rounded-2xl ${msg.sender === 'me'
-                                                        ? 'bg-[#081D3A] text-[#f8f6f1] rounded-tr-sm shadow-sm'
-                                                        : 'bg-white text-[#1a1a2e] border border-[#e9e3d3] rounded-tl-sm shadow-sm'
-                                                    }`}>
-                                                    <p className="text-sm leading-relaxed">{msg.text}</p>
-                                                </div>
-                                                <span className={`text-[10px] text-[#9a9a9a] mt-1 block ${msg.sender === 'me' ? 'text-right' : 'text-left'}`}>
-                                                    {msg.time}
-                                                </span>
-                                            </div>
+                                    {messages.length === 0 ? (
+                                        <div className="text-center text-[#9a9a9a] text-sm mt-10">
+                                            No messages yet. Send a message to the client.
                                         </div>
-                                    ))}
+                                    ) : (
+                                        messages.map((msg) => {
+                                            const isMe = msg.sender_id === user?._id;
+                                            return (
+                                                <div key={msg._id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                                                    <div className={`max-w-[75%] ${isMe ? 'order-1' : 'order-2'}`}>
+                                                        <div className={`p-3.5 rounded-2xl ${isMe
+                                                                ? 'bg-brand-blue text-[#f8f6f1] rounded-tr-sm shadow-sm'
+                                                                : 'bg-white text-[#1a1a2e] border border-[#e9e3d3] rounded-tl-sm shadow-sm'
+                                                            }`}>
+                                                            <p className="text-sm leading-relaxed">{msg.message}</p>
+                                                        </div>
+                                                        <div className={`flex items-center gap-1 text-[10px] text-[#9a9a9a] mt-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
+                                                            <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                            {isMe && (
+                                                                <span className={msg.isRead ? 'text-[#34b7f1]' : 'text-[#a1a3a7]'}>
+                                                                    {msg.isRead ? '✓✓' : '✓'}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    )}
+                                    <div ref={messagesEndRef} />
                                 </div>
 
                                 {/* Input Area */}
                                 <div className="p-3 bg-white border-t border-[#e9e3d3] shrink-0">
                                     <form onSubmit={handleSend} className="flex items-center gap-2">
                                         <div className="flex gap-0.5">
-                                            <button type="button" className="p-2 text-[#9a9a9a] hover:text-[#081D3A] hover:bg-[#f8f6f1] rounded-full transition-colors">
+                                            <button type="button" className="p-2 text-[#9a9a9a] hover:text-brand-blue hover:bg-[#f8f6f1] rounded-full transition-colors">
                                                 <Paperclip size={18} />
                                             </button>
-                                            <button type="button" className="p-2 text-[#9a9a9a] hover:text-[#081D3A] hover:bg-[#f8f6f1] rounded-full transition-colors hidden sm:block">
+                                            <button type="button" className="p-2 text-[#9a9a9a] hover:text-brand-blue hover:bg-[#f8f6f1] rounded-full transition-colors hidden sm:block">
                                                 <ImageIcon size={18} />
                                             </button>
                                         </div>
@@ -179,7 +272,7 @@ const ProviderContact: React.FC = () => {
                                                 placeholder="Message client..."
                                                 className="w-full h-full pl-4 pr-9 bg-transparent outline-none text-sm text-[#1a1a2e]"
                                             />
-                                            <button type="button" className="absolute right-2.5 text-[#9a9a9a] hover:text-[#081D3A]">
+                                            <button type="button" className="absolute right-2.5 text-[#9a9a9a] hover:text-brand-blue">
                                                 <Smile size={18} />
                                             </button>
                                         </div>
@@ -188,7 +281,7 @@ const ProviderContact: React.FC = () => {
                                             type="submit"
                                             disabled={!message.trim()}
                                             className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shrink-0 ${message.trim()
-                                                    ? 'bg-[#081D3A] text-[#C9A84C] shadow-sm hover:bg-[#0c2a54] hover:shadow hover:-translate-y-0.5'
+                                                    ? 'bg-brand-blue text-[#C9A84C] shadow-sm hover:bg-[#0c2a54] hover:shadow hover:-translate-y-0.5'
                                                     : 'bg-[#e9e3d3] text-[#9a9a9a] cursor-not-allowed'
                                                 }`}
                                         >

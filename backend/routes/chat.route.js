@@ -5,6 +5,8 @@ import * as chatController from "../controllers/chat.controller.js";
 
 const router = express.Router();
 
+router.get("/unread-count", authenticated, chatController.getUnreadChatCount);
+router.patch("/:bookingId/read", authenticated, chatController.markMessagesAsRead);
 router.get("/:bookingId", authenticated, chatController.getChatMessages);
 
 export default router;

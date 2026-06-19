@@ -395,3 +395,61 @@ export const getServiceReviews = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const setContactMethod = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const bookingId = req.params.id;
+    const { method } = req.body;
+
+    if (!["email", "chat"].includes(method)) {
+      return res.status(400).json({ success: false, message: "Invalid contact method." });
+    }
+
+    const booking = await Booking.findById(bookingId).populate({
+        path: "service_id",
+        populate: { path: "provider_id" }
+    });
+
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found." });
+    }
+
+    if (String(booking.customer_id) !== String(userId)) {
+      return res.status(403).json({ success: false, message: "Unauthorized access." });
+    }
+
+    if (booking.status !== "confirmed") {
+        return res.status(400).json({ success: false, message: "Can only set contact method for confirmed bookings." });
+    }
+
+    booking.chosenContactMethod = method;
+    await booking.save();
+
+    let providerEmail;
+    if (method === "email") {
+        providerEmail = booking.service_id.provider_id.email;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Contact method updated successfully.",
+      data: booking,
+      providerEmail
+    });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getNotifications = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const notifications = await Notification.find({ user_id: userId })
+      .sort({ createdAt: -1 });
+    res.status(200).json({ success: true, data: notifications });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

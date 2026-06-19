@@ -8,6 +8,7 @@ import helmet from "helmet";
 
 
 import { initSocket } from "./config/socket.js";
+import { chatSocket } from "./socket/chatSocket.js";
 import { startCronJobs } from "./utils/corn.js";
 
 import authRoutes from "./routes/auth.route.js";
@@ -47,6 +48,7 @@ const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
 
 const io = initSocket(server);
+chatSocket(io);
 
 app.set("io", io);
 startCronJobs();

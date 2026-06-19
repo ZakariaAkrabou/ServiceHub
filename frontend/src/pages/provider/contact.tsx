@@ -68,10 +68,10 @@ const ProviderContact: React.FC = () => {
   }, [chatHistory, pendingMessages]);
 
   useEffect(() => {
-    if (bookingId && bookingId !== activeChat) {
-      setActiveChat(bookingId);
+    if (bookingId) {
+      setActiveChat((prev) => (prev !== bookingId ? bookingId : prev));
     }
-  }, [bookingId, activeChat]);
+  }, [bookingId]);
 
   useEffect(() => {
     if (!authReady || chatBookings.length === 0 || bookingId || activeChat) return;

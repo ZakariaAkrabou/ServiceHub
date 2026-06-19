@@ -3,7 +3,7 @@ import ProviderLayouts from '../../components/provider/ProviderLayouts';
 import { Send, MoreVertical, Search, Paperclip, Image as ImageIcon, Smile, ArrowLeft, MessageSquare } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '../../app/slices/AuthSlice';
-import { useGetProviderBookingsQuery, useGetChatMessagesQuery, useMarkChatMessagesAsReadMutation, ChatMessage } from '../../app/api/BookingApi';
+import { useGetProviderBookingsQuery, useGetChatMessagesQuery, useMarkChatMessagesAsReadMutation, type ChatMessage, type Booking } from '../../app/api/BookingApi';
 import { io, Socket } from 'socket.io-client';
 
 const ProviderContact: React.FC = () => {
@@ -17,7 +17,7 @@ const ProviderContact: React.FC = () => {
     const { data: bookingsData } = useGetProviderBookingsQuery();
     const [markAsRead] = useMarkChatMessagesAsReadMutation();
 
-    const chatBookings = useMemo(() => {
+    const chatBookings = useMemo((): Booking[] => {
         if (!bookingsData?.data) return [];
         return bookingsData.data.filter(b => b.status === 'confirmed' && b.chosenContactMethod === 'chat');
     }, [bookingsData]);
@@ -26,7 +26,9 @@ const ProviderContact: React.FC = () => {
 
     useEffect(() => {
         if (!activeChat && chatBookings.length > 0) {
-            setActiveChat(chatBookings[0]._id);
+           
+            const t = setTimeout(() => setActiveChat(chatBookings[0]._id), 0);
+            return () => clearTimeout(t);
         }
     }, [chatBookings, activeChat]);
 
@@ -36,7 +38,9 @@ const ProviderContact: React.FC = () => {
 
     useEffect(() => {
         if (chatHistory?.success && chatHistory.chat) {
-            setMessages(chatHistory.chat);
+          
+            const t = setTimeout(() => setMessages(chatHistory.chat), 0);
+            return () => clearTimeout(t);
         }
     }, [chatHistory]);
 
@@ -107,13 +111,13 @@ const ProviderContact: React.FC = () => {
         setMessage('');
     };
 
-    const getClientName = (conv: any) => {
+    const getClientName = (conv?: Booking) => {
         const c = conv?.customer_id;
         if (c) return `${c.firstName} ${c.lastName}`;
         return "Client";
     };
 
-    const getClientInitials = (conv: any) => {
+    const getClientInitials = (conv?: Booking) => {
         const c = conv?.customer_id;
         if (c) return `${c.firstName?.[0] || ''}${c.lastName?.[0] || ''}`.toUpperCase();
         return "C";

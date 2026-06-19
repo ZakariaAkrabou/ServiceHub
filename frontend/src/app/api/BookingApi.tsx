@@ -27,6 +27,8 @@ export interface Booking {
   };
   createdAt: string;
   updatedAt: string;
+  lastChatMessage?: ChatMessage | null;
+  unreadChatCount?: number;
 }
 
 export interface BookingListResponse {
@@ -216,7 +218,11 @@ export const bookingApi = api.injectEndpoints({
         url: `/api/chat/${bookingId}/read`,
         method: "PATCH",
       }),
-      invalidatesTags: ["ChatUnreadCount"],
+      invalidatesTags: (_result, _error, bookingId) => [
+        "ChatUnreadCount",
+        { type: "Booking", id: String(bookingId) },
+        { type: "Booking", id: "LIST" },
+      ],
     }),
   }),
 });

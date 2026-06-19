@@ -34,7 +34,8 @@ const Chat: React.FC = () => {
 
   useEffect(() => {
     if (bookingId && bookingId !== activeChat) {
-      setActiveChat(bookingId);
+      const timeout = setTimeout(() => setActiveChat(bookingId), 0);
+      return () => clearTimeout(timeout);
     }
   }, [bookingId, activeChat]);
 
@@ -47,16 +48,26 @@ const Chat: React.FC = () => {
 
 
   useEffect(() => {
-    if (chatHistory?.success && chatHistory.chat && chatHistory.chat.length > 0) {
-      setMessages(prev => {
+    if (chatHistory?.success && chatHistory.chat) {
+      const timeout = setTimeout(() => {
+        setMessages(prev => {
+          if (chatHistory.chat.length > 0) {
+            if (JSON.stringify(prev) !== JSON.stringify(chatHistory.chat)) {
+              return chatHistory.chat;
+            }
+            return prev;
+          }
 
-        if (JSON.stringify(prev) !== JSON.stringify(chatHistory.chat)) {
-          return chatHistory.chat;
-        }
-        return prev;
-      });
-    } else if (chatHistory?.success && chatHistory.chat?.length === 0) {
-      setMessages([]);
+          return [];
+        });
+      }, 0);
+
+      return () => clearTimeout(timeout);
+    }
+
+    if (chatHistory?.success && chatHistory.chat?.length === 0) {
+      const timeout = setTimeout(() => setMessages([]), 0);
+      return () => clearTimeout(timeout);
     }
   }, [chatHistory?.success, chatHistory?.chat]);
 

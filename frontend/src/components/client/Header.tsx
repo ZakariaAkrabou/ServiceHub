@@ -10,6 +10,7 @@ import { useLogoutMutation } from "../../app/api/AuthApi";
 import { useGetCustomerNotificationsQuery, useMarkCustomerNotificationReadMutation, useMarkAllCustomerNotificationsReadMutation } from "../../app/api/NotificationApi";
 import { useGetUnreadChatCountQuery } from "../../app/api/BookingApi";
 import { useSocket, getSocket } from "../../hooks/useSocket";
+import { useBootstrapping } from "../../app/BootContext";
 import { toast } from "react-toastify";
 
 const Header: React.FC = () => {
@@ -42,7 +43,9 @@ const Header: React.FC = () => {
   const unreadCount = notifications.filter((n: NotificationItem) => !n.is_read).length;
   const chatUnreadCount = chatUnreadData?.count || 0;
 
-  const socketRef = useSocket(user?._id || user?.userId, user?.role);
+  useSocket(user?._id, user?.role);
+
+  const bootstrapping = useBootstrapping();
 
   useEffect(() => {
     const socket = getSocket();
@@ -586,7 +589,9 @@ const Header: React.FC = () => {
         </nav>
 
         <div className="auth-actions">
-          {isAuthenticated ? (
+          {bootstrapping ? (
+            <div style={{width: 36, height: 36}} />
+          ) : isAuthenticated ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               {/* Chat Icon */}
               <Link to="/chat" style={{ textDecoration: 'none' }}>

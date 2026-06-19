@@ -1,6 +1,7 @@
 import Service from "../models/service.model.js";
 import Booking from "../models/booking.model.js";
 import Notification from "../models/notification.model.js";
+import Chat from "../models/chat.model.js";
 
 export const getAllServices = async (req, res) => {
   try {
@@ -333,10 +334,35 @@ export const getProviderBookings = async (req, res) => {
         });
     }
 
+    const bookingIds = bookings.map((booking) => booking._id);
+    const chats = await Chat.find({ booking_id: { $in: bookingIds } })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const chatMeta = chats.reduce((acc, chat) => {
+      const bookingId = chat.booking_id.toString();
+      if (!acc[bookingId]) {
+        acc[bookingId] = { lastChatMessage: chat, unreadChatCount: 0 };
+      }
+      if (chat.receiver_id.toString() === providerId && !chat.isRead) {
+        acc[bookingId].unreadChatCount += 1;
+      }
+      return acc;
+    }, {});
+
+    const bookingsWithChatMeta = bookings.map((booking) => {
+      const meta = chatMeta[booking._id.toString()];
+      return {
+        ...booking,
+        lastChatMessage: meta?.lastChatMessage || null,
+        unreadChatCount: meta?.unreadChatCount || 0,
+      };
+    });
+
     return res.status(200).json({
       success: true,
-      count: bookings.length,
-      data: bookings,
+      count: bookingsWithChatMeta.length,
+      data: bookingsWithChatMeta,
     });
   } catch (error) {
     console.error("Provider bookings error:", error);

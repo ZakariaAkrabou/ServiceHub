@@ -396,46 +396,6 @@ export const getServiceReviews = async (req, res) => {
   }
 };
 
-export const getCustomerNotifications = async (req, res) => {
-  try {
-    const userId = req.user.userId;
-    const notifications = await Notification.find({ user_id: userId })
-      .populate({ path: "booking_id", select: "service_id status" })
-      .sort({ createdAt: -1 })
-      .limit(50);
-      
-    res.status(200).json({ success: true, count: notifications.length, data: notifications });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-export const markCustomerNotificationRead = async (req, res) => {
-  try {
-    const userId = req.user.userId;
-    const notificationId = req.params.id;
-    const notification = await Notification.findOneAndUpdate(
-      { _id: notificationId, user_id: userId },
-      { is_read: true },
-      { new: true }
-    );
-    if (!notification) return res.status(404).json({ success: false, message: "Notification not found." });
-    res.status(200).json({ success: true, data: notification });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-export const markAllCustomerNotificationsRead = async (req, res) => {
-  try {
-    const userId = req.user.userId;
-    await Notification.updateMany({ user_id: userId, is_read: false }, { is_read: true });
-    res.status(200).json({ success: true, message: "All notifications marked as read." });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
 export const setContactMethod = async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -447,34 +407,48 @@ export const setContactMethod = async (req, res) => {
     }
 
     const booking = await Booking.findById(bookingId).populate({
-      path: "service_id",
-      populate: { path: "provider_id", select: "email" }
+        path: "service_id",
+        populate: { path: "provider_id" }
     });
 
-    if (!booking) return res.status(404).json({ success: false, message: "Booking not found." });
-    
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found." });
+    }
+
     if (String(booking.customer_id) !== String(userId)) {
-      return res.status(403).json({ success: false, message: "Access denied." });
+      return res.status(403).json({ success: false, message: "Unauthorized access." });
     }
 
     if (booking.status !== "confirmed") {
-      return res.status(400).json({ success: false, message: "Contact method can only be set for confirmed bookings." });
+        return res.status(400).json({ success: false, message: "Can only set contact method for confirmed bookings." });
     }
 
     booking.chosenContactMethod = method;
     await booking.save();
 
-    let providerEmail = null;
-    if (method === "email" && booking.service_id && booking.service_id.provider_id) {
-      providerEmail = booking.service_id.provider_id.email;
+    let providerEmail;
+    if (method === "email") {
+        providerEmail = booking.service_id.provider_id.email;
     }
 
-    res.status(200).json({ 
-      success: true, 
-      message: "Contact method updated.", 
+    res.status(200).json({
+      success: true,
+      message: "Contact method updated successfully.",
       data: booking,
       providerEmail
     });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getNotifications = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const notifications = await Notification.find({ user_id: userId })
+      .sort({ createdAt: -1 });
+    res.status(200).json({ success: true, data: notifications });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

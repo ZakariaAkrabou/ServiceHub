@@ -11,7 +11,7 @@ export const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Booking", "Auth", "User", "Service", "Notification"],
+  tagTypes: ["Booking", "Auth", "User", "Service", "Notification", "ChatUnreadCount"],
   endpoints: () => ({}),
 });
 

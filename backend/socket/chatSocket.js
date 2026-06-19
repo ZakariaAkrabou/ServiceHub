@@ -59,8 +59,8 @@ export const chatSocket = (io) => {
                 console.log("Message saved:", newMessage);
                 
                 const room = `booking_${bookingId}`;
-                io.to(room).emit("receive_message", {success: true, message: newMessage});
-                console.log("Message emitted to room:", room);
+                io.to(room).to(providerId).to(customerId).emit("receive_message", { success: true, message: newMessage });
+                console.log("Message emitted to booking and user rooms:", room, providerId, customerId);
             } catch (error) {
                 console.error("Error in sendMessage:", error);
             }

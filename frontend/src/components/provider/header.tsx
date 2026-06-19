@@ -13,6 +13,7 @@ import {
 } from "../../app/api/NotificationApi";
 import { bookingApi, useGetUnreadChatCountQuery } from "../../app/api/BookingApi";
 import { getSocket } from "../../hooks/useSocket";
+import { useBootstrapping } from "../../app/BootContext";
 
 const ProviderProfileBar: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -27,12 +28,14 @@ const ProviderProfileBar: React.FC = () => {
   const [markAllRead] = useMarkAllProviderNotificationsReadMutation();
   const [markRead] = useMarkProviderNotificationReadMutation();
 
+  const bootstrapping = useBootstrapping();
+
   const { data: notifResponse, refetch: refetchNotifications } = useGetProviderNotificationsQuery(
-    undefined, { skip: !token }
+    undefined, { skip: !token || bootstrapping }
   );
 
   const { data: chatUnreadData, refetch: refetchChatUnread } = useGetUnreadChatCountQuery(
-    undefined, { skip: !token }
+    undefined, { skip: !token || bootstrapping }
   );
 
   const allNotifications = notifResponse?.data ?? [];
@@ -64,6 +67,7 @@ const ProviderProfileBar: React.FC = () => {
 
     const handleNewChatMessage = () => {
       refetchChatUnread();
+      dispatch(bookingApi.util.invalidateTags([{ type: "Booking", id: "LIST" }]));
     };
 
     socket.on("newBooking", handleNewBooking);

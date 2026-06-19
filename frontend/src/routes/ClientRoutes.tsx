@@ -42,6 +42,7 @@ export default function ClientRoutes() {
       <Route path="/provider/services" element={<ProviderServices />} />
       <Route path="/provider/settings" element={<ProviderSettings />} />
       <Route path="/provider/contact" element={<ProviderContact />} />
+      <Route path="/provider/contact/:bookingId" element={<ProviderContact />} />
       <Route
         path="/provider/notifications"
         element={<ProviderNotifications />}

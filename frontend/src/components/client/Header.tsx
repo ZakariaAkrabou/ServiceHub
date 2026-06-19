@@ -8,7 +8,7 @@ import logoServiceHub from "../../assets/log3.png";
 import logoBleu from "../../assets/logobleu.png";
 import { useLogoutMutation } from "../../app/api/AuthApi";
 import { useGetCustomerNotificationsQuery, useMarkCustomerNotificationReadMutation, useMarkAllCustomerNotificationsReadMutation } from "../../app/api/NotificationApi";
-import { useGetUnreadChatCountQuery } from "../../app/api/BookingApi";
+import { bookingApi, useGetUnreadChatCountQuery } from "../../app/api/BookingApi";
 import { useSocket, getSocket } from "../../hooks/useSocket";
 import { useBootstrapping } from "../../app/BootContext";
 import { toast } from "react-toastify";
@@ -26,8 +26,10 @@ const Header: React.FC = () => {
   const isLight = location.pathname === "/profile" || location.pathname.startsWith("/services") || location.pathname.startsWith("/bookings") || location.pathname.startsWith("/chat");
   const isCustomer = user?.role === "customer";
 
-  const { data: notifData, refetch: refetchNotifs } = useGetCustomerNotificationsQuery(undefined, { skip: !isAuthenticated || !isCustomer });
-  const { data: chatUnreadData, refetch: refetchChatUnread } = useGetUnreadChatCountQuery(undefined, { skip: !isAuthenticated });
+  const bootstrapping = useBootstrapping();
+
+  const { data: notifData, refetch: refetchNotifs } = useGetCustomerNotificationsQuery(undefined, { skip: !isAuthenticated || !isCustomer || bootstrapping });
+  const { data: chatUnreadData, refetch: refetchChatUnread } = useGetUnreadChatCountQuery(undefined, { skip: !isAuthenticated || bootstrapping });
   const [markRead] = useMarkCustomerNotificationReadMutation();
   const [markAllRead] = useMarkAllCustomerNotificationsReadMutation();
 
@@ -45,8 +47,6 @@ const Header: React.FC = () => {
 
   useSocket(user?._id, user?.role);
 
-  const bootstrapping = useBootstrapping();
-
   useEffect(() => {
     const socket = getSocket();
     
@@ -59,6 +59,7 @@ const Header: React.FC = () => {
 
     const handleNewChatMessage = () => {
       refetchChatUnread();
+      dispatch(bookingApi.util.invalidateTags([{ type: "Booking", id: "LIST" }]));
     };
     
     socket.on("bookingUpdate", handleBookingUpdate);
@@ -68,7 +69,7 @@ const Header: React.FC = () => {
       socket.off("bookingUpdate", handleBookingUpdate);
       socket.off("receive_message", handleNewChatMessage);
     };
-  }, [isCustomer, refetchNotifs, refetchChatUnread]);
+  }, [dispatch, isCustomer, refetchNotifs, refetchChatUnread]);
 
   const handleNotifClick = async (notif: NotificationItem) => {
     if (!notif.is_read) {

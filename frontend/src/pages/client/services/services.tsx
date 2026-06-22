@@ -73,9 +73,7 @@ const getInitials = (name: string) => {
     .join("");
 };
 
-export const mapCustomerServiceToItem = (
-  service: CustomerService,
-): ServiceItem => {
+export const mapCustomerServiceToItem: (service: CustomerService) => ServiceItem = (service) => {
   const provider = getProviderName(service.provider_id);
   const rating = Number(service.rating || 0);
 

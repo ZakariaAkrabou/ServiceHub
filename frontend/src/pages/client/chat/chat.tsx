@@ -263,7 +263,7 @@ const Chat: React.FC = () => {
   }, 0);
 
   return (
-    <div className="h-screen bg-[#f8f6f1] font-sans text-[#0A0E1C] flex flex-col overflow-hidden">
+    <div className="h-screen bg-[#F5F0E8]/30 font-sans text-[#0A0E1C] flex flex-col overflow-hidden">
       <Header />
 
       <main className="flex-1 w-full px-4 md:px-8 lg:px-12 pt-[90px] pb-5 flex overflow-hidden">

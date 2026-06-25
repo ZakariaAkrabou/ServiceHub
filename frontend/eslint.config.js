@@ -19,5 +19,8 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      'react-hooks/exhaustive-deps': 'warn', // Warn instead of error for complex deps
+    },
   },
 ])

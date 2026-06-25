@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated } from "../../../app/slices/AuthSlice";
 import {
   Star,
   Check,
@@ -40,8 +42,18 @@ interface ServiceReview {
 const ServiceDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   const [showBookingModal, setShowBookingModal] = useState(false);
+
+  const handleBookingClick = () => {
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: location.pathname } });
+      return;
+    }
+    setShowBookingModal(true);
+  };
 
   const {
     data: serviceData,
@@ -290,7 +302,7 @@ const ServiceDetail: React.FC = () => {
                 </ul>
 
                 <button 
-                  onClick={() => setShowBookingModal(true)}
+                  onClick={handleBookingClick}
                   className="w-full py-3.5 bg-[#c9a84c] text-white text-[16px] font-bold rounded-lg hover:bg-[#b8963e] transition-colors flex items-center justify-center gap-2"
                 >
                   Continue <ArrowRight size={18} />

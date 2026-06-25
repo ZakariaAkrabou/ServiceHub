@@ -29,4 +29,7 @@ router.post("/review", authenticated, customerController.leaveReview);
 
 router.get("/reviews/:serviceId", customerController.getServiceReviews);
 
+router.patch("/bookings/:id/contact-method", authenticated, customerController.setContactMethod);
+router.get("/notifications", authenticated, customerController.getNotifications);
+
 export default router;

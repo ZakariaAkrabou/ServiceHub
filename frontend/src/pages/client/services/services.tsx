@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../../components/client/Header";
@@ -74,9 +73,7 @@ const getInitials = (name: string) => {
     .join("");
 };
 
-export const mapCustomerServiceToItem = (
-  service: CustomerService,
-): ServiceItem => {
+export const mapCustomerServiceToItem: (service: CustomerService) => ServiceItem = (service) => {
   const provider = getProviderName(service.provider_id);
   const rating = Number(service.rating || 0);
 

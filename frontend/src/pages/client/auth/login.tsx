@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useLoginMutation } from "../../../app/api/AuthApi";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../../../app/slices/AuthSlice";
@@ -13,6 +13,7 @@ const Login: React.FC = () => {
     const [login, { isLoading }] = useLoginMutation();
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+    const location = useLocation();
     const dispatch = useDispatch();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -22,8 +23,11 @@ const Login: React.FC = () => {
             const result = await login({ email, password }).unwrap();
             dispatch(setCredentials({ user: result.user, token: result.token }));
             toast.success("Welcome back!");
-            
-            if (result.user.role === "service_provider") {
+
+            const from = (location.state as { from?: string })?.from;
+            if (from) {
+                navigate(from, { replace: true });
+            } else if (result.user.role === "service_provider") {
                 navigate("/provider/dashboard");
             } else {
                 navigate("/");

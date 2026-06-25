@@ -27,6 +27,8 @@ export interface Booking {
   };
   createdAt: string;
   updatedAt: string;
+  lastChatMessage?: ChatMessage | null;
+  unreadChatCount?: number;
 }
 
 export interface BookingListResponse {
@@ -40,6 +42,22 @@ export interface BookingListResponse {
 export interface BookingDetailResponse {
   message: string;
   data: Booking;
+}
+
+export interface ChatMessage {
+  _id: string;
+  booking_id: string;
+  sender_id: string;
+  receiver_id: string;
+  message: string;
+  isRead?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChatMessagesResponse {
+  success: boolean;
+  chat: ChatMessage[];
 }
 
 export const bookingApi = api.injectEndpoints({
@@ -180,6 +198,32 @@ export const bookingApi = api.injectEndpoints({
         { type: "Booking", id: "LIST" },
       ],
     }),
+
+    getChatMessages: builder.query<ChatMessagesResponse, string>({
+      query: (bookingId) => ({
+        url: `/api/chat/${bookingId}`,
+        method: "GET",
+      }),
+      providesTags: (_result, _error, id) => [{ type: "Booking", id: `CHAT_${id}` }],
+    }),
+    getUnreadChatCount: builder.query<{ success: boolean; count: number }, void>({
+      query: () => ({
+        url: "/api/chat/unread-count",
+        method: "GET",
+      }),
+      providesTags: ["ChatUnreadCount"],
+    }),
+    markChatMessagesAsRead: builder.mutation<{ success: boolean }, string>({
+      query: (bookingId) => ({
+        url: `/api/chat/${bookingId}/read`,
+        method: "PATCH",
+      }),
+      invalidatesTags: (_result, _error, bookingId) => [
+        "ChatUnreadCount",
+        { type: "Booking", id: String(bookingId) },
+        { type: "Booking", id: "LIST" },
+      ],
+    }),
   }),
 });
 
@@ -192,4 +236,7 @@ export const {
   useCreateCustomerBookingMutation,
   useGetCustomerBookingsQuery,
   useSetContactMethodMutation,
+  useGetChatMessagesQuery,
+  useGetUnreadChatCountQuery,
+  useMarkChatMessagesAsReadMutation,
 } = bookingApi;

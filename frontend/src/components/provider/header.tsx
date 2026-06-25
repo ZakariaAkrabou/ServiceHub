@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Bell, ChevronDown, LogOut, User, UserCircle, CalendarCheck } from "lucide-react";
+import { Bell, ChevronDown, LogOut, User, UserCircle, CalendarCheck, MessageSquare } from "lucide-react";
 
 import type { RootState } from "../../app/store/store";
 import { logout, selectAuthToken } from "../../app/slices/AuthSlice";
@@ -11,8 +11,9 @@ import {
   useMarkAllProviderNotificationsReadMutation,
   useMarkProviderNotificationReadMutation,
 } from "../../app/api/NotificationApi";
-import { bookingApi } from "../../app/api/BookingApi";
+import { bookingApi, useGetUnreadChatCountQuery } from "../../app/api/BookingApi";
 import { getSocket } from "../../hooks/useSocket";
+import { useBootstrapping } from "../../app/BootContext";
 
 const ProviderProfileBar: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -27,13 +28,20 @@ const ProviderProfileBar: React.FC = () => {
   const [markAllRead] = useMarkAllProviderNotificationsReadMutation();
   const [markRead] = useMarkProviderNotificationReadMutation();
 
+  const bootstrapping = useBootstrapping();
+
   const { data: notifResponse, refetch: refetchNotifications } = useGetProviderNotificationsQuery(
-    undefined, { skip: !token }
+    undefined, { skip: !token || bootstrapping }
+  );
+
+  const { data: chatUnreadData, refetch: refetchChatUnread } = useGetUnreadChatCountQuery(
+    undefined, { skip: !token || bootstrapping }
   );
 
   const allNotifications = notifResponse?.data ?? [];
 
   const unreadCount = allNotifications.filter((n: any) => !n.is_read).length;
+  const chatUnreadCount = chatUnreadData?.count || 0;
 
   // ── Socket setup ──────────────────────────────────────────────────────────
   const socketRef = useRef(getSocket());
@@ -57,16 +65,23 @@ const ProviderProfileBar: React.FC = () => {
       refetchNotifications();
     };
 
+    const handleNewChatMessage = () => {
+      refetchChatUnread();
+      dispatch(bookingApi.util.invalidateTags([{ type: "Booking", id: "LIST" }]));
+    };
+
     socket.on("newBooking", handleNewBooking);
     socket.on("bookingUpdate", handleBookingUpdate);
     socket.on("bookingCancelled", handleBookingUpdate);
+    socket.on("receive_message", handleNewChatMessage);
 
     return () => {
       socket.off("newBooking", handleNewBooking);
       socket.off("bookingUpdate", handleBookingUpdate);
       socket.off("bookingCancelled", handleBookingUpdate);
+      socket.off("receive_message", handleNewChatMessage);
     };
-  }, [user?._id, user?.role, dispatch, refetchNotifications]);
+  }, [user?._id, user?.role, dispatch, refetchNotifications, refetchChatUnread]);
 
   // ── Click-outside close ────────────────────────────────────────────────────
   useEffect(() => {
@@ -120,6 +135,23 @@ const ProviderProfileBar: React.FC = () => {
 
   return (
     <div className="flex items-center gap-2.5 shrink-0">
+
+      {/* ── Chat Notification ── */}
+      <Link to="/provider/contact" className="relative shrink-0">
+        <button
+          type="button"
+          aria-label="Messages"
+          title="Messages"
+          className="relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#e9e3d3] bg-[#f8f6f1] p-0 text-[#1a1a1a] transition-all duration-150 hover:border-[#c9a84c] hover:bg-white hover:text-[#1a1a2e]"
+        >
+          <MessageSquare size={20} strokeWidth={1.85} />
+          {chatUnreadCount > 0 && (
+            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#c9a84c] text-[10px] font-bold text-[#1a1a1a] shadow-sm">
+              {chatUnreadCount > 9 ? "9+" : chatUnreadCount}
+            </span>
+          )}
+        </button>
+      </Link>
 
       {/* ── Notification Bell ── */}
       <div className="pv-p-notify-wrap relative shrink-0">

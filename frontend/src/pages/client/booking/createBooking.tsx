@@ -244,7 +244,7 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
           <div style={{ display:"flex", alignItems:"center", gap:16 }}>
             <div style={{ textAlign:"right" }}>
               <p style={{ margin:0, fontSize:9, color:"rgba(255,255,255,.4)", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em" }}>Base Price</p>
-              <p style={{ margin:0, fontSize:18, fontWeight:800, color:gold, lineHeight:1 }}>${service.price}</p>
+              <p style={{ margin:0, fontSize:18, fontWeight:800, color:gold, lineHeight:1 }}>{service.price} MAD</p>
             </div>
             <button onClick={onClose} style={{
               width:28, height:28, borderRadius:"50%", border:"none",
@@ -404,7 +404,7 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
                       { label:"Service", val: service.name },
                       { label:"Date",    val: humanDate },
                       { label:"Time",    val: selTime },
-                      { label:"Price",   val: `$${service.price}`, highlight:true },
+                      { label:"Price",   val: `${service.price} MAD`, highlight:true },
                     ].map(row => (
                       <div key={row.label} style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:8 }}>
                         <span style={{ fontSize:10.5, color:"rgba(255,255,255,.45)", fontWeight:600, flexShrink:0 }}>{row.label}</span>
@@ -453,7 +453,7 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
                   { label:"Date",     val: humanDate },
                   { label:"Time",     val: selTime! },
                   { label:"Duration", val: service.duration ?? "N/A" },
-                  { label:"Price",    val: `$${service.price}`, highlight:true },
+                  { label:"Price",    val: `${service.price} MAD`, highlight:true },
                 ].map((row, i, arr) => (
                   <div key={row.label} style={{
                     display:"flex", justifyContent:"space-between", alignItems:"flex-start",

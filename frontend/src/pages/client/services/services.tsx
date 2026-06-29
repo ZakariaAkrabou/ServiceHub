@@ -6,15 +6,15 @@ import QuestionSection from "./question";
 import {
   Search,
   Star,
-  Heart,
   ChevronDown,
-  PlayCircle
+  PlayCircle,
+  X,
 } from "lucide-react";
-import { getRandomReviews } from "../../../utils/serviceUtils";
 import {
   useFilterCustomerServicesQuery,
   useGetCustomerAllServicesQuery,
   useSearchCustomerServicesQuery,
+  useGetCustomerServiceReviewsQuery,
   type CustomerService,
 } from "../../../app/api/ServiceApi";
 
@@ -36,25 +36,7 @@ export interface ServiceItem {
   badges: string[];
 }
 
-const mainCategories = [
-  { name: "Assembly", value: "Technical" },
-  { name: "Mounting", value: "Repairs" },
-  { name: "Moving", value: "Gardening" },
-  { name: "Cleaning", value: "Cleaning" },
-  { name: "Outdoor Help", value: "Gardening" },
-  { name: "Home Repairs", value: "Repairs" },
-  { name: "Painting", value: "Design" },
-  { name: "Trending", value: "All" },
-];
-
-const subCategoryMap: Record<string, string[]> = {
-  All: ["All", "Verified Providers Only", "Popular Bookings"],
-  Cleaning: ["All", "Standard Home Clean", "Deep Clean", "Carpet Clean", "Window Wash"],
-  Gardening: ["All", "Lawn Mowing", "Hedge Trimming", "Garden Weeding", "Tree Pruning"],
-  Repairs: ["All", "Leak Repair", "Fixture Installation", "Furniture Assemble", "TV Wall Mount"],
-  Technical: ["All", "Smart Assistant", "Router Setup", "Camera Install", "Device Diagnostic"],
-  Design: ["All", "Wall Painting", "Furniture Paint", "Wallpaper Install", "Consultation"],
-};
+type SortOption = "best_selling" | "highest_rated" | "price_low" | "price_high";
 
 const getProviderName = (providerId: CustomerService["provider_id"]) => {
   if (!providerId || typeof providerId === "string") return "Service Provider";
@@ -98,6 +80,162 @@ export const mapCustomerServiceToItem: (service: CustomerService) => ServiceItem
   };
 };
 
+/* ── Budget Dropdown (price range slider) ────────────────────── */
+const PRICE_MIN = 0;
+const PRICE_MAX = 1000;
+
+const BudgetDropdown: React.FC<{
+  minPrice: string;
+  maxPrice: string;
+  onApply: (min: string, max: string) => void;
+  onClear: () => void;
+}> = ({ minPrice, maxPrice, onApply, onClear }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [localMin, setLocalMin] = useState(minPrice !== "" ? Number(minPrice) : PRICE_MIN);
+  const [localMax, setLocalMax] = useState(maxPrice !== "" ? Number(maxPrice) : PRICE_MAX);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  // Sync when parent clears
+  useEffect(() => { setLocalMin(minPrice !== "" ? Number(minPrice) : PRICE_MIN); }, [minPrice]);
+  useEffect(() => { setLocalMax(maxPrice !== "" ? Number(maxPrice) : PRICE_MAX); }, [maxPrice]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const isActive = minPrice !== "" || maxPrice !== "";
+  const label = isActive ? `${minPrice} MAD – ${maxPrice || PRICE_MAX} MAD` : "Budget";
+
+  const minPct = ((localMin - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
+  const maxPct = ((localMax - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
+
+  const handleMinChange = (v: number) => {
+    setLocalMin(Math.min(v, localMax - 1));
+  };
+  const handleMaxChange = (v: number) => {
+    setLocalMax(Math.max(v, localMin + 1));
+  };
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`px-4 py-2 border rounded-lg text-[15px] font-semibold flex items-center gap-2 transition-colors ${
+          isOpen || isActive
+            ? "border-[#222325] bg-[#f5f5f5] text-[#222325]"
+            : "border-[#c5c6c9] hover:border-[#222325] text-[#222325]"
+        }`}
+      >
+        {label}
+        {isActive ? (
+          <X
+            size={14}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClear();
+              setLocalMin(PRICE_MIN);
+              setLocalMax(PRICE_MAX);
+            }}
+            className="text-[#74767e] hover:text-[#222325] cursor-pointer"
+          />
+        ) : (
+          <ChevronDown size={16} className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
+        )}
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 shadow-xl rounded-xl w-72 z-30 p-5">
+          <p className="text-[13px] font-bold text-[#74767e] uppercase tracking-wider mb-1">Price Range</p>
+
+          {/* Price labels */}
+          <div className="flex justify-between mb-4">
+            <span className="text-[15px] font-bold text-[#222325]">{localMin} MAD</span>
+            <span className="text-[15px] font-bold text-[#222325]">{localMax}{localMax === PRICE_MAX ? "+" : ""} MAD</span>
+          </div>
+
+          {/* Dual range slider */}
+          <div className="relative h-5 mb-6" ref={trackRef}>
+            {/* Track background */}
+            <div className="absolute top-1/2 -translate-y-1/2 w-full h-1.5 bg-[#e4e5e7] rounded-full" />
+            {/* Active fill between thumbs */}
+            <div
+              className="absolute top-1/2 -translate-y-1/2 h-1.5 bg-[#222325] rounded-full"
+              style={{ left: `${minPct}%`, width: `${maxPct - minPct}%` }}
+            />
+            {/* Min thumb */}
+            <input
+              type="range"
+              min={PRICE_MIN}
+              max={PRICE_MAX}
+              step={5}
+              value={localMin}
+              onChange={(e) => handleMinChange(Number(e.target.value))}
+              className="absolute w-full h-full opacity-0 cursor-pointer"
+              style={{ zIndex: localMin > PRICE_MAX - 50 ? 5 : 3 }}
+            />
+            {/* Max thumb */}
+            <input
+              type="range"
+              min={PRICE_MIN}
+              max={PRICE_MAX}
+              step={5}
+              value={localMax}
+              onChange={(e) => handleMaxChange(Number(e.target.value))}
+              className="absolute w-full h-full opacity-0 cursor-pointer"
+              style={{ zIndex: 4 }}
+            />
+            {/* Visual min thumb */}
+            <div
+              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-2 border-[#222325] rounded-full shadow pointer-events-none"
+              style={{ left: `calc(${minPct}% - 8px)` }}
+            />
+            {/* Visual max thumb */}
+            <div
+              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-2 border-[#222325] rounded-full shadow pointer-events-none"
+              style={{ left: `calc(${maxPct}% - 8px)` }}
+            />
+          </div>
+
+
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                onClear();
+                setLocalMin(PRICE_MIN);
+                setLocalMax(PRICE_MAX);
+                setIsOpen(false);
+              }}
+              className="flex-1 py-2 text-[14px] font-semibold border border-[#e4e5e7] rounded-lg hover:bg-[#f5f5f5] transition-colors text-[#404145]"
+            >
+              Clear
+            </button>
+            <button
+              onClick={() => {
+                const min = localMin > PRICE_MIN ? String(localMin) : "";
+                const max = localMax < PRICE_MAX ? String(localMax) : "";
+                onApply(min, max);
+                setIsOpen(false);
+              }}
+              className="flex-1 py-2 text-[14px] font-bold bg-[#222325] text-white rounded-lg hover:bg-[#404145] transition-colors"
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ── Generic Filter Dropdown ─────────────────────────────────── */
 const FilterDropdown: React.FC<{
   label: string;
   options: { label: string; value: string }[];
@@ -125,11 +263,11 @@ const FilterDropdown: React.FC<{
         onClick={() => setIsOpen(!isOpen)}
         className={`px-4 py-2 border rounded-lg text-[15px] font-semibold flex items-center gap-2 transition-colors ${
           isOpen || hasSelection
-            ? 'border-[#222325] bg-[#f5f5f5] text-[#222325]' 
-            : 'border-[#c5c6c9] hover:border-[#222325] text-[#222325]'
+            ? "border-[#222325] bg-[#f5f5f5] text-[#222325]"
+            : "border-[#c5c6c9] hover:border-[#222325] text-[#222325]"
         }`}
       >
-        {label} <ChevronDown size={16} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        {label} <ChevronDown size={16} className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </button>
       {isOpen && (
         <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 shadow-xl rounded-lg w-64 z-30 py-2 max-h-80 overflow-y-auto">
@@ -137,7 +275,7 @@ const FilterDropdown: React.FC<{
             <button
               key={opt.value}
               onClick={() => { onChange(opt.value); setIsOpen(false); }}
-              className={`w-full text-left px-4 py-2 text-[15px] hover:bg-[#f5f5f5] ${value === opt.value ? 'font-bold text-[#222325]' : 'text-[#404145]'}`}
+              className={`w-full text-left px-4 py-2 text-[15px] hover:bg-[#f5f5f5] ${value === opt.value ? "font-bold text-[#222325]" : "text-[#404145]"}`}
             >
               {opt.label}
             </button>
@@ -148,17 +286,88 @@ const FilterDropdown: React.FC<{
   );
 };
 
-const Toggle: React.FC<{ label: string; checked: boolean; onChange: (v: boolean) => void }> = ({ label, checked, onChange }) => (
-  <label className="flex items-center gap-2 cursor-pointer">
-    <div className="relative flex items-center">
-      <input type="checkbox" className="sr-only" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-      <div className={`w-9 h-5 rounded-full transition-colors ${checked ? 'bg-[#222325]' : 'bg-[#e4e5e7]'}`}></div>
-      <div className={`absolute w-3.5 h-3.5 bg-white rounded-full transition-transform ${checked ? 'translate-x-4' : 'translate-x-1'}`}></div>
-    </div>
-    <span className="text-[15px] font-semibold text-[#404145]">{label}</span>
-  </label>
-);
+/* ── Sort Dropdown ───────────────────────────────────────────── */
+const sortLabels: Record<SortOption, string> = {
+  best_selling: "Best Selling",
+  highest_rated: "Highest Rated",
+  price_low: "Price: Low to High",
+  price_high: "Price: High to Low",
+};
 
+const SortDropdown: React.FC<{
+  value: SortOption;
+  onChange: (v: SortOption) => void;
+}> = ({ value, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setIsOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="font-bold text-[#222325] flex items-center gap-1 hover:bg-[#f5f5f5] px-2 py-1 rounded-md transition-colors text-[15px]"
+      >
+        {sortLabels[value]} <ChevronDown size={16} className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+      {isOpen && (
+        <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 shadow-xl rounded-lg w-52 z-30 py-2">
+          {(Object.entries(sortLabels) as [SortOption, string][]).map(([k, label]) => (
+            <button
+              key={k}
+              onClick={() => { onChange(k); setIsOpen(false); }}
+              className={`w-full text-left px-4 py-2 text-[15px] hover:bg-[#f5f5f5] ${value === k ? "font-bold text-[#222325]" : "text-[#404145]"}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ── Review count fetcher per card ───────────────────────────── */
+const ServiceRating: React.FC<{ serviceId: string }> = ({ serviceId }) => {
+  const { data, isLoading } = useGetCustomerServiceReviewsQuery(serviceId);
+
+  // Only trust the reviews API — never fall back to service.rating
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-1 mb-4 mt-auto">
+        <span className="text-[13px] text-[#c5c6c9] italic">Loading…</span>
+      </div>
+    );
+  }
+
+  const count = data?.count ?? 0;
+  const avg = data?.averageRating ?? 0;
+
+  if (count === 0) {
+    return (
+      <div className="flex items-center gap-1 mb-4 mt-auto">
+        <span className="text-[13px] text-[#74767e] italic">No reviews yet</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-1 mb-4 mt-auto">
+      <Star size={15} className="fill-[#222325] text-[#222325]" />
+      <span className="text-[15px] font-bold text-[#222325]">{avg.toFixed(1)}</span>
+      <span className="text-[15px] text-[#74767e]">({count})</span>
+    </div>
+  );
+};
+
+/* ── Service Card ────────────────────────────────────────────── */
 const ServiceMemeCard: React.FC<{
   service: ServiceItem;
   onClick: () => void;
@@ -168,21 +377,13 @@ const ServiceMemeCard: React.FC<{
       onClick={onClick}
       className="group flex flex-col w-full h-full cursor-pointer transition-all duration-300 hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] border border-transparent rounded-lg overflow-hidden bg-white"
     >
-      {/* Top Photo */}
+      {/* Top Photo — no heart button */}
       <div className="w-full aspect-4/3 relative rounded-lg overflow-hidden">
         <img
           src={service.image}
           alt={service.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <button 
-          className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-black/10 transition z-10"
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          <Heart size={20} className="text-white drop-shadow-md" strokeWidth={2.5} />
-        </button>
       </div>
 
       {/* Content */}
@@ -195,24 +396,20 @@ const ServiceMemeCard: React.FC<{
           <span className="text-[15px] font-semibold text-[#222325] hover:underline">{service.provider}</span>
           <span className="text-[13px] text-[#74767e] font-medium ml-1">{service.providerTier || "Verified"}</span>
         </div>
-        
+
         {/* Title */}
         <h3 className="text-[16px] text-[#404145] leading-5.5 mb-2 line-clamp-2 hover:underline">
           {service.name || service.description}
         </h3>
-        
-        {/* Rating */}
-        <div className="flex items-center gap-1 mb-4 mt-auto">
-          <Star size={15} className="fill-[#222325] text-[#222325]" />
-          <span className="text-[15px] font-bold text-[#222325]">{(service.rating || 5.0).toFixed(1)}</span>
-          <span className="text-[15px] text-[#74767e]">({service.reviews > 0 ? service.reviews : getRandomReviews()})</span>
-        </div>
-        
+
+        {/* Rating — strictly from reviews API, no service.rating fallback */}
+        <ServiceRating serviceId={service.id} />
+
         {/* Price */}
         <div className="pt-3 flex items-center justify-between border-t border-[#e4e5e7]">
           <div></div>
           <div className="text-right">
-             <span className="text-[13px] text-[#74767e] font-bold block uppercase tracking-wide">From US${service.price}</span>
+            <span className="text-[13px] text-[#74767e] font-bold block uppercase tracking-wide">From {service.price} MAD</span>
           </div>
         </div>
       </div>
@@ -220,6 +417,7 @@ const ServiceMemeCard: React.FC<{
   );
 };
 
+/* ── Main Page ───────────────────────────────────────────────── */
 const ClientServices: React.FC = () => {
   const navigate = useNavigate();
 
@@ -227,19 +425,21 @@ const ClientServices: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [activeSubFilter, setActiveSubFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const [proServices, setProServices] = useState(false);
-  const [instantResponse, setInstantResponse] = useState(false);
-  
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("best_selling");
+
   const isSearchActive = searchQuery.trim().length > 0;
-  const isFilterActive = selectedCategory !== "All" || activeSubFilter !== "All";
+  const isPriceFilterActive = minPrice !== "" || maxPrice !== "";
+  const isFilterActive = selectedCategory !== "All" || activeSubFilter !== "All" || isPriceFilterActive;
 
   const filterParams = useMemo(() => {
-    const params: { category?: string; rating?: number; availability?: string; } = {};
+    const params: { category?: string; minPrice?: number; maxPrice?: number; rating?: number; availability?: string } = {};
     if (selectedCategory !== "All") params.category = selectedCategory;
-    if (activeSubFilter === "Popular Bookings") params.rating = 4;
-    if (activeSubFilter === "Verified Providers Only") params.availability = "available";
+    if (minPrice !== "") params.minPrice = Number(minPrice);
+    if (maxPrice !== "") params.maxPrice = Number(maxPrice);
     return params;
-  }, [selectedCategory, activeSubFilter]);
+  }, [selectedCategory, minPrice, maxPrice]);
 
   const {
     data: allServicesData,
@@ -264,8 +464,6 @@ const ClientServices: React.FC = () => {
 
   const itemsPerPage = 12;
 
-  // Removed redundant useEffect; page reset is handled in individual handlers
-
   const activeApiServices = useMemo(() => {
     if (isSearchActive) return searchedServicesData?.data || [];
     if (isFilterActive) return filteredServicesData?.data || [];
@@ -280,23 +478,26 @@ const ClientServices: React.FC = () => {
     const q = searchQuery.trim().toLowerCase();
     const sourceServices = activeApiServices.map(mapCustomerServiceToItem);
 
-    return sourceServices.filter((service) => {
+    const filtered = sourceServices.filter((service) => {
       const matchesSearch = q.length === 0 || service.name.toLowerCase().includes(q) || service.description.toLowerCase().includes(q);
       const matchesCategory = selectedCategory === "All" || service.category === selectedCategory;
-      const matchesSubFilter = (() => {
-        if (activeSubFilter === "All") return true;
-        if (activeSubFilter === "Verified Providers Only") {
-          const tier = service.providerTier.toLowerCase();
-          return tier.includes("verified") || service.badges.some((b) => b.toLowerCase().includes("verified")) || service.badges.some((b) => b.toLowerCase().includes("licensed"));
-        }
-        if (activeSubFilter === "Popular Bookings") {
-          return service.reviews >= 100 || service.subCategory === "Popular Bookings" || service.badges.some((b) => b.toLowerCase().includes("top rated"));
-        }
-        return service.subCategory === activeSubFilter;
-      })();
-      return matchesSearch && matchesCategory && matchesSubFilter;
+      const matchesMin = minPrice === "" || service.price >= Number(minPrice);
+      const matchesMax = maxPrice === "" || service.price <= Number(maxPrice);
+      
+      return matchesSearch && matchesCategory && matchesMin && matchesMax;
     });
-  }, [searchQuery, selectedCategory, activeSubFilter, activeApiServices]);
+
+    // Client-side sort
+    return [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case "highest_rated": return b.rating - a.rating;
+        case "price_low":     return a.price - b.price;
+        case "price_high":    return b.price - a.price;
+        case "best_selling":
+        default:              return b.rating - a.rating; // fallback to rating for best selling
+      }
+    });
+  }, [searchQuery, selectedCategory, activeApiServices, sortBy]);
 
   const handleCategorySelect = (value: string) => {
     setSelectedCategory(value);
@@ -304,16 +505,32 @@ const ClientServices: React.FC = () => {
     setCurrentPage(1);
   };
 
-  const subFilters = subCategoryMap[selectedCategory] || subCategoryMap["All"];
+  const handleBudgetApply = (min: string, max: string) => {
+    setMinPrice(min);
+    setMaxPrice(max);
+    setCurrentPage(1);
+  };
+
+  const handleBudgetClear = () => {
+    setMinPrice("");
+    setMaxPrice("");
+    setCurrentPage(1);
+  };
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedServices = filteredServices.slice(startIndex, endIndex);
   const totalPages = Math.ceil(filteredServices.length / itemsPerPage);
 
-  const categoryOptions = [
-    { label: "All Services", value: "All" },
-    ...Array.from(new Set(mainCategories.map(c => c.value))).filter(c => c !== "All").map(c => ({ label: c, value: c }))
-  ];
+  // Build category options dynamically from actual API data
+  const categoryOptions = useMemo(() => {
+    const apiCategories = (allServicesData?.data ?? []).map((s) => s.category).filter(Boolean);
+    const uniqueCategories = Array.from(new Set(apiCategories)).sort();
+    return [
+      { label: "All Services", value: "All" },
+      ...uniqueCategories.map((c) => ({ label: c, value: c })),
+    ];
+  }, [allServicesData?.data]);
 
   return (
     <div className="min-h-screen bg-white font-sans text-[#222325]">
@@ -331,66 +548,56 @@ const ClientServices: React.FC = () => {
 
         {/* Header Section */}
         <div className="mb-8">
-          <h1 className="text-[32px] md:text-[40px] font-bold mb-3 text-[#222325]">
-             {selectedCategory === "All" ? "Explore Services" : selectedCategory}
+          <h1 className="text-[32px] md:text-[40px] font-bold mb-3 text-[#1A1A2E]">
+            {selectedCategory === "All" ? "Explore Services" : selectedCategory}
           </h1>
-          <p className="text-[16px] text-[#74767e] flex flex-wrap items-center gap-2">
-            Find the perfect professional for your needs with help from our skilled service providers
-            <span className="hidden sm:inline mx-1">|</span>
-            <button className="flex items-center gap-1.5 text-[#222325] font-bold hover:underline group">
-               <PlayCircle size={18} className="fill-[#222325] text-white transition-transform group-hover:scale-110" /> How ServiceHub Works
+          <p className="text-[16px] flex flex-wrap items-center gap-2">
+            <span className="text-[#1A1A2E]/70">Find the perfect professional for your needs with help from our skilled service providers</span>
+            <span className="hidden sm:inline text-[#C9A84C] font-bold mx-1">|</span>
+            <button className="flex items-center gap-1.5 text-[#C9A84C] font-bold hover:underline group">
+              <PlayCircle size={18} className="fill-[#C9A84C] text-white transition-transform group-hover:scale-110" /> How ServiceHub Works
             </button>
           </p>
         </div>
 
         {/* Filters Row */}
-        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4 border-b border-[#e4e5e7] pb-4">
-          <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-             <FilterDropdown 
-                label="Service options" 
-                options={categoryOptions} 
-                value={selectedCategory} 
-                onChange={handleCategorySelect} 
-             />
-            
-             <FilterDropdown 
-                label="Budget" 
-                options={[{label: "Any Budget", value: ""}]} 
-                value="" 
-                onChange={() => {}} 
-             />
-             
-             
-             {/* Search input to keep existing functionality accessible */}
-             <div className="relative ml-auto xl:ml-2 w-full sm:w-auto mt-2 sm:mt-0">
-               <input
-                 type="text"
-                 placeholder="Search services..."
-                 value={searchQuery}
-                 onChange={(e) => setSearchQuery(e.target.value)}
-                 className="h-10 pl-4 pr-10 text-[15px] border border-[#c5c6c9] outline-none rounded-lg transition-colors focus:border-[#222325] w-full sm:w-56"
-               />
-               <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#74767e]" />
-             </div>
-          </div>
-          
-          <div className="flex items-center gap-6 w-full xl:w-auto justify-start xl:justify-end">
-             <Toggle label="Pro services" checked={proServices} onChange={setProServices} />
-             <Toggle label="Instant response" checked={instantResponse} onChange={setInstantResponse} />
+        <div className="flex flex-wrap items-center gap-3 mb-6 border-b border-[#e4e5e7] pb-4">
+          <FilterDropdown
+            label="Service options"
+            options={categoryOptions}
+            value={selectedCategory}
+            onChange={handleCategorySelect}
+          />
+
+          <BudgetDropdown
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            onApply={handleBudgetApply}
+            onClear={handleBudgetClear}
+          />
+
+          {/* Search */}
+          <div className="relative ml-auto w-full sm:w-auto">
+            <input
+              type="text"
+              placeholder="Search services..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-10 pl-4 pr-10 text-[15px] border border-[#c5c6c9] outline-none rounded-lg transition-colors focus:border-[#222325] w-full sm:w-56"
+            />
+            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#74767e]" />
           </div>
         </div>
 
         {/* Results Info */}
         <div className="flex justify-between items-center mb-6">
-           <span className="text-[15px] font-medium text-[#74767e]">
-             {filteredServices.length > 0 ? `${filteredServices.length}+ results` : "0 results"}
-           </span>
-           <div className="flex items-center gap-2 text-[15px]">
-              <span className="text-[#74767e]">Sort by:</span>
-              <button className="font-bold text-[#222325] flex items-center gap-1 hover:bg-[#f5f5f5] px-2 py-1 rounded-md transition-colors">
-                 Best selling <ChevronDown size={16}/>
-              </button>
-           </div>
+          <span className="text-[15px] font-medium text-[#74767e]">
+            {filteredServices.length > 0 ? `${filteredServices.length}+ results` : "0 results"}
+          </span>
+          <div className="flex items-center gap-2 text-[15px]">
+            <span className="text-[#74767e]">Sort by:</span>
+            <SortDropdown value={sortBy} onChange={(v) => { setSortBy(v); setCurrentPage(1); }} />
+          </div>
         </div>
 
         {/* Content */}
@@ -408,12 +615,12 @@ const ClientServices: React.FC = () => {
             <h3 className="text-[20px] font-bold text-[#222325]">No Services Found</h3>
             <p className="text-[#74767e] mt-2">Try adjusting your filters or search query.</p>
             {(isFilterActive || isSearchActive) && (
-               <button 
-                 onClick={() => { setSearchQuery(""); setSelectedCategory("All"); setActiveSubFilter("All"); }}
-                 className="mt-6 px-6 py-2.5 bg-[#222325] text-white font-bold rounded-lg hover:bg-[#404145] transition-colors"
-               >
-                 Clear All Filters
-               </button>
+              <button
+                onClick={() => { setSearchQuery(""); setSelectedCategory("All"); setActiveSubFilter("All"); setMinPrice(""); setMaxPrice(""); }}
+                className="mt-6 px-6 py-2.5 bg-[#222325] text-white font-bold rounded-lg hover:bg-[#404145] transition-colors"
+              >
+                Clear All Filters
+              </button>
             )}
           </div>
         ) : (
@@ -456,8 +663,8 @@ const ClientServices: React.FC = () => {
                       key={page}
                       onClick={() => setCurrentPage(page)}
                       className={`w-10 h-10 rounded-full text-[15px] font-bold transition-all flex items-center justify-center ${
-                        isActive 
-                          ? "bg-[#222325] text-white" 
+                        isActive
+                          ? "bg-[#222325] text-white"
                           : "text-[#404145] hover:bg-[#f5f5f5]"
                       }`}
                     >

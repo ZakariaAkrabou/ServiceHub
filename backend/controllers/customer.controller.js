@@ -428,6 +428,56 @@ export const getServiceReviews = async (req, res) => {
   }
 };
 
+export const deleteReview = async (req, res) => {
+  try {
+    const customerId = req.user.userId;
+    const { reviewId } = req.params;
+
+    const review = await Review.findById(reviewId);
+    
+    if (!review) {
+      return res.status(404).json({ success: false, message: "Review not found." });
+    }
+
+    if (String(review.customer_id) !== String(customerId)) {
+      return res.status(403).json({ success: false, message: "You can only delete your own reviews." });
+    }
+
+    await Review.findByIdAndDelete(reviewId);
+
+    res.status(200).json({ success: true, message: "Review deleted successfully." });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const updateReview = async (req, res) => {
+  try {
+    const customerId = req.user.userId;
+    const { reviewId } = req.params;
+    const { rating, review: reviewText } = req.body;
+
+    const review = await Review.findById(reviewId);
+    
+    if (!review) {
+      return res.status(404).json({ success: false, message: "Review not found." });
+    }
+
+    if (String(review.customer_id) !== String(customerId)) {
+      return res.status(403).json({ success: false, message: "You can only edit your own reviews." });
+    }
+
+    if (rating !== undefined) review.rating = rating;
+    if (reviewText !== undefined) review.review = reviewText;
+
+    await review.save();
+
+    res.status(200).json({ success: true, message: "Review updated successfully.", data: review });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export const setContactMethod = async (req, res) => {
   try {
     const userId = req.user.userId;

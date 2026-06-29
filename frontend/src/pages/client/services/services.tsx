@@ -351,24 +351,14 @@ const ClientServices: React.FC = () => {
                 value={selectedCategory} 
                 onChange={handleCategorySelect} 
              />
-             <FilterDropdown 
-                label="Seller details" 
-                options={subFilters.map(s => ({label: s, value: s}))} 
-                value={activeSubFilter} 
-                onChange={(v) => { setActiveSubFilter(v); setCurrentPage(1); }} 
-             />
+            
              <FilterDropdown 
                 label="Budget" 
                 options={[{label: "Any Budget", value: ""}]} 
                 value="" 
                 onChange={() => {}} 
              />
-             <FilterDropdown 
-                label="Delivery time" 
-                options={[{label: "Any Time", value: ""}]} 
-                value="" 
-                onChange={() => {}} 
-             />
+             
              
              {/* Search input to keep existing functionality accessible */}
              <div className="relative ml-auto xl:ml-2 w-full sm:w-auto mt-2 sm:mt-0">

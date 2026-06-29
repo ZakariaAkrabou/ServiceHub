@@ -6,7 +6,7 @@ import Footer from "../../../components/client/Footer";
 import BookingHistory from "../../../components/profile/bookingHistory";
 import {
   User, CalendarDays, MapPin, Edit3, Save, Mail, Phone,
-  ShieldCheck, Camera, Bell, Settings, Lock, CreditCard,
+  ShieldCheck, Camera, Bell, Settings, Lock,
   FileText, BadgeCheck, ChevronRight, X
 } from "lucide-react";
 
@@ -39,6 +39,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (isAuthenticated && user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setProfileData((prev) => ({
         ...prev,
         firstName: user.firstName || prev.firstName,
@@ -79,12 +80,12 @@ export default function Profile() {
             {/* Avatar + name */}
             <div className="px-5 pt-7 pb-5 flex flex-col items-center gap-3 border-b border-[#E8E4DC]">
               <div className="relative">
-                <div className="w-[68px] h-[68px] rounded-full bg-[#1A1A2E] flex items-center justify-center text-[#C9A84C] text-xl font-semibold tracking-wide select-none">
+                <div className="w-17 h-17 rounded-full bg-[#1A1A2E] flex items-center justify-center text-[#C9A84C] text-xl font-semibold tracking-wide select-none">
                   {initials}
                 </div>
                 <button
                   aria-label="Change avatar"
-                  className="absolute bottom-0 right-0 w-[22px] h-[22px] bg-white border border-[#E8E4DC] rounded-full flex items-center justify-center text-[#1A1A2E]/50 hover:text-[#C9A84C] transition-colors cursor-pointer"
+                  className="absolute bottom-0 right-0 w-5.5 h-5.5 bg-white border border-[#E8E4DC] rounded-full flex items-center justify-center text-[#1A1A2E]/50 hover:text-[#C9A84C] transition-colors cursor-pointer"
                 >
                   <Camera className="w-3 h-3" />
                 </button>
@@ -290,7 +291,7 @@ export default function Profile() {
               </div>
               <div className="p-4 flex flex-col gap-1">
                 <div className="flex items-center gap-3 px-3 py-3">
-                  <span className="w-2.5 h-2.5 rounded-full bg-green-500 flex-shrink-0" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-green-500 shrink-0" />
                   <span className="text-[14px] text-[#1A1A2E]/70 font-medium">Active account</span>
                 </div>
                 {[
@@ -301,13 +302,13 @@ export default function Profile() {
                     className="w-full flex items-center justify-between gap-3 px-3 py-3.5 rounded-xl text-left hover:bg-[#F5F3EF] transition-colors cursor-pointer group"
                   >
                     <span className="flex items-center gap-3">
-                      <span className="w-9 h-9 rounded-xl bg-[#F5F3EF] group-hover:bg-white flex items-center justify-center text-[#1A1A2E]/50 group-hover:text-[#C9A84C] transition-colors flex-shrink-0">{icon}</span>
+                      <span className="w-9 h-9 rounded-xl bg-[#F5F3EF] group-hover:bg-white flex items-center justify-center text-[#1A1A2E]/50 group-hover:text-[#C9A84C] transition-colors shrink-0">{icon}</span>
                       <span className="flex flex-col">
                         <span className="text-[13px] font-semibold text-[#1A1A2E]">{label}</span>
                         <span className="text-[11px] text-[#1A1A2E]/40">{desc}</span>
                       </span>
                     </span>
-                    <ChevronRight className="w-4 h-4 text-[#1A1A2E]/25 group-hover:text-[#C9A84C] transition-colors flex-shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-[#1A1A2E]/25 group-hover:text-[#C9A84C] transition-colors shrink-0" />
                   </button>
                 ))}
               </div>

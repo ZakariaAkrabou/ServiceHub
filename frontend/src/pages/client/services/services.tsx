@@ -73,6 +73,7 @@ const getInitials = (name: string) => {
     .join("");
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const mapCustomerServiceToItem: (service: CustomerService) => ServiceItem = (service) => {
   const provider = getProviderName(service.provider_id);
   const rating = Number(service.rating || 0);

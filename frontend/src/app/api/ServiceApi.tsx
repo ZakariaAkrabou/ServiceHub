@@ -193,6 +193,40 @@ export const serviceApi = api.injectEndpoints({
         { type: "Service", id: `REVIEWS-${String(serviceId)}` },
       ],
     }),
+    createCustomerServiceReview: builder.mutation<
+      { success: boolean; message: string; data: any },
+      { booking_id: string; rating: number; review: string }
+    >({
+      query: (body) => ({
+        url: "/api/reviews",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (_result, _error, { booking_id }) => [
+        { type: "Service", id: "LIST" },
+      ],
+    }),
+    deleteCustomerServiceReview: builder.mutation<
+      { success: boolean; message: string },
+      string
+    >({
+      query: (reviewId) => ({
+        url: `/api/reviews/${reviewId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [{ type: "Service", id: "LIST" }],
+    }),
+    updateCustomerServiceReview: builder.mutation<
+      { success: boolean; message: string; data: any },
+      { reviewId: string; rating?: number; review?: string }
+    >({
+      query: ({ reviewId, ...body }) => ({
+        url: `/api/reviews/${reviewId}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: [{ type: "Service", id: "LIST" }],
+    }),
     createService: builder.mutation<Service, FormData>({
       query: (newService) => ({
         url: "/api/services/create",
@@ -237,6 +271,9 @@ export const {
   useFilterCustomerServicesQuery,
   useGetCustomerServiceByIdQuery,
   useGetCustomerServiceReviewsQuery,
+  useCreateCustomerServiceReviewMutation,
+  useDeleteCustomerServiceReviewMutation,
+  useUpdateCustomerServiceReviewMutation,
   useCreateServiceMutation,
   useUpdateServiceMutation,
   useDeleteServiceMutation,

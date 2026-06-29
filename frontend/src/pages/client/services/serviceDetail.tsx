@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { selectIsAuthenticated } from "../../../app/slices/AuthSlice";
+import type { RootState } from "../../../app/store/store";
 import {
   Star,
   Check,
@@ -11,16 +11,24 @@ import {
   Building2,
   Heart,
   ChevronRight,
-  Share2
+  Share2,
+  Trash2,
+  MoreVertical,
+  Edit2
 } from "lucide-react";
 import Header from "../../../components/client/Header";
 import Footer from "../../../components/client/Footer";
 import {
   useGetCustomerServiceByIdQuery,
   useGetCustomerServiceReviewsQuery,
+  useCreateCustomerServiceReviewMutation,
+  useDeleteCustomerServiceReviewMutation,
+  useUpdateCustomerServiceReviewMutation,
 } from "../../../app/api/ServiceApi";
+import { useGetCustomerBookingsQuery } from "../../../app/api/BookingApi";
 import { mapCustomerServiceToItem, type ServiceItem } from "./services";
 import CreateBooking from "../booking/createBooking";
+import { toast } from "react-toastify";
 
 interface Review {
   id: string;
@@ -29,6 +37,7 @@ interface Review {
   rating: number;
   date: string;
   comment: string;
+  customerId: string;
 }
 
 interface ServiceReview {
@@ -43,9 +52,13 @@ const ServiceDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [userRating, setUserRating] = useState(5);
+  const [reviewText, setReviewText] = useState("");
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
 
   const handleBookingClick = () => {
     if (!isAuthenticated) {
@@ -62,8 +75,22 @@ const ServiceDetail: React.FC = () => {
     error: serviceError,
   } = useGetCustomerServiceByIdQuery(id || "", { skip: !id });
 
-  const { data: serviceReviewsData, isLoading: isReviewsLoading } =
+  const { data: serviceReviewsData, isLoading: isReviewsLoading, refetch: refetchReviews } =
     useGetCustomerServiceReviewsQuery(id || "", { skip: !id });
+
+  const { data: bookingsData } = useGetCustomerBookingsQuery(undefined, { skip: !isAuthenticated });
+
+  const [submitReview, { isLoading: isSubmittingReview }] = useCreateCustomerServiceReviewMutation();
+  const [deleteReview] = useDeleteCustomerServiceReviewMutation();
+  const [updateReview, { isLoading: isUpdatingReview }] = useUpdateCustomerServiceReviewMutation();
+
+  const completedBooking = useMemo(() => {
+    if (!bookingsData || !id) return null;
+    // Find a booking for this service that is completed
+    return bookingsData.data.find(
+      (b) => b.service_id?._id === id && b.status === "completed"
+    );
+  }, [bookingsData, id]);
 
   const formatReviewDate = (date?: string) => {
     if (!date) return "Recently";
@@ -104,9 +131,91 @@ const ServiceDetail: React.FC = () => {
         rating: review.rating,
         date: formatReviewDate(review.createdAt),
         comment: review.review || "",
+        customerId: String(
+          typeof review.customer_id === "object" && review.customer_id !== null
+            ? (review.customer_id as { _id: string })._id || review.customer_id
+            : review.customer_id
+        ),
       };
     });
   }, [serviceReviewsData]);
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingReviewId) {
+        await updateReview({
+          reviewId: editingReviewId,
+          rating: userRating,
+          review: reviewText,
+        }).unwrap();
+        toast.success("Review updated successfully!");
+        setEditingReviewId(null);
+      } else {
+        if (!completedBooking) return;
+        await submitReview({
+          booking_id: completedBooking._id,
+          rating: userRating,
+          review: reviewText,
+        }).unwrap();
+        toast.success("Review submitted successfully!");
+      }
+      setReviewText("");
+      setUserRating(5);
+      refetchReviews();
+    } catch (err: unknown) {
+      const error = err as { data?: { message?: string } };
+      toast.error(error?.data?.message || "Failed to save review.");
+    }
+  };
+
+  const executeDelete = async (reviewId: string) => {
+    try {
+      await deleteReview(reviewId).unwrap();
+      toast.success("Review deleted successfully!");
+      refetchReviews();
+    } catch (err: unknown) {
+      const error = err as { data?: { message?: string } };
+      toast.error(error?.data?.message || "Failed to delete review.");
+    }
+  };
+
+  const handleDeleteClick = (reviewId: string) => {
+    setActiveDropdown(null);
+    toast(
+      (t) => (
+        <div>
+          <p className="font-bold text-[#222325] mb-3">Delete this review?</p>
+          <div className="flex gap-2">
+            <button
+              className="px-4 py-1.5 bg-red-500 text-white rounded-md text-sm font-bold"
+              onClick={() => {
+                executeDelete(reviewId);
+                toast.dismiss(t.toastProps.toastId);
+              }}
+            >
+              Delete
+            </button>
+            <button
+              className="px-4 py-1.5 bg-[#e4e5e7] text-[#222325] rounded-md text-sm font-bold"
+              onClick={() => toast.dismiss(t.toastProps.toastId)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      { autoClose: false, closeOnClick: false }
+    );
+  };
+
+  const handleEditClick = (review: Review) => {
+    setActiveDropdown(null);
+    setEditingReviewId(review.id);
+    setUserRating(review.rating);
+    setReviewText(review.comment);
+    window.scrollTo({ top: document.body.scrollHeight / 2, behavior: "smooth" });
+  };
 
   if (isServiceLoading || isServiceFetching || isReviewsLoading) {
     return (
@@ -207,52 +316,97 @@ const ServiceDetail: React.FC = () => {
                 <p>{service.longDescription || service.description || "No detailed description provided for this service yet."}</p>
                 <p>We pride ourselves on providing top-tier service tailored perfectly to your requirements. Our certified professionals ensure that everything is executed seamlessly from start to finish.</p>
               </div>
-              
-              <ul className="mt-8 space-y-4">
-                <li className="flex items-start gap-3 text-[16px] text-[#404145]">
-                  <Check size={20} className="text-[#c9a84c] flex-shrink-0 mt-0.5" />
-                  <span>Comprehensive consultation and assessment</span>
-                </li>
-                <li className="flex items-start gap-3 text-[16px] text-[#404145]">
-                  <Check size={20} className="text-[#c9a84c] flex-shrink-0 mt-0.5" />
-                  <span>High quality materials and professional equipment</span>
-                </li>
-                <li className="flex items-start gap-3 text-[16px] text-[#404145]">
-                  <Check size={20} className="text-[#c9a84c] flex-shrink-0 mt-0.5" />
-                  <span>Post-service cleanup and quality assurance</span>
-                </li>
-              </ul>
             </div>
 
-            {/* Reviews Section Placeholder */}
-            <div>
-              <h2 className="text-[22px] font-bold text-[#222325] mb-6">What people loved about this seller</h2>
-              {reviewsList.length > 0 ? (
-                <div className="space-y-6">
-                  {reviewsList.map((rev) => (
-                    <div key={rev.id} className="border-b border-[#e4e5e7] pb-6">
-                      <div className="flex items-center gap-3 mb-3">
-                         <div className="w-10 h-10 rounded-full bg-[#f5f5f5] flex items-center justify-center font-bold text-[#404145]">
-                           {rev.avatar}
-                         </div>
-                         <div>
-                           <div className="font-bold text-[#222325]">{rev.author}</div>
-                           <div className="flex items-center gap-2">
-                              <Star size={12} className="fill-[#c9a84c] text-[#c9a84c]" />
-                              <span className="text-[13px] font-bold text-[#c9a84c]">{rev.rating.toFixed(1)}</span>
-                              <span className="text-[12px] text-[#74767e]">{rev.date}</span>
-                           </div>
-                         </div>
-                      </div>
-                      <p className="text-[#404145] leading-relaxed text-[15px]">{rev.comment}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-[#74767e] italic">No reviews yet for this service.</p>
+            {/* Reviews Section */}
+            <div className="mb-12">
+              <h2 className="text-[22px] font-bold text-[#222325] mb-8">Reviews</h2>
+              {/* Review Input */}
+              {(completedBooking || editingReviewId) && (
+                <form onSubmit={handleReviewSubmit} className="mb-10 bg-[#fbfbfb] p-6 rounded-xl border border-[#e4e5e7]">
+                  <h3 className="text-[16px] font-bold mb-4">{editingReviewId ? "Edit your review" : "Leave a review"}</h3>
+                  <div className="flex items-center gap-2 mb-4">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star key={star} size={24} className={`cursor-pointer ${star <= userRating ? "fill-[#c9a84c] text-[#c9a84c]" : "text-[#d1d1d1]"}`} onClick={() => setUserRating(star)} />
+                    ))}
+                  </div>
+                  <textarea
+                    value={reviewText}
+                    onChange={(e) => setReviewText(e.target.value)}
+                    className="w-full p-3 border border-[#e4e5e7] rounded-lg mb-4 focus:ring-2 focus:ring-[#c9a84c] outline-none"
+                    placeholder="Tell others about your experience..."
+                    rows={3}
+                  />
+                  <div className="flex gap-3">
+                    <button type="submit" disabled={isSubmittingReview || isUpdatingReview} className="px-6 py-2 bg-[#c9a84c] text-white rounded-lg font-bold hover:bg-[#b8963e] transition-colors disabled:opacity-50">
+                      {isSubmittingReview || isUpdatingReview ? "Saving..." : "Save Review"}
+                    </button>
+                    {editingReviewId && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingReviewId(null);
+                          setReviewText("");
+                          setUserRating(5);
+                        }}
+                        className="px-6 py-2 bg-[#e4e5e7] text-[#222325] rounded-lg font-bold hover:bg-[#d1d1d1] transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+                </form>
               )}
+              {/* Reviews List */}
+              <div className="space-y-8">
+                {reviewsList.map((review) => (
+                  <div key={review.id} className="flex gap-4 border-b border-[#e4e5e7] pb-8 last:border-0 relative">
+                    <div className="w-10 h-10 rounded-full bg-[#f5f5f5] flex items-center justify-center font-bold text-[#404145] flex-shrink-0">
+                      {review.avatar}
+                    </div>
+                    <div className="w-full">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-bold text-[15px]">{review.author}</span>
+                        <span className="text-[#74767e] text-[13px]">{review.date}</span>
+                      </div>
+                      <div className="flex gap-0.5 mb-2 text-[#c9a84c]">
+                        {[...Array(5)].map((_, i) => <Star key={i} size={14} className={i < review.rating ? "fill-[#c9a84c]" : ""} />)}
+                      </div>
+                      <p className="text-[#404145] text-[15px] pr-8">{review.comment}</p>
+                    </div>
+                    {user && review.customerId === user._id && (
+                      <div className="absolute top-0 right-0">
+                        <button
+                          onClick={() => setActiveDropdown(activeDropdown === review.id ? null : review.id)}
+                          className="p-1.5 text-[#74767e] hover:bg-[#f5f5f5] rounded-md transition-colors"
+                        >
+                          <MoreVertical size={18} />
+                        </button>
+                        {activeDropdown === review.id && (
+                          <>
+                            <div className="fixed inset-0 z-10" onClick={() => setActiveDropdown(null)} />
+                            <div className="absolute right-0 top-8 w-32 bg-white rounded-lg shadow-lg border border-[#e4e5e7] py-1 z-20">
+                              <button
+                                onClick={() => handleEditClick(review)}
+                                className="w-full text-left px-4 py-2 text-sm text-[#404145] hover:bg-[#f5f5f5] flex items-center gap-2"
+                              >
+                                <Edit2 size={14} /> Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteClick(review.id)}
+                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-[#f5f5f5] flex items-center gap-2"
+                              >
+                                <Trash2 size={14} /> Delete
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-
           </div>
 
           {/* ── RIGHT COLUMN (Sticky Sidebar) ── */}

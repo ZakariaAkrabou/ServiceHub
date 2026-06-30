@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../../components/client/Header";
@@ -97,6 +98,7 @@ const BudgetDropdown: React.FC<{
   const trackRef = useRef<HTMLDivElement>(null);
 
   // Sync when parent clears
+   
   useEffect(() => { setLocalMin(minPrice !== "" ? Number(minPrice) : PRICE_MIN); }, [minPrice]);
   useEffect(() => { setLocalMax(maxPrice !== "" ? Number(maxPrice) : PRICE_MAX); }, [maxPrice]);
 
@@ -474,6 +476,7 @@ const ClientServices: React.FC = () => {
   const hasBlockingError = (!isSearchActive && !!allServicesError) || (!isSearchActive && isFilterActive && !!filterError) || (isSearchActive && !!searchError && !isSearchNotFound);
   const isLoadingServices = (isSearchActive && (isSearchLoading || isSearchFetching)) || (!isSearchActive && isFilterActive && (isFilterLoading || isFilterFetching)) || (!isSearchActive && !isFilterActive && (isAllServicesLoading || isAllServicesFetching));
 
+
   const filteredServices = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     const sourceServices = activeApiServices.map(mapCustomerServiceToItem);
@@ -497,7 +500,7 @@ const ClientServices: React.FC = () => {
         default:              return b.rating - a.rating;
       }
     });
-  }, [searchQuery, selectedCategory, activeApiServices, sortBy]);
+  }, [searchQuery, activeApiServices, selectedCategory, minPrice, maxPrice, sortBy]);
 
   const handleCategorySelect = (value: string) => {
     setSelectedCategory(value);

@@ -15,6 +15,14 @@ import { bookingApi, useGetUnreadChatCountQuery } from "../../app/api/BookingApi
 import { getSocket } from "../../hooks/useSocket";
 import { useBootstrapping } from "../../app/BootContext";
 
+type NotificationItem = {
+  _id: string;
+  is_read: boolean;
+  type: string;
+  message: string;
+  createdAt: string;
+};
+
 const ProviderProfileBar: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [notifyOpen, setNotifyOpen] = useState(false);
@@ -40,7 +48,7 @@ const ProviderProfileBar: React.FC = () => {
 
   const allNotifications = notifResponse?.data ?? [];
 
-  const unreadCount = allNotifications.filter((n: any) => !n.is_read).length;
+  const unreadCount = allNotifications.filter((n: NotificationItem) => !n.is_read).length;
   const chatUnreadCount = chatUnreadData?.count || 0;
 
   // ── Socket setup ──────────────────────────────────────────────────────────
@@ -208,7 +216,7 @@ const ProviderProfileBar: React.FC = () => {
                 <p className="text-xs text-[#9a9a9a]">New booking requests will appear here.</p>
               </div>
             ) : (
-              allNotifications.slice(0, 8).map((n: any) => (
+              allNotifications.slice(0, 8).map((n: NotificationItem) => (
                 <button
                   key={n._id}
                   type="button"

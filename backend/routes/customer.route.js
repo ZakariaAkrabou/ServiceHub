@@ -31,5 +31,7 @@ router.get("/reviews/:serviceId", customerController.getServiceReviews);
 
 router.patch("/bookings/:id/contact-method", authenticated, customerController.setContactMethod);
 router.get("/notifications", authenticated, customerController.getNotifications);
+router.patch("/notifications/read-all", authenticated, customerController.markAllCustomerNotificationsRead);
+router.patch("/notifications/:id/read", authenticated, customerController.markCustomerNotificationRead);
 
 export default router;

@@ -535,3 +535,30 @@ export const getNotifications = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const markCustomerNotificationRead = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const notification = await Notification.findByIdAndUpdate(
+      id,
+      { is_read: true },
+      { new: true }
+    );
+    res.status(200).json({ success: true, data: notification });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const markAllCustomerNotificationsRead = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    await Notification.updateMany(
+      { user_id: userId, is_read: false },
+      { is_read: true }
+    );
+    res.status(200).json({ success: true, message: "All notifications marked as read." });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

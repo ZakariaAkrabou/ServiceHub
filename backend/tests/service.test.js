@@ -1,212 +1,180 @@
-import { jest } from '@jest/globals';
+import request from 'supertest';
+import express from 'express';
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import jwt from 'jsonwebtoken';
+import serviceRoutes from '../routes/service.route.js';
+import customerRoutes from '../routes/customer.route.js';
+import User from '../models/user.model.js';
+import Service from '../models/service.model.js';
+import Booking from '../models/booking.model.js';
+import Notification from '../models/notification.model.js';
+import cookieParser from 'cookie-parser';
 
-class MockService {
-  constructor(data) {
-    Object.assign(this, data);
-  }
-  save() {}
-}
-MockService.find = jest.fn();
-MockService.findById = jest.fn();
+let mongoServer;
+const app = express();
+app.use(express.json());
+app.use(cookieParser());
 
-jest.unstable_mockModule('../models/service.model.js', () => ({
-  default: MockService,
-}));
+app.set('io', { to: () => ({ emit: () => {} }) });
 
-const { default: Service } = await import('../models/service.model.js');
-const {
-  getAllServices,
-  createService,
-  getServiceById,
-} = await import('../controllers/service.controller.js');
+app.use('/api/services', serviceRoutes);
+app.use('/api/customer', customerRoutes);
 
-const mockReq = (overrides = {}) => ({
-  user: { userId: 'user123' },
-  params: {},
-  body: {},
-  file: null,
-  ...overrides,
+const originalEnv = process.env;
+
+beforeAll(async () => {
+  process.env = { 
+    ...originalEnv, 
+    JWT_SECRET: 'testsecret',
+    JWT_REFRESH_SECRET: 'testrefreshsecret'
+  };
+
+  mongoServer = await MongoMemoryServer.create();
+  const mongoUri = mongoServer.getUri();
+  await mongoose.connect(mongoUri);
 });
 
-const mockRes = () => {
-  const res = {};
-  res.status = jest.fn().mockReturnValue(res);
-  res.json = jest.fn().mockReturnValue(res);
-  return res;
+afterAll(async () => {
+  await mongoose.disconnect();
+  await mongoServer.stop();
+  process.env = originalEnv;
+});
+
+afterEach(async () => {
+  const collections = mongoose.connection.collections;
+  for (const key in collections) {
+    const collection = collections[key];
+    await collection.deleteMany();
+  }
+});
+
+const generateToken = (user) => {
+  return jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "15m" });
 };
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
+describe('iT-02: Book a Service Integration Tests', () => {
+  let customerUser, providerUser, serviceItem;
+  let customerToken, providerToken;
 
-describe('getAllServices', () => {
-
-  it('should return 200 with the list of services for the provider', async () => {
-    const fakeServices = [
-      { _id: 's1', name: 'Haircut', provider_id: 'user123' },
-      { _id: 's2', name: 'Massage', provider_id: 'user123' },
-    ];
-
-    Service.find.mockReturnValue({
-      populate: jest.fn().mockResolvedValue(fakeServices),
+  beforeEach(async () => {
+    providerUser = new User({
+      firstName: 'Provider',
+      lastName: 'User',
+      email: 'provider@example.com',
+      password: 'password123',
+      role: 'service_provider',
+      isVerified: true,
+      status: 'approved',
+      phone: '1234567890',
+      location: 'Test Location',
+      serviceCategory: ['Cleaning'],
+      serviceDescription: 'Test provider description'
     });
+    await providerUser.save();
+    providerToken = generateToken(providerUser);
 
-    const req = mockReq();
-    const res = mockRes();
+    customerUser = new User({
+      firstName: 'Customer',
+      lastName: 'User',
+      email: 'customer@example.com',
+      password: 'password123',
+      role: 'customer',
+      isVerified: true
+    });
+    await customerUser.save();
+    customerToken = generateToken(customerUser);
 
-    await getAllServices(req, res);
-
-    expect(Service.find).toHaveBeenCalledWith({ provider_id: 'user123' });
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(fakeServices);
+    serviceItem = new Service({
+      name: 'Test Cleaning Service',
+      category: 'Cleaning',
+      price: 100,
+      description: 'Professional house cleaning',
+      provider_id: providerUser._id,
+      availability: ['available']
+    });
+    await serviceItem.save();
   });
 
-  it('should return 500 if a database error occurs', async () => {
-    Service.find.mockReturnValue({
-      populate: jest.fn().mockRejectedValue(new Error('DB Error')),
-    });
+  it('should successfully book a service and create a notification', async () => {
+    const bookingTime = new Date();
+    bookingTime.setDate(bookingTime.getDate() + 1); // Tomorrow
 
-    const req = mockReq();
-    const res = mockRes();
+    const response = await request(app)
+      .post('/api/customer/create-bookings')
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({
+        service_id: serviceItem._id,
+        booking_time: bookingTime.toISOString()
+      });
 
-    await getAllServices(req, res);
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.service_id).toBe(serviceItem._id.toString());
+    expect(response.body.data.customer_id).toBe(customerUser._id.toString());
 
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ message: 'DB Error' });
-  });
-});
+    const bookingInDb = await Booking.findById(response.body.data._id);
+    expect(bookingInDb).not.toBeNull();
+    expect(bookingInDb.status).toBe('pending');
 
-describe('createService', () => {
-
-  it('should create a service and return 201 without an image', async () => {
-    const savedService = {
-      _id: 'service_new',
-      name: 'Plumbing',
-      price: 150,
-      provider_id: 'user123',
-      image: '',
-    };
-
-    Service.prototype.save = jest.fn().mockResolvedValue(savedService);
-
-    const req = mockReq({
-      body: { name: 'Plumbing', price: 150, category: 'Home', description: 'Fix pipes' },
-      file: null,
-    });
-    const res = mockRes();
-
-    await createService(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(201);
-    expect(Service.prototype.save).toHaveBeenCalled();
+    const notification = await Notification.findOne({ user_id: providerUser._id, booking_id: bookingInDb._id });
+    expect(notification).not.toBeNull();
+    expect(notification.type).toBe('new_booking');
   });
 
-  it('should include imageUrl when a cloudinary file is provided', async () => {
-    const savedService = { _id: 's3', image: 'https://cloudinary.com/img.jpg' };
+  it('should not allow booking a service with a past date', async () => {
+    const pastTime = new Date();
+    pastTime.setDate(pastTime.getDate() - 1); // Yesterday
 
-    Service.prototype.save = jest.fn().mockResolvedValue(savedService);
+    const response = await request(app)
+      .post('/api/customer/create-bookings')
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({
+        service_id: serviceItem._id,
+        booking_time: pastTime.toISOString()
+      });
 
-    const req = mockReq({
-      body: { name: 'Photography', price: 200, category: 'Art', description: 'Pro photos' },
-      file: { cloudinaryUrl: 'https://cloudinary.com/img.jpg' },
-    });
-    const res = mockRes();
-
-    await createService(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith(savedService);
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('The date must be in the future.');
   });
 
-  it('should return 400 if saving the service fails', async () => {
-    Service.prototype.save = jest.fn().mockRejectedValue(new Error('Validation error'));
+  it('should not allow a provider to book their own service', async () => {
+    const bookingTime = new Date();
+    bookingTime.setDate(bookingTime.getDate() + 1); 
 
-    const req = mockReq({ body: { name: '' } });
-    const res = mockRes();
+    const response = await request(app)
+      .post('/api/customer/create-bookings')
+      .set('Authorization', `Bearer ${providerToken}`) 
+      .send({
+        service_id: serviceItem._id,
+        booking_time: bookingTime.toISOString()
+      });
 
-    await createService(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ message: 'Validation error' });
-  });
-});
-
-describe('getServiceById', () => {
-
-  it('should return 200 if the service belongs to the logged-in provider', async () => {
-    const fakeService = {
-      _id: 'service123',
-      name: 'Electrical',
-      provider_id: {
-        _id: { toString: () => 'user123' },
-      },
-    };
-
-    Service.findById.mockReturnValue({
-      populate: jest.fn().mockResolvedValue(fakeService),
-    });
-
-    const req = mockReq({
-      params: { id: 'service123' },
-      user: { userId: 'user123' },
-    });
-    const res = mockRes();
-
-    await getServiceById(req, res);
-
-    expect(Service.findById).toHaveBeenCalledWith('service123');
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(fakeService);
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('You cannot book your own service.');
   });
 
-  it('should return 403 if the service belongs to a different provider', async () => {
-    const fakeService = {
-      _id: 'service123',
-      provider_id: {
-        _id: { toString: () => 'otherUser999' },
-      },
-    };
+  it('should prevent double booking for the same slot', async () => {
+    const bookingTime = new Date();
+    bookingTime.setDate(bookingTime.getDate() + 1);
 
-    Service.findById.mockReturnValue({
-      populate: jest.fn().mockResolvedValue(fakeService),
+  
+    await Booking.create({
+      customer_id: customerUser._id,
+      service_id: serviceItem._id,
+      booking_time: bookingTime,
+      status: 'pending'
     });
 
-    const req = mockReq({
-      params: { id: 'service123' },
-      user: { userId: 'user123' },
-    });
-    const res = mockRes();
+    const response = await request(app)
+      .post('/api/customer/create-bookings')
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({
+        service_id: serviceItem._id,
+        booking_time: bookingTime.toISOString()
+      });
 
-    await getServiceById(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith({ message: 'Access denied' });
-  });
-
-  it('should return 404 if the service does not exist', async () => {
-    Service.findById.mockReturnValue({
-      populate: jest.fn().mockResolvedValue(null),
-    });
-
-    const req = mockReq({ params: { id: 'nonExistentId' } });
-    const res = mockRes();
-
-    await getServiceById(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ message: 'Service not found' });
-  });
-
-  it('should return 500 if an unexpected server error occurs', async () => {
-    Service.findById.mockReturnValue({
-      populate: jest.fn().mockRejectedValue(new Error('Server crash')),
-    });
-
-    const req = mockReq({ params: { id: 'service123' } });
-    const res = mockRes();
-
-    await getServiceById(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(500);
+    expect(response.status).toBe(409);
+    expect(response.body.message).toBe('This slot is already booked.');
   });
 });

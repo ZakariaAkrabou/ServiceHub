@@ -427,7 +427,7 @@ const ServiceDetail: React.FC = () => {
               {/* Header */}
               <div className="bg-[#fafafa] border-b border-[#e4e5e7] px-6 py-4 flex justify-between items-center">
                  <h3 className="text-[16px] font-bold text-[#222325] uppercase tracking-wider">Service Booking</h3>
-                 <span className="text-[26px] font-normal text-[#222325]">US${service.price}</span>
+                 <span className="text-[26px] font-normal text-[#222325]">{service.price} MAD</span>
               </div>
               
               <div className="p-6">

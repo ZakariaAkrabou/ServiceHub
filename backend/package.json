@@ -31,9 +31,11 @@
   },
   "devDependencies": {
     "@jest/globals": "^30.3.0",
+    "@playwright/test": "^1.61.1",
     "jest": "^30.3.0",
     "mongodb-memory-server": "^11.0.1",
     "mongoose": "^9.6.3",
+    "socket.io-client": "^4.8.3",
     "supertest": "^7.2.2"
   }
 }

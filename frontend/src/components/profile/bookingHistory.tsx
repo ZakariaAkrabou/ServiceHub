@@ -172,7 +172,7 @@ export default function BookingHistory() {
 
                 <div className="flex flex-row sm:flex-col justify-between items-center sm:items-end border-t sm:border-t-0 border-[#EBE6DD] pt-4 sm:pt-0">
                   <div className="text-xl font-black text-[#1A1A2E]">
-                    {booking.service_id?.price != null ? `$${booking.service_id.price}` : "—"}
+                    {booking.service_id?.price != null ? `${booking.service_id.price} MAD` : "—"}
                   </div>
                   <div className="mt-2">
                     {booking.status === "pending" && (

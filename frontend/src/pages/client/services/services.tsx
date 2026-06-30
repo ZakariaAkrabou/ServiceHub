@@ -497,7 +497,7 @@ const ClientServices: React.FC = () => {
         case "price_low":     return a.price - b.price;
         case "price_high":    return b.price - a.price;
         case "best_selling":
-        default:              return b.rating - a.rating; // fallback to rating for best selling
+        default:              return b.rating - a.rating;
       }
     });
   }, [searchQuery, activeApiServices, selectedCategory, minPrice, maxPrice, sortBy]);

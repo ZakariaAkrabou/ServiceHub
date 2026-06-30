@@ -18,6 +18,7 @@ const Header: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotifPanel, setShowNotifPanel] = useState(false);
+  const [optimisticRead, setOptimisticRead] = useState(false);
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
   const [logoutMutation] = useLogoutMutation();
   const dispatch = useDispatch();
@@ -42,8 +43,15 @@ const Header: React.FC = () => {
   };
 
   const notifications: NotificationItem[] = notifData?.data || [];
-  const unreadCount = notifications.filter((n: NotificationItem) => !n.is_read).length;
+  const displayNotifications = optimisticRead ? notifications.map(n => ({...n, is_read: true})) : notifications;
+  const unreadCount = displayNotifications.filter((n: NotificationItem) => !n.is_read).length;
   const chatUnreadCount = chatUnreadData?.count || 0;
+
+  useEffect(() => {
+    if (optimisticRead) {
+      setOptimisticRead(false);
+    }
+  }, [notifData]);
 
   useSocket(user?._id, user?.role);
 
@@ -696,15 +704,15 @@ const Header: React.FC = () => {
                       <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#1A1A2E' }}>Notifications</span>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         {unreadCount > 0 && (
-                          <button onClick={async () => { await markAllRead(); refetchNotifs(); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3498db', fontSize: 11, fontWeight: 600 }}>Mark all read</button>
+                          <button onClick={async () => { setOptimisticRead(true); await markAllRead(); refetchNotifs(); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3498db', fontSize: 11, fontWeight: 600 }}>Mark all read</button>
                         )}
                         <button onClick={() => setShowNotifPanel(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: 16, lineHeight: 1 }}>×</button>
                       </div>
                     </div>
                     
-                    {notifications.length > 0 ? (
+                    {displayNotifications.length > 0 ? (
                       <div style={{ maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {notifications.map((notif: NotificationItem) => (
+                        {displayNotifications.map((notif: NotificationItem) => (
                               <div 
                                 key={notif._id} 
                                 onClick={() => handleNotifClick(notif)}

@@ -64,6 +64,7 @@ afterEach(async () => {
   if (customerClientSocket) customerClientSocket.disconnect();
   if (providerClientSocket) providerClientSocket.disconnect();
 });
+//COM
 
 describe('Chat Integration Tests', () => {
   beforeEach(async () => {

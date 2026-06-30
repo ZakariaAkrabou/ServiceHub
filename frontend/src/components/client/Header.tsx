@@ -453,6 +453,48 @@ const Header: React.FC = () => {
           background: #c9a84c;
         }
 
+        .icon-btn {
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.12);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          position: relative;
+          flex-shrink: 0;
+        }
+
+        .icon-btn:hover {
+          background: rgba(255,255,255,0.15);
+        }
+
+        .header-container.light .icon-btn {
+          background: rgba(26,26,46,0.05);
+          border: 1px solid rgba(26,26,46,0.12);
+        }
+
+        .header-container.light .icon-btn:hover {
+          background: rgba(26,26,46,0.1);
+        }
+
+        .icon-badge {
+          position: absolute;
+          top: -4px;
+          right: -4px;
+          background: #e74c3c;
+          color: #ffffff;
+          font-size: 10px;
+          font-weight: bold;
+          padding: 2px 6px;
+          border-radius: 10px;
+          line-height: 1.2;
+          pointer-events: none;
+        }
+
         /* Mobile Menu Button */
         .mobile-btn {
           display: none;
@@ -564,6 +606,12 @@ const Header: React.FC = () => {
           opacity: 1;
         }
 
+        .header-right {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
         @media (max-width: 1100px) {
           .nav-links { gap: 32px; }
           .header-container { padding: 20px 32px; }
@@ -571,10 +619,22 @@ const Header: React.FC = () => {
         }
 
         @media (max-width: 900px) {
-          .header-container { padding: 16px 24px; }
-          .header-container.scrolled { padding: 10px 24px; }
-          .nav-links, .auth-actions { display: none; }
-          .mobile-btn { display: flex; }
+          .header-container { padding: 16px 20px; }
+          .header-container.scrolled { padding: 10px 20px; }
+          .nav-links { display: none; }
+          .header-right { gap: 6px; }
+          .auth-actions { gap: 10px; }
+          .auth-actions .btn-login,
+          .auth-actions .btn-cta,
+          .profile-dropdown-container { display: none; }
+          .mobile-btn { display: flex; padding: 10px 4px 10px 10px; }
+        }
+
+        @media (max-width: 480px) {
+          .header-container { padding: 14px 16px; }
+          .header-container.scrolled { padding: 8px 16px; }
+          .icon-btn { width: 34px; height: 34px; }
+          .auth-actions { gap: 8px; }
         }
       `}</style>
 
@@ -589,6 +649,7 @@ const Header: React.FC = () => {
           <Link to="/about" className={location.pathname === '/about' ? 'active' : ''}>About</Link>
         </nav>
 
+        <div className="header-right">
         <div className="auth-actions">
           {bootstrapping ? (
             <div style={{width: 36, height: 36}} />
@@ -597,18 +658,12 @@ const Header: React.FC = () => {
               {/* Chat Icon */}
               <Link to="/chat" style={{ textDecoration: 'none' }}>
                 <button
-                  style={{
-                    width: 38, height: 38, borderRadius: '50%',
-                    background: isLight ? 'rgba(26,26,46,0.05)' : 'rgba(255,255,255,0.08)',
-                    border: isLight ? '1px solid rgba(26,26,46,0.12)' : '1px solid rgba(255,255,255,0.12)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', transition: 'all 0.2s ease', position: 'relative'
-                  }}
+                  className="icon-btn"
                   aria-label="Messages"
                 >
                   <MessageSquare size={16} color={isLight ? '#1A1A2E' : '#ffffff'} />
                   {chatUnreadCount > 0 && (
-                    <span style={{ position: 'absolute', top: -4, right: -4, background: '#e74c3c', color: 'white', fontSize: 10, fontWeight: 'bold', padding: '2px 6px', borderRadius: 10 }}>
+                    <span className="icon-badge">
                       {chatUnreadCount > 9 ? "9+" : chatUnreadCount}
                     </span>
                   )}
@@ -619,18 +674,12 @@ const Header: React.FC = () => {
               <div style={{ position: 'relative' }}>
                 <button
                   onClick={() => setShowNotifPanel(!showNotifPanel)}
-                  style={{
-                    width: 38, height: 38, borderRadius: '50%',
-                    background: isLight ? 'rgba(26,26,46,0.05)' : 'rgba(255,255,255,0.08)',
-                    border: isLight ? '1px solid rgba(26,26,46,0.12)' : '1px solid rgba(255,255,255,0.12)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', transition: 'all 0.2s ease'
-                  }}
+                  className="icon-btn"
                   aria-label="Notifications"
                 >
                   <Bell size={16} color={isLight ? '#1A1A2E' : '#ffffff'} />
                   {unreadCount > 0 && (
-                    <span style={{ position: 'absolute', top: -4, right: -4, background: '#e74c3c', color: 'white', fontSize: 10, fontWeight: 'bold', padding: '2px 6px', borderRadius: 10 }}>
+                    <span className="icon-badge">
                       {unreadCount}
                     </span>
                   )}
@@ -639,7 +688,7 @@ const Header: React.FC = () => {
                 {showNotifPanel && (
                   <div style={{
                     position: 'absolute', top: 'calc(100% + 10px)', right: 0,
-                    width: 320, background: '#ffffff', borderRadius: 14,
+                    width: 'min(320px, calc(100vw - 32px))', background: '#ffffff', borderRadius: 14,
                     border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
                     padding: '12px', zIndex: 2000
                   }}>
@@ -761,16 +810,29 @@ const Header: React.FC = () => {
           <span></span>
           <span></span>
         </button>
+        </div>
 
         <div className={`mobile-overlay ${open ? 'active' : ''}`}>
           <Link to="/" className={`nav-item ${location.pathname === '/' ? 'active' : ''}`} onClick={() => setOpen(false)}>Home</Link>
           <Link to="/services" className={`nav-item ${location.pathname.startsWith('/services') ? 'active' : ''}`} onClick={() => setOpen(false)}>Services</Link>
           <Link to="/about" className={`nav-item ${location.pathname === '/about' ? 'active' : ''}`} onClick={() => setOpen(false)}>About</Link>
-    
-          <div className="mobile-auth">
-            <Link to="/login" className="btn-login" style={{ width: '100%', textAlign: 'center', border: 'none', background: 'transparent' }} onClick={() => setOpen(false)}>Login</Link>
-            <Link to="/register?tab=provider" className="btn-cta" style={{ width: '100%', textAlign: 'center' }} onClick={() => setOpen(false)}>Join as Provider</Link>
-          </div>
+
+          {isAuthenticated && (
+            <div className="mobile-auth" style={{ gap: 12 }}>
+              <Link to="/profile" className="btn-login" style={{ width: '100%', textAlign: 'center', border: '1px solid rgba(255,255,255,0.15)' }} onClick={() => setOpen(false)}>My Profile</Link>
+              {user?.role === 'service_provider' && (
+                <Link to="/provider/dashboard" className="btn-login" style={{ width: '100%', textAlign: 'center', border: '1px solid rgba(255,255,255,0.15)' }} onClick={() => setOpen(false)}>Provider Dashboard</Link>
+              )}
+              <button onClick={() => { setOpen(false); handleLogout(); }} className="btn-login" style={{ width: '100%', textAlign: 'center', border: '1px solid rgba(255,107,107,0.4)', color: '#ff6b6b' }}>Sign Out</button>
+            </div>
+          )}
+
+          {!isAuthenticated && (
+            <div className="mobile-auth">
+              <Link to="/login" className="btn-login" style={{ width: '100%', textAlign: 'center', border: 'none', background: 'transparent' }} onClick={() => setOpen(false)}>Login</Link>
+              <Link to="/register?tab=provider" className="btn-cta" style={{ width: '100%', textAlign: 'center' }} onClick={() => setOpen(false)}>Join as Provider</Link>
+            </div>
+          )}
         </div>
       </header>
     </>

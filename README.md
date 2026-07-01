@@ -122,10 +122,7 @@ ServiceHub/
 ```
 
 
-<details>
-<summary>Click to expand</summary>
-Placeholders added as requested to prevent clutter. Feel free to replace these quotes with image references once you have the screenshots.
-</details>
+
 
 ## Installation
 

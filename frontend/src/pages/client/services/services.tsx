@@ -81,7 +81,6 @@ export const mapCustomerServiceToItem: (service: CustomerService) => ServiceItem
   };
 };
 
-/* ── Budget Dropdown (price range slider) ────────────────────── */
 const PRICE_MIN = 0;
 const PRICE_MAX = 1000;
 

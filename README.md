@@ -121,31 +121,6 @@ ServiceHub/
 └── README.md             # Project documentation
 ```
 
-## Screenshots
-
-### Home Page
-
-> Add screenshot here
-
-### Customer Dashboard
-
-> Add screenshot here
-
-### Provider Dashboard
-
-> Add screenshot here
-
-### Booking Page
-
-> Add screenshot here
-
-### Chat
-
-> Add screenshot here
-
-### Admin Dashboard
-
-> Add screenshot here
 
 <details>
 <summary>Click to expand</summary>
@@ -258,6 +233,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
 
-Your Name - [@YourTwitter](https://twitter.com/your_twitter) - email@example.com
+Zakaria Akrabou & fatimazahra [@Zakaria_akrabou](https://www.linkedin.com/zakaria-akrabou/ ,https://www.linkedin.com/in/aafak-fatima-zahra ) - zakaria.akrabou@gmail.com , fatimazahraaafak@gmail.com
 
-Project Link: [https://github.com/your-username/ServiceHub](https://github.com/your-username/ServiceHub)
+Project Link: [https://github.com/ZakariaAkrabou/ServiceHub/](https://github.com/ZakariaAkrabou/ServiceHub/)

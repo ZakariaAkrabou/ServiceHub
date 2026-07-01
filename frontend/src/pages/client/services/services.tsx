@@ -379,7 +379,7 @@ const ServiceMemeCard: React.FC<{
       onClick={onClick}
       className="group flex flex-col w-full h-full cursor-pointer transition-all duration-300 hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] border border-transparent rounded-lg overflow-hidden bg-white"
     >
-      {/* Top Photo — no heart button */}
+    *
       <div className="w-full aspect-4/3 relative rounded-lg overflow-hidden">
         <img
           src={service.image}
@@ -388,7 +388,7 @@ const ServiceMemeCard: React.FC<{
         />
       </div>
 
-      {/* Content */}
+
       <div className="pt-3 pb-4 px-2 flex flex-col flex-1">
         {/* Seller Info */}
         <div className="flex items-center gap-2 mb-2">

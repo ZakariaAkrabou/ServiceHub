@@ -1,4 +1,6 @@
-import React from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import React, { useState, useMemo, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../../../components/client/Header";
 import Footer from "../../../components/client/Footer";
 import QuestionSection from "./question";
@@ -534,14 +536,162 @@ const ClientServices: React.FC = () => {
   }, [allServicesData?.data]);
 
   return (
-    <main>
-        <Header />
-        <ServicesPageHeader />
-        <ServicesSection />
-        <Footer />
-    </main>
+    <div className="min-h-screen bg-white font-sans text-[#222325]">
+      <Header />
 
+      <main className="max-w-360 mx-auto px-6 pt-32 pb-8">
+        {/* Breadcrumbs */}
+        <div className="text-[14px] text-[#74767e] mb-6 flex items-center gap-2">
+          <button className="hover:underline" onClick={() => { setSelectedCategory("All"); setActiveSubFilter("All"); }}>Home</button>
+          <span>/</span>
+          <button className="hover:underline">Services</button>
+          <span>/</span>
+          <span className="text-[#222325] font-medium">{selectedCategory === "All" ? "All Services" : selectedCategory}</span>
+        </div>
+
+        {/* Header Section */}
+        <div className="mb-8">
+          <h1 className="text-[32px] md:text-[40px] font-bold mb-3 text-[#1A1A2E]">
+            {selectedCategory === "All" ? "Explore Services" : selectedCategory}
+          </h1>
+          <p className="text-[16px] flex flex-wrap items-center gap-2">
+            <span className="text-[#1A1A2E]/70">Find the perfect professional for your needs with help from our skilled service providers</span>
+            <span className="hidden sm:inline text-[#C9A84C] font-bold mx-1">|</span>
+            <button className="flex items-center gap-1.5 text-[#C9A84C] font-bold hover:underline group">
+              <PlayCircle size={18} className="fill-[#C9A84C] text-white transition-transform group-hover:scale-110" /> How ServiceHub Works
+            </button>
+          </p>
+        </div>
+
+        {/* Filters Row */}
+        <div className="flex flex-wrap items-center gap-3 mb-6 border-b border-[#e4e5e7] pb-4">
+          <FilterDropdown
+            label="Service options"
+            options={categoryOptions}
+            value={selectedCategory}
+            onChange={handleCategorySelect}
+          />
+
+          <BudgetDropdown
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            onApply={handleBudgetApply}
+            onClear={handleBudgetClear}
+          />
+
+          {/* Search */}
+          <div className="relative ml-auto w-full sm:w-auto">
+            <input
+              type="text"
+              placeholder="Search services..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-10 pl-4 pr-10 text-[15px] border border-[#c5c6c9] outline-none rounded-lg transition-colors focus:border-[#222325] w-full sm:w-56"
+            />
+            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#74767e]" />
+          </div>
+        </div>
+
+        {/* Results Info */}
+        <div className="flex justify-between items-center mb-6">
+          <span className="text-[15px] font-medium text-[#74767e]">
+            {filteredServices.length > 0 ? `${filteredServices.length}+ results` : "0 results"}
+          </span>
+          <div className="flex items-center gap-2 text-[15px]">
+            <span className="text-[#74767e]">Sort by:</span>
+            <SortDropdown value={sortBy} onChange={(v) => { setSortBy(v); setCurrentPage(1); }} />
+          </div>
+        </div>
+
+        {/* Content */}
+        {isLoadingServices ? (
+          <div className="flex justify-center py-24">
+            <span className="text-[#74767e] font-medium">Loading services...</span>
+          </div>
+        ) : hasBlockingError ? (
+          <div className="flex justify-center py-24">
+            <span className="text-red-500 font-medium">Error loading services.</span>
+          </div>
+        ) : filteredServices.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <Search size={32} className="text-[#c5c6c9] mb-4" />
+            <h3 className="text-[20px] font-bold text-[#222325]">No Services Found</h3>
+            <p className="text-[#74767e] mt-2">Try adjusting your filters or search query.</p>
+            {(isFilterActive || isSearchActive) && (
+              <button
+                onClick={() => { setSearchQuery(""); setSelectedCategory("All"); setActiveSubFilter("All"); setMinPrice(""); setMaxPrice(""); }}
+                className="mt-6 px-6 py-2.5 bg-[#222325] text-white font-bold rounded-lg hover:bg-[#404145] transition-colors"
+              >
+                Clear All Filters
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 gap-y-10 mb-12">
+              {paginatedServices.map((service) => (
+                <ServiceMemeCard
+                  key={service.id}
+                  service={service}
+                  onClick={() => navigate(`/services/${service.id}`)}
+                />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 0 && (
+              <div className="flex items-center justify-center gap-2 pb-12 mt-8">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="w-10 h-10 rounded-full flex items-center justify-center border border-[#e4e5e7] hover:bg-[#f5f5f5] disabled:opacity-50 transition-colors"
+                >
+                  <ChevronDown size={20} className="rotate-90 text-[#404145]" />
+                </button>
+
+                {[...Array(totalPages)].map((_, idx) => {
+                  const page = idx + 1;
+                  const isActive = page === currentPage;
+                  const isVisible = Math.abs(page - currentPage) <= 2 || page === 1 || page === totalPages;
+
+                  if (!isVisible) {
+                    if (page === 2 && currentPage > 4) return <span key={page} className="text-[#74767e] px-1">...</span>;
+                    if (page === totalPages - 1 && currentPage < totalPages - 3) return <span key={page} className="text-[#74767e] px-1">...</span>;
+                    return null;
+                  }
+
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-10 h-10 rounded-full text-[15px] font-bold transition-all flex items-center justify-center ${
+                        isActive
+                          ? "bg-[#222325] text-white"
+                          : "text-[#404145] hover:bg-[#f5f5f5]"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="w-10 h-10 rounded-full flex items-center justify-center border border-[#e4e5e7] hover:bg-[#f5f5f5] disabled:opacity-50 transition-colors"
+                >
+                  <ChevronDown size={20} className="-rotate-90 text-[#404145]" />
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </main>
+      <QuestionSection />
+      <Footer />
+    </div>
   );
 };
 
-export default Services;
+export default ClientServices;

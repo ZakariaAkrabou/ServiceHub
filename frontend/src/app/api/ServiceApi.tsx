@@ -202,7 +202,7 @@ export const serviceApi = api.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: (_result, _error, { booking_id }) => [
+      invalidatesTags: () => [
         { type: "Service", id: "LIST" },
       ],
     }),

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Home, ChevronRight, Mail, Phone, MapPin, Send } from "lucide-react";
+import { Home, Mail, Phone, MapPin, Send } from "lucide-react";
 import Header from "../../../components/client/Header";
 import Footer from "../../../components/client/Footer";
 

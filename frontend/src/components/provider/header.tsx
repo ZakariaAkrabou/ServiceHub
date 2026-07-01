@@ -51,7 +51,6 @@ const ProviderProfileBar: React.FC = () => {
   const unreadCount = allNotifications.filter((n: NotificationItem) => !n.is_read).length;
   const chatUnreadCount = chatUnreadData?.count || 0;
 
-  // ── Socket setup ──────────────────────────────────────────────────────────
   const socketRef = useRef(getSocket());
 
   useEffect(() => {
@@ -62,9 +61,9 @@ const ProviderProfileBar: React.FC = () => {
     socket.emit("join", user._id, user.role);
 
     const handleNewBooking = () => {
-      // Invalidate RTK Query cache so bookings list auto-refreshes
+  
       dispatch(bookingApi.util.invalidateTags([{ type: "Booking", id: "LIST" }]));
-      // Re-fetch server notifications
+
       refetchNotifications();
     };
 
@@ -91,7 +90,7 @@ const ProviderProfileBar: React.FC = () => {
     };
   }, [user?._id, user?.role, dispatch, refetchNotifications, refetchChatUnread]);
 
-  // ── Click-outside close ────────────────────────────────────────────────────
+  
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
       const t = e.target as HTMLElement;

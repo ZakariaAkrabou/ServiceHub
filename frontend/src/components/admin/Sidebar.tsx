@@ -84,7 +84,7 @@ export default function Sidebar() {
               <div className="w-10 h-10 shrink-0 flex items-center justify-center relative">
                 <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
                 {item.name === "Notifications" && unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold min-w-[16px] h-[16px] flex items-center justify-center rounded-full border border-white shadow-sm">
+                  <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold min-w-4 h-4 flex items-center justify-center rounded-full border border-white shadow-sm">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
@@ -140,7 +140,9 @@ export default function Sidebar() {
               await logout({}).unwrap();
               dispatch(logoutAction());
               navigate("/admin/login");
-            } catch (err) {}
+            } catch (err) {
+              console.log("Failed to logout: ", err);
+            }
           }}
         >
           <div className="w-10 h-10 shrink-0 flex items-center justify-center opacity-70">

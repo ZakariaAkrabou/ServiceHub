@@ -41,7 +41,7 @@ export default function Sidebar() {
       <div className="flex items-center mb-10 w-full px-4 transition-all duration-300 overflow-hidden h-24">
         <Link to="/admin/dashboard" className="flex items-center justify-center w-full group-hover:justify-start transition-all duration-300">
           <img 
-            src="/logo.png" 
+            src="\src\assets\logobleu.png"
             alt="Services Hub" 
             className="h-12 w-auto group-hover:h-20 transition-all duration-500 object-contain shrink-0" 
           />
@@ -140,7 +140,9 @@ export default function Sidebar() {
               await logout({}).unwrap();
               dispatch(logoutAction());
               navigate("/admin/login");
-            } catch (err) {}
+            } catch {
+              // ignore logout errors
+            }
           }}
         >
           <div className="w-10 h-10 shrink-0 flex items-center justify-center opacity-70">

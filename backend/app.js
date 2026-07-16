@@ -5,6 +5,8 @@ import http from "http";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
 
 
 import { initSocket } from "./config/socket.js";
@@ -34,6 +36,9 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use(helmet())
+
+const swaggerDocument = YAML.load('./doc/swagger.yaml');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/services", serviceRoutes);

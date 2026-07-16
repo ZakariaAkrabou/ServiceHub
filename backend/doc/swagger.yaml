@@ -1,0 +1,628 @@
+openapi: 3.0.0
+info:
+  title: ServiceHub API
+  version: 1.0.0
+  description: API Documentation for ServiceHub
+servers:
+  - url: http://localhost:5000/api
+    description: Local Server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+paths:
+  # --- Auth Routes ---
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+      responses:
+        '201':
+          description: User registered successfully
+  /auth/login:
+    post:
+      summary: Login user
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+  /auth/verify-email/{token}:
+    get:
+      summary: Verify user email
+      tags: [Auth]
+      security: []
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Email verified
+  /auth/refresh-token:
+    post:
+      summary: Refresh authentication token
+      tags: [Auth]
+      responses:
+        '200':
+          description: Token refreshed
+  /auth/forgot-password:
+    post:
+      summary: Request password reset
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        '200':
+          description: Password reset email sent
+  /auth/reset-password/{token}:
+    post:
+      summary: Reset password
+      tags: [Auth]
+      security: []
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newPassword:
+                  type: string
+      responses:
+        '200':
+          description: Password reset successful
+  /auth/logout:
+    post:
+      summary: Logout user
+      tags: [Auth]
+      responses:
+        '200':
+          description: Logged out successfully
+
+  # --- Service Routes (Provider) ---
+  /services/my-services:
+    get:
+      summary: Get all services for provider
+      tags: [Services (Provider)]
+      responses:
+        '200':
+          description: Success
+  /services/create:
+    post:
+      summary: Create a new service
+      tags: [Services (Provider)]
+      responses:
+        '201':
+          description: Service created
+  /services/service/{id}:
+    get:
+      summary: Get a service by ID
+      tags: [Services]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /services/update/{id}:
+    put:
+      summary: Update a service
+      tags: [Services (Provider)]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Service updated
+  /services/delete/{id}:
+    delete:
+      summary: Delete a service
+      tags: [Services (Provider)]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Service deleted
+  /services/my-bookings:
+    get:
+      summary: Get provider bookings
+      tags: [Services (Provider)]
+      responses:
+        '200':
+          description: Success
+  /services/bookings/status/{id}:
+    patch:
+      summary: Update booking status
+      tags: [Services (Provider)]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Status updated
+  /services/notifications:
+    get:
+      summary: Get provider notifications
+      tags: [Services (Provider)]
+      responses:
+        '200':
+          description: Success
+  /services/notifications/{id}/read:
+    patch:
+      summary: Mark provider notification as read
+      tags: [Services (Provider)]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /services/notifications/read-all:
+    patch:
+      summary: Mark all provider notifications as read
+      tags: [Services (Provider)]
+      responses:
+        '200':
+          description: Success
+
+  # --- User Routes ---
+  /user/profile:
+    get:
+      summary: Get user profile
+      tags: [User]
+      responses:
+        '200':
+          description: Success
+  /user/update-profile:
+    put:
+      summary: Update user profile
+      tags: [User]
+      responses:
+        '200':
+          description: Success
+  /user/change-password:
+    post:
+      summary: Change password
+      tags: [User]
+      responses:
+        '200':
+          description: Success
+
+  # --- Admin Routes ---
+  /admin/allusers:
+    get:
+      summary: Get all users
+      tags: [Admin]
+      responses:
+        '200':
+          description: Success
+  /admin/providers/{userId}/status:
+    patch:
+      summary: Update provider status
+      tags: [Admin]
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /admin/users/{userId}:
+    delete:
+      summary: Delete user
+      tags: [Admin]
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /admin/bookings:
+    get:
+      summary: Get all bookings
+      tags: [Admin]
+      responses:
+        '200':
+          description: Success
+  /admin/bookings/{id}:
+    get:
+      summary: Get booking by ID
+      tags: [Admin]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /admin/bookings/filter:
+    get:
+      summary: Filter bookings
+      tags: [Admin]
+      responses:
+        '200':
+          description: Success
+  /admin/users/ban/{userId}:
+    put:
+      summary: Ban user
+      tags: [Admin]
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /admin/users/unban/{userId}:
+    put:
+      summary: Unban user
+      tags: [Admin]
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /admin/services:
+    get:
+      summary: Get all services
+      tags: [Admin]
+      responses:
+        '200':
+          description: Success
+  /admin/services/{id}:
+    get:
+      summary: Get service by ID
+      tags: [Admin]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /admin/notifications:
+    get:
+      summary: Get admin notifications
+      tags: [Admin]
+      responses:
+        '200':
+          description: Success
+  /admin/notifications/{id}/read:
+    patch:
+      summary: Mark notification as read
+      tags: [Admin]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /admin/notifications/read-all:
+    patch:
+      summary: Mark all notifications as read
+      tags: [Admin]
+      responses:
+        '200':
+          description: Success
+  /admin/notifications/unread-count:
+    get:
+      summary: Get unread notification count
+      tags: [Admin]
+      responses:
+        '200':
+          description: Success
+
+  # --- Customer Routes ---
+  /customer/services:
+    get:
+      summary: Get all services
+      tags: [Customer]
+      security: []
+      responses:
+        '200':
+          description: Success
+  /customer/services/{id}:
+    get:
+      summary: Get service by ID
+      tags: [Customer]
+      security: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /customer/search-services:
+    get:
+      summary: Search services
+      tags: [Customer]
+      security: []
+      responses:
+        '200':
+          description: Success
+  /customer/filter-services:
+    get:
+      summary: Filter services
+      tags: [Customer]
+      security: []
+      responses:
+        '200':
+          description: Success
+  /customer/create-bookings:
+    post:
+      summary: Create booking
+      tags: [Customer]
+      responses:
+        '201':
+          description: Success
+  /customer/all-bookings:
+    get:
+      summary: Get all customer bookings
+      tags: [Customer]
+      responses:
+        '200':
+          description: Success
+  /customer/cancel-bookings/{id}:
+    patch:
+      summary: Cancel booking
+      tags: [Customer]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /customer/review:
+    post:
+      summary: Leave a review
+      tags: [Customer]
+      responses:
+        '201':
+          description: Success
+  /customer/reviews/{serviceId}:
+    get:
+      summary: Get service reviews
+      tags: [Customer]
+      security: []
+      parameters:
+        - in: path
+          name: serviceId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /customer/bookings/{id}/contact-method:
+    patch:
+      summary: Set contact method for booking
+      tags: [Customer]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /customer/notifications:
+    get:
+      summary: Get customer notifications
+      tags: [Customer]
+      responses:
+        '200':
+          description: Success
+  /customer/notifications/read-all:
+    patch:
+      summary: Mark all customer notifications as read
+      tags: [Customer]
+      responses:
+        '200':
+          description: Success
+  /customer/notifications/{id}/read:
+    patch:
+      summary: Mark customer notification as read
+      tags: [Customer]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+
+  # --- Review Routes ---
+  /reviews:
+    post:
+      summary: Leave a review
+      tags: [Reviews]
+      responses:
+        '201':
+          description: Success
+  /reviews/{serviceId}:
+    get:
+      summary: Get reviews for a service
+      tags: [Reviews]
+      security: []
+      parameters:
+        - in: path
+          name: serviceId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /reviews/{reviewId}:
+    delete:
+      summary: Delete a review
+      tags: [Reviews]
+      parameters:
+        - in: path
+          name: reviewId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+    put:
+      summary: Update a review
+      tags: [Reviews]
+      parameters:
+        - in: path
+          name: reviewId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+
+  # --- Contact Routes ---
+  /contact/{bookingId}:
+    get:
+      summary: Get contact methods
+      tags: [Contact]
+      parameters:
+        - in: path
+          name: bookingId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /contact/select:
+    post:
+      summary: Select contact method
+      tags: [Contact]
+      responses:
+        '200':
+          description: Success
+
+  # --- Chat Routes ---
+  /chat/unread-count:
+    get:
+      summary: Get unread chat count
+      tags: [Chat]
+      responses:
+        '200':
+          description: Success
+  /chat/{bookingId}/read:
+    patch:
+      summary: Mark messages as read
+      tags: [Chat]
+      parameters:
+        - in: path
+          name: bookingId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /chat/{bookingId}:
+    get:
+      summary: Get chat messages
+      tags: [Chat]
+      parameters:
+        - in: path
+          name: bookingId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success

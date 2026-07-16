@@ -8,13 +8,19 @@ import AdminRoutes from "./routes/AdminRoutes";
 import ClientRoutes from "./routes/ClientRoutes";
 
 import { useAuthBootstrap } from "./app/slices/useAuthBootstrap";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { BootContext } from "./app/BootContext";
+import { setupActivityTracker } from "./utils/activityTracker";
 
 function App() {
   const [bootstrapping, setBootstrapping] = useState(true);
   const handleBootstrapDone = useCallback(() => setBootstrapping(false), []);
   useAuthBootstrap(handleBootstrapDone);
+
+  useEffect(() => {
+    const cleanup = setupActivityTracker();
+    return cleanup;
+  }, []);
 
   return (
     <BootContext.Provider value={bootstrapping}>

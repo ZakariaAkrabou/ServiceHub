@@ -49,9 +49,10 @@ interface ServiceReview {
 }
 
 const ServiceDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const id = searchParams.get("id");
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
   const [showBookingModal, setShowBookingModal] = useState(false);

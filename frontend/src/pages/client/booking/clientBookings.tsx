@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import Header from "../../../components/client/Header";
 import Footer from "../../../components/client/Footer";
 import { useGetCustomerBookingsQuery, useSetContactMethodMutation } from "../../../app/api/BookingApi";
-import { Calendar, Clock, X, Mail, MessageSquare, Tag, CheckCircle, XCircle } from "lucide-react";
+import { Calendar, Clock, X, Mail, MessageSquare, Tag, CheckCircle, XCircle, Phone } from "lucide-react";
 import { toast } from "react-toastify";
 
 const ClientBookings: React.FC = () => {
@@ -216,56 +216,42 @@ const ClientBookings: React.FC = () => {
               </div>
 
               {/* Contact Method Selection for Confirmed */}
-              {selectedBooking.status === "confirmed" && (
+              {(selectedBooking.status === "confirmed" || selectedBooking.status === "completed") && (
                 <div className="border-t border-[#e4e5e7] pt-6">
                   <h4 className="text-lg font-bold text-[#1a1a2e] mb-4">Contact Provider</h4>
                   
-                  {selectedBooking.chosenContactMethod ? (
-                    <div className="bg-[#f8f9fa] border border-[#e4e5e7] p-4 rounded-xl">
-                      <p className="text-sm text-[#74767e] mb-3">You selected to be contacted via:</p>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[#1a1a2e] text-white flex items-center justify-center">
-                          {selectedBooking.chosenContactMethod === "email" ? <Mail size={18} /> : <MessageSquare size={18} />}
-                        </div>
-                        <span className="font-bold capitalize text-[#1a1a2e]">{selectedBooking.chosenContactMethod}</span>
-                        
-                        {selectedBooking.chosenContactMethod === "chat" && (
-                          <button 
-                            onClick={() => navigate(`/chat/${selectedBooking._id}`)}
-                            className="ml-auto px-4 py-2 bg-[#c9a84c] text-white text-sm font-bold rounded-lg hover:bg-[#b8963e]"
-                          >
-                            Open Chat
-                          </button>
+                  <div className="bg-[#f8f9fa] border border-[#e4e5e7] p-4 rounded-xl">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      
+                      <div className="space-y-3">
+                        {selectedBooking.service_id?.provider_id?.email && (
+                          <div className="flex items-center gap-3 text-sm">
+                            <div className="w-8 h-8 rounded-full bg-[#1a1a2e] text-white flex items-center justify-center shrink-0">
+                              <Mail size={14} />
+                            </div>
+                            <span className="text-[#1a1a2e] font-medium">{selectedBooking.service_id.provider_id.email}</span>
+                          </div>
+                        )}
+                        {selectedBooking.service_id?.provider_id?.phone && (
+                          <div className="flex items-center gap-3 text-sm">
+                            <div className="w-8 h-8 rounded-full bg-[#1a1a2e] text-white flex items-center justify-center shrink-0">
+                              <Phone size={14} />
+                            </div>
+                            <span className="text-[#1a1a2e] font-medium">{selectedBooking.service_id.provider_id.phone}</span>
+                          </div>
                         )}
                       </div>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Email Option */}
-                      <div 
-                        onClick={() => handleContactMethod("email")}
-                        className="p-5 border-2 border-[#e4e5e7] rounded-xl hover:border-[#c9a84c] hover:bg-[#fffcf5] cursor-pointer transition-all flex flex-col items-center text-center group"
-                      >
-                        <div className="w-12 h-12 rounded-full bg-[#f8f9fa] group-hover:bg-[#c9a84c] group-hover:text-white text-[#74767e] flex items-center justify-center mb-4 transition-colors">
-                          <Mail size={24} />
-                        </div>
-                        <h5 className="font-bold text-[#1a1a2e] mb-2">Contact via Email</h5>
-                        <p className="text-xs text-[#74767e]">Provider will receive your email address to coordinate.</p>
-                      </div>
 
-                      {/* Chat Option */}
-                      <div 
-                        onClick={() => handleContactMethod("chat")}
-                        className="p-5 border-2 border-[#e4e5e7] rounded-xl hover:border-[#c9a84c] hover:bg-[#fffcf5] cursor-pointer transition-all flex flex-col items-center text-center group"
+                      <button 
+                        onClick={() => navigate('/chat', { state: { bookingId: selectedBooking._id } })}
+                        className="flex items-center justify-center gap-2 px-5 py-3 bg-[#c9a84c] text-white text-sm font-bold rounded-xl hover:bg-[#b8963e] transition-colors whitespace-nowrap"
                       >
-                        <div className="w-12 h-12 rounded-full bg-[#f8f9fa] group-hover:bg-[#c9a84c] group-hover:text-white text-[#74767e] flex items-center justify-center mb-4 transition-colors">
-                          <MessageSquare size={24} />
-                        </div>
-                        <h5 className="font-bold text-[#1a1a2e] mb-2">Open In-App Chat</h5>
-                        <p className="text-xs text-[#74767e]">Chat directly with the provider on our platform.</p>
-                      </div>
+                        <MessageSquare size={16} />
+                        Open Chat
+                      </button>
+
                     </div>
-                  )}
+                  </div>
                 </div>
               )}
             </div>

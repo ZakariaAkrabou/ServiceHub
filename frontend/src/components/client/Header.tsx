@@ -24,7 +24,7 @@ const Header: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const isLight = location.pathname === "/profile" || location.pathname.startsWith("/services") || location.pathname.startsWith("/bookings") || location.pathname.startsWith("/chat");
+  const isLight = location.pathname === "/profile" || location.pathname.startsWith("/services") || location.pathname.startsWith("/service") || location.pathname.startsWith("/bookings") || location.pathname.startsWith("/chat");
   const isCustomer = user?.role === "customer";
 
   const bootstrapping = useBootstrapping();

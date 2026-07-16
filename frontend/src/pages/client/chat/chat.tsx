@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Header from '../../../components/client/Header';
 import { Send, MoreVertical, Search, Paperclip, Image as ImageIcon, Smile, ArrowLeft, MessageSquare } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -25,7 +25,11 @@ const Chat: React.FC = () => {
   const bootstrapping = useBootstrapping();
   const authReady = !!token && !bootstrapping;
 
-  const [activeChat, setActiveChat] = useState<string | null>(bookingId || null);
+  const location = useLocation();
+  const stateBookingId = location.state?.bookingId;
+  const targetBookingId = bookingId || stateBookingId;
+
+  const [activeChat, setActiveChat] = useState<string | null>(targetBookingId || null);
   const [message, setMessage] = useState('');
   const [pendingMessages, setPendingMessages] = useState<ChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -44,7 +48,7 @@ const Chat: React.FC = () => {
   const chatBookings = useMemo(() => {
     if (!bookingsData?.data) return [];
     return sortChatBookings(
-      bookingsData.data.filter((b) => b.status === 'confirmed' && b.chosenContactMethod === 'chat'),
+      bookingsData.data.filter((b) => b.status === 'confirmed' || b.status === 'completed'),
     );
   }, [bookingsData]);
 
@@ -101,21 +105,21 @@ const Chat: React.FC = () => {
   }, [messages, messageSearch, isSearchingMessages]);
 
   useEffect(() => {
-    if (!bookingId) return;
+    if (!targetBookingId) return;
     const t = setTimeout(() => {
-      setActiveChat((prev) => (prev !== bookingId ? bookingId : prev));
+      setActiveChat((prev) => (prev !== targetBookingId ? targetBookingId : prev));
     }, 0);
     return () => clearTimeout(t);
-  }, [bookingId]);
+  }, [targetBookingId]);
 
   useEffect(() => {
-    if (!authReady || chatBookings.length === 0 || bookingId || activeChat) return;
+    if (!authReady || chatBookings.length === 0 || targetBookingId || activeChat) return;
     const nextChatId = pickDefaultChatId(chatBookings);
     if (nextChatId) {
       const t = setTimeout(() => setActiveChat(nextChatId), 0);
       return () => clearTimeout(t);
     }
-  }, [authReady, bookingId, chatBookings, activeChat]);
+  }, [authReady, targetBookingId, chatBookings, activeChat]);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -128,11 +132,7 @@ const Chat: React.FC = () => {
     return () => clearTimeout(t);
   }, [activeChat]);
 
-  useEffect(() => {
-    if (activeChat && activeChat !== bookingId) {
-      navigate(`/chat/${activeChat}`, { replace: true });
-    }
-  }, [activeChat, bookingId, navigate]);
+  // Removed navigate effect to prevent showing ID in URL
 
   const handleSend = useCallback(
     (e: React.FormEvent) => {

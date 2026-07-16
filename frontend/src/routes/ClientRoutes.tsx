@@ -29,7 +29,7 @@ export default function ClientRoutes() {
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/services" element={<ClientServices />} />
-      <Route path="/services/:id" element={<ServiceDetail />} />
+      <Route path="/service" element={<ServiceDetail />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgetPassword />} />

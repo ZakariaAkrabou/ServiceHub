@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import ProviderLayouts from '../../components/provider/ProviderLayouts';
 import { Send, MoreVertical, Search, Paperclip, Image as ImageIcon, Smile, ArrowLeft, MessageSquare } from 'lucide-react';
@@ -25,7 +25,11 @@ const ProviderContact: React.FC = () => {
   const bootstrapping = useBootstrapping();
   const authReady = !!token && !bootstrapping;
 
-  const [activeChat, setActiveChat] = useState<string | null>(bookingId || null);
+  const location = useLocation();
+  const stateBookingId = location.state?.bookingId;
+  const targetBookingId = bookingId || stateBookingId;
+
+  const [activeChat, setActiveChat] = useState<string | null>(targetBookingId || null);
   const [message, setMessage] = useState('');
   const [pendingMessages, setPendingMessages] = useState<ChatMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -38,7 +42,7 @@ const ProviderContact: React.FC = () => {
   const chatBookings = useMemo((): Booking[] => {
     if (!bookingsData?.data) return [];
     return sortChatBookings(
-      bookingsData.data.filter((b) => b.status === 'confirmed' && b.chosenContactMethod === 'chat'),
+      bookingsData.data.filter((b) => b.status === 'confirmed' || b.status === 'completed'),
     );
   }, [bookingsData]);
 
@@ -68,25 +72,21 @@ const ProviderContact: React.FC = () => {
   }, [chatHistory, pendingMessages]);
 
   useEffect(() => {
-    if (bookingId) {
-      setActiveChat((prev) => (prev !== bookingId ? bookingId : prev));
+    if (targetBookingId) {
+      setActiveChat((prev) => (prev !== targetBookingId ? targetBookingId : prev));
     }
-  }, [bookingId]);
+  }, [targetBookingId]);
 
   useEffect(() => {
-    if (!authReady || chatBookings.length === 0 || bookingId || activeChat) return;
+    if (!authReady || chatBookings.length === 0 || targetBookingId || activeChat) return;
 
     const nextChatId = pickDefaultChatId(chatBookings);
     if (nextChatId) {
       setActiveChat(nextChatId);
     }
-  }, [authReady, bookingId, chatBookings, activeChat]);
+  }, [authReady, targetBookingId, chatBookings, activeChat]);
 
-  useEffect(() => {
-    if (activeChat && activeChat !== bookingId) {
-      navigate(`/provider/contact/${activeChat}`, { replace: true });
-    }
-  }, [activeChat, bookingId, navigate]);
+  // Removed navigate effect to prevent showing ID in URL
 
   useEffect(() => {
     setPendingMessages([]);

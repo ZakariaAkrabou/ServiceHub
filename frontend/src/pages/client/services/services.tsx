@@ -633,7 +633,7 @@ const ClientServices: React.FC = () => {
                 <ServiceMemeCard
                   key={service.id}
                   service={service}
-                  onClick={() => navigate(`/services/${service.id}`)}
+                  onClick={() => navigate(`/service?id=${service.id}`)}
                 />
               ))}
             </div>

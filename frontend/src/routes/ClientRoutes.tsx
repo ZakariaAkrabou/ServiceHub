@@ -19,7 +19,7 @@ import ServiceDetail from "../pages/client/services/serviceDetail";
 import Profile from "../pages/client/profile/profile";
 import ClientBookings from "../pages/client/booking/clientBookings";
 import Chat from "../pages/client/chat/chat";
-import ProtectedRoute from "../components/ProtectedRoute";
+import ProtectedRoute from "./ProtectedRoute";
 
 export default function ClientRoutes() {
   return (
@@ -37,21 +37,21 @@ export default function ClientRoutes() {
       <Route path="/verify-email/:token" element={<VerifyEmail />} />
 
       {/* Protected client routes */}
-      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-      <Route path="/bookings" element={<ProtectedRoute><ClientBookings /></ProtectedRoute>} />
-      <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-      <Route path="/chat/:bookingId" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute allowedRoles={["customer"]}><Profile /></ProtectedRoute>} />
+      <Route path="/bookings" element={<ProtectedRoute allowedRoles={["customer"]}><ClientBookings /></ProtectedRoute>} />
+      <Route path="/chat" element={<ProtectedRoute allowedRoles={["customer"]}><Chat /></ProtectedRoute>} />
+      <Route path="/chat/:bookingId" element={<ProtectedRoute allowedRoles={["customer"]}><Chat /></ProtectedRoute>} />
 
       {/* Protected provider routes */}
-      <Route path="/provider/dashboard" element={<ProtectedRoute><ProviderDashboard /></ProtectedRoute>} />
-      <Route path="/provider/bookings" element={<ProtectedRoute><ProviderBookings /></ProtectedRoute>} />
-      <Route path="/provider/services" element={<ProtectedRoute><ProviderServices /></ProtectedRoute>} />
-      <Route path="/provider/settings" element={<ProtectedRoute><ProviderSettings /></ProtectedRoute>} />
-      <Route path="/provider/contact" element={<ProtectedRoute><ProviderContact /></ProtectedRoute>} />
-      <Route path="/provider/contact/:bookingId" element={<ProtectedRoute><ProviderContact /></ProtectedRoute>} />
+      <Route path="/provider/dashboard" element={<ProtectedRoute allowedRoles={["service_provider"]}><ProviderDashboard /></ProtectedRoute>} />
+      <Route path="/provider/bookings" element={<ProtectedRoute allowedRoles={["service_provider"]}><ProviderBookings /></ProtectedRoute>} />
+      <Route path="/provider/services" element={<ProtectedRoute allowedRoles={["service_provider"]}><ProviderServices /></ProtectedRoute>} />
+      <Route path="/provider/settings" element={<ProtectedRoute allowedRoles={["service_provider"]}><ProviderSettings /></ProtectedRoute>} />
+      <Route path="/provider/contact" element={<ProtectedRoute allowedRoles={["service_provider"]}><ProviderContact /></ProtectedRoute>} />
+      <Route path="/provider/contact/:bookingId" element={<ProtectedRoute allowedRoles={["service_provider"]}><ProviderContact /></ProtectedRoute>} />
       <Route
         path="/provider/notifications"
-        element={<ProtectedRoute><ProviderNotifications /></ProtectedRoute>}
+        element={<ProtectedRoute allowedRoles={["service_provider"]}><ProviderNotifications /></ProtectedRoute>}
       />
       <Route path="*" element={<NotFound />} />
     </Routes>

@@ -6,6 +6,8 @@ import { setCredentials } from "../../../app/slices/AuthSlice";
 import { toast } from "react-toastify";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 
+const isProviderRole = (role?: string) => role === "service_provider" || role === "provider";
+
 const Login: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -27,11 +29,12 @@ const Login: React.FC = () => {
             const from = (location.state as { from?: string })?.from;
             if (from) {
                 navigate(from, { replace: true });
-            } else if (result.user.role === "service_provider") {
+            } else if (isProviderRole(result.user?.role)) {
                 navigate("/provider/dashboard");
             } else {
                 navigate("/");
             }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             setError(err?.data?.message || "Login failed");
         }
@@ -47,7 +50,7 @@ const Login: React.FC = () => {
             `}</style>
 
             <section className="relative bg-[url('https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center hidden lg:flex flex-col justify-center p-20 text-white">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628]/95 via-[#0a1628]/75 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-br from-[#0a1628]/95 via-[#0a1628]/75 to-transparent" />
                 <div className="absolute top-8 left-8 z-20 animate-[pageFadeUp_0.4s_ease-out]">
                     <Link to="/" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-xs font-bold tracking-widest uppercase">
                         <ArrowLeft size={16} />
@@ -59,15 +62,15 @@ const Login: React.FC = () => {
                     <h2 className="font-serif text-[clamp(32px,4vw,56px)] font-black leading-[1.1] mb-6 tracking-tight text-white">
                         The local help you need,<br />simplified.
                     </h2>
-                    <p className="text-lg opacity-90 font-medium max-w-[480px] leading-relaxed text-white/80">
+                    <p className="text-lg opacity-90 font-medium max-w-120 leading-relaxed text-white/80">
                         Join our community of satisfied users and professional service providers today. Experience premium service at your fingertips.
                     </p>
-                    <div className="mt-8 h-[3px] w-16 bg-[#C9A84C] rounded-full" />
+                    <div className="mt-8 h-0.75 w-16 bg-[#C9A84C] rounded-full" />
                 </div>
             </section>
 
             <section className="flex items-center justify-center p-6 sm:p-10 bg-[#F5F0E8]/20 overflow-y-auto">
-                <div className="w-full max-w-[420px] animate-[pageFadeUp_0.8s_ease-out]">
+                <div className="w-full max-w-105 animate-[pageFadeUp_0.8s_ease-out]">
                     <div className="mb-8 lg:hidden flex items-center justify-center relative mt-4">
                         <Link to="/" className="absolute left-0 text-[#1A1A2E]/40 hover:text-[#1A1A2E] transition-colors" title="Go Home">
                             <ArrowLeft size={22} />

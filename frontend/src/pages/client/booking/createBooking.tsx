@@ -111,6 +111,7 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
     try {
       await createBooking({ service_id: serviceId, booking_time: `${selDate}T${selTime}:00.000Z` }).unwrap();
       setStep("success");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setErrMsg(err?.data?.message ?? "Booking failed. Please try again.");
       setStep("error");
@@ -377,13 +378,23 @@ const CreateBooking: React.FC<CreateBookingProps> = ({ service, onClose }) => {
                   )}
                 </div>
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:7 }}>
-                  {TIME_SLOTS.map(slot => (
-                    <button
-                      key={slot} disabled={!selDate}
-                      onClick={() => setSelTime(slot)}
-                      className={["bk-t", selTime===slot ? "bk-t-sel":""].join(" ")}
-                    >{slot}</button>
-                  ))}
+                  {TIME_SLOTS.map(slot => {
+                    let isPast = false;
+                    if (selDate === tStr) {
+                      const [h, m] = slot.split(':').map(Number);
+                      const now = new Date();
+                      if (now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m)) {
+                        isPast = true;
+                      }
+                    }
+                    return (
+                      <button
+                        key={slot} disabled={!selDate || isPast}
+                        onClick={() => setSelTime(slot)}
+                        className={["bk-t", selTime===slot ? "bk-t-sel":""].join(" ")}
+                      >{slot}</button>
+                    );
+                  })}
                 </div>
               </div>
 

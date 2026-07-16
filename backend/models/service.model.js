@@ -14,6 +14,7 @@ const serviceSchema = new mongoose.Schema(
     availability: [{ type: String, enum: ["available", "unavailable"] }],
     image: { type: String },
     rating: { type: Number, default: 0 },
+    reviewCount: { type: Number, default: 0 },
     hidden: { type: Boolean, default: false }, 
   },
   { timestamps: true },

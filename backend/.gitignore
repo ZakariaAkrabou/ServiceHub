@@ -10,6 +10,8 @@ yarn.lock
 .env
 .env.*
 
+utils/seedData.js
+
 # Logs
 logs/
 *.log

@@ -222,7 +222,7 @@ export const getBookings = async (req, res) => {
         .populate({
           path: "service_id",
           select: "name image category description price provider_id",
-          populate: { path: "provider_id", select: "firstName lastName email" },
+          populate: { path: "provider_id", select: "firstName lastName email phone" },
         })
         .sort({ booking_time: -1 })
         .lean();

@@ -21,7 +21,7 @@ export const getChatMessages = async (req, res) => {
         if(userId !== providerId && userId !== cutomerId){
             return res.status(403).json({ message: "Unauthorized" });
         }
-        if(booking.status !== "confirmed" || booking.chosenContactMethod !== "chat"){
+        if(booking.status !== "confirmed" && booking.status !== "completed"){
             return res.status(400).json({ message: "Chat not available for this booking" });
         }
         const chat = await Chat.find({ booking_id: bookingId }).sort({ createdAt: 1 });

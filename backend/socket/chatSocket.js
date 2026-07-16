@@ -15,7 +15,7 @@ export const chatSocket = (io) => {
             const customerId = booking.customer_id.toString();
             if (userId !== providerId && userId !== customerId) return;
 
-            if(booking.status !== "confirmed" || booking.chosenContactMethod !== "chat"){ return; }
+            if(booking.status !== "confirmed" && booking.status !== "completed"){ return; }
             const room = `booking_${bookingId}`;
             socket.join(room);
             console.log(`User ${userId} joined room ${room}`);
@@ -43,8 +43,8 @@ export const chatSocket = (io) => {
                     console.log("Sender unauthorized");
                     return;
                 }
-                if(booking.status !== "confirmed" || booking.chosenContactMethod !== "chat"){
-                    console.log("Booking not confirmed or chat method not chosen");
+                if(booking.status !== "confirmed" && booking.status !== "completed"){
+                    console.log("Booking not confirmed or completed");
                     return;
                 }
 
